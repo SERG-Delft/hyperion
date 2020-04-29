@@ -1,8 +1,12 @@
 plugins {
     application
-    kotlin("jvm")
     jacoco
+    kotlin("jvm")
     id("io.gitlab.arturbosch.detekt").version("1.8.0")
+}
+
+application {
+    mainClassName = "aggregator.Main"
 }
 
 jacoco {
@@ -28,25 +32,6 @@ tasks.jacocoTestCoverageVerification {
             }
         }
     }
-}
-
-application {
-    mainClassName = "aggregator.Main"
-}
-
-tasks {
-    compileKotlin {
-        kotlinOptions.jvmTarget = "1.8"
-    }
-    compileTestKotlin {
-        kotlinOptions.jvmTarget = "1.8"
-    }
-}
-
-dependencies {
-    implementation(kotlin("stdlib-jdk8"))
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.2")
 }
 
 tasks.test {

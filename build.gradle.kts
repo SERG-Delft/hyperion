@@ -5,11 +5,6 @@ plugins {
 group = "nl.sapmannen"
 version = "1.0-SNAPSHOT"
 
-dependencies {
-    implementation(kotlin("stdlib-jdk8"))
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.2")
-}
-
 tasks {
     compileKotlin {
         kotlinOptions.jvmTarget = "1.8"
@@ -19,9 +14,17 @@ tasks {
     }
 }
 allprojects {
+    apply(plugin= "kotlin")
+
     repositories {
         mavenCentral()
         jcenter()
+    }
+
+    dependencies {
+        implementation(kotlin("stdlib-jdk8"))
+        testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.2")
+        testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.2")
     }
 }
 
