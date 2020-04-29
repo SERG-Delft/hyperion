@@ -7,6 +7,6 @@ import org.junit.jupiter.api.Test
 class MainTest() {
     @Test
     fun addTwoTwo() {
-        assertEquals(4, 4)
+        assertEquals(4, 3)
     }
 }
