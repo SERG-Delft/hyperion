@@ -14,6 +14,8 @@ jacoco {
     reportsDir = file("$buildDir/jacoco")
 }
 
+
+
 tasks.jacocoTestReport {
     reports {
         xml.isEnabled = false
@@ -27,13 +29,17 @@ tasks.jacocoTestCoverageVerification {
         rule {
             limit {
                 counter = "BRANCH"
-                value = "COVEREDRATIO"
+                minimum = "0.8".toBigDecimal()
+            }
+
+            limit {
+                counter = "LINE"
                 minimum = "0.8".toBigDecimal()
             }
         }
     }
 }
 
-tasks.test {
-    useJUnitPlatform()
+tasks.check {
+    dependsOn(tasks.jacocoTestCoverageVerification)
 }

@@ -13,4 +13,9 @@ class MainTest() {
     fun addTwoOne() {
         assertEquals(3, add(2, 1))
     }
+
+    @Test
+    fun testMain() {
+        main("test")
+    }
 }
