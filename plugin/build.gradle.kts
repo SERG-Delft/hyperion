@@ -42,3 +42,7 @@ tasks.jacocoTestCoverageVerification {
 tasks.check {
     dependsOn(tasks.jacocoTestCoverageVerification)
 }
+
+tasks.build {
+    dependsOn(tasks.jacocoTestReport)
+}
