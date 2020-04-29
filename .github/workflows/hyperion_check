@@ -1,0 +1,20 @@
+# Runs Gradle Check on every pull request and push to master
+name: Gradle check
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - setup-project
+
+
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    - name: gradlew check on Hyperion level project
+      run: gradlew check
