@@ -21,6 +21,7 @@ tasks {
 allprojects {
     repositories {
         mavenCentral()
+        jcenter()
     }
 }
 

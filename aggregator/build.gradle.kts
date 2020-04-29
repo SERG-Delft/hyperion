@@ -2,6 +2,7 @@ plugins {
     application
     kotlin("jvm")
     jacoco
+    id("io.gitlab.arturbosch.detekt").version("1.8.0")
 }
 
 jacoco {
