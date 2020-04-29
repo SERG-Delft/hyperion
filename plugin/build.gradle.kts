@@ -1,7 +1,7 @@
 plugins {
     application
-    id("org.jetbrains.intellij") version "0.4.18"
     kotlin("jvm")
+    id("org.jetbrains.intellij") version "0.4.18"
 }
 
 application {
@@ -9,5 +9,6 @@ application {
 }
 
 dependencies {
-    compile(kotlin("stdlib"))
+    implementation(kotlin("stdlib"))
+    testImplementation("junit:junit:4.12")
 }
