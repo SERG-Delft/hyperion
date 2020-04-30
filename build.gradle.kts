@@ -5,7 +5,25 @@ plugins {
 group = "nl.sapmannen"
 version = "1.0-SNAPSHOT"
 
+sourceSets {
+    create("systemTest")
+}
 
+configurations["systemTestImplementation"].extendsFrom(configurations.implementation.get())
+configurations["systemTestRuntimeOnly"].extendsFrom(configurations.runtimeOnly.get())
+
+val systemTest = task<Test>("systemTest") {
+    description = "Runs system tests"
+    group = "verification"
+
+    testClassesDirs = sourceSets["systemTest"].output.classesDirs
+    classpath = sourceSets["systemTest"].runtimeClasspath
+    shouldRunAfter("test")
+}
+
+tasks.check {
+    dependsOn(systemTest)
+}
 
 allprojects {
     apply(plugin= "kotlin")
@@ -37,4 +55,3 @@ allprojects {
         reports.junitXml.isEnabled = false
     }
 }
-
