@@ -1,0 +1,7 @@
+version: '1'
+
+services:
+	plugin:
+		build: ./plugin/
+	aggregator:
+		build: ./aggregator/
