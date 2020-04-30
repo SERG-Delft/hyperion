@@ -47,4 +47,5 @@ tasks.check {
 
 tasks.build {
     dependsOn(tasks.jacocoTestReport)
+    dependsOn(tasks.shadowJar)
 }
