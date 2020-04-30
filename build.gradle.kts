@@ -55,3 +55,32 @@ allprojects {
         reports.junitXml.isEnabled = false
     }
 }
+
+subprojects {
+    apply(plugin= "kotlin")
+
+    sourceSets {
+        create("integrationTest") {
+            compileClasspath += project.files("src/integrationTest/")
+            runtimeClasspath += project.files("src/integrationTest/")
+        }
+    }
+
+    configurations["integrationTestImplementation"].extendsFrom(configurations.testImplementation.get())
+    configurations["integrationTestRuntimeOnly"].extendsFrom(configurations.testRuntimeOnly.get())
+
+    val integrationTest = task<Test>("integrationTest") {
+        description = "Runs integration tests"
+        group = "verification"
+
+        useJUnitPlatform()
+
+        testClassesDirs = sourceSets["integrationTest"].output.classesDirs
+        classpath = sourceSets["integrationTest"].runtimeClasspath
+        shouldRunAfter("test")
+    }
+
+    tasks.check {
+        dependsOn(integrationTest)
+    }
+}
