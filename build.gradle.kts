@@ -32,6 +32,9 @@ allprojects {
 
     tasks.test {
         useJUnitPlatform()
+        failFast = true
+        reports.html.isEnabled = false
+        reports.junitXml.isEnabled = false
     }
 }
 
