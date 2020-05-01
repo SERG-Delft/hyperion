@@ -50,5 +50,5 @@ tasks.build {
 }
 
 tasks.shadowJar {
-    destinationDir = File("../docker/plugin/");
+    destinationDir = File("./");
 }

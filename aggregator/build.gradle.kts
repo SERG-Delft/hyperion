@@ -51,5 +51,5 @@ tasks.build {
 }
 
 tasks.shadowJar {
-    destinationDir = File("../docker/aggregator/");
+    destinationDir = File("./");
 }

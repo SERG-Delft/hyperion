@@ -8,6 +8,6 @@
 # Ignore Gradle build output directory
 build
 
-# Ignore jars in docker
-/docker/aggregator/*.jar
-/docker/plugin/*.jar
+# Ignore jars
+/plugin/*.jar
+/aggregator/*.jar
