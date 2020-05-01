@@ -48,3 +48,7 @@ tasks.build {
     dependsOn(tasks.jacocoTestReport)
     dependsOn(tasks.shadowJar)
 }
+
+tasks.shadowJar {
+    destinationDir = File("../docker/plugin/");
+}

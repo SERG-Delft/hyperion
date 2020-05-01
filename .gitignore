@@ -7,3 +7,7 @@
 /captures
 # Ignore Gradle build output directory
 build
+
+# Ignore jars in docker
+/docker/aggregator/*.jar
+/docker/plugin/*.jar
