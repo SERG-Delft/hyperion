@@ -1,4 +1,3 @@
-FROM ubuntu
-RUN apt-get update && apt-get install -y default-jdk
+FROM openjdk
 COPY aggregator-all.jar .
 CMD java -jar aggregator-all.jar
