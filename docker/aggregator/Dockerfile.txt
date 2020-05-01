@@ -1,3 +1,0 @@
-FROM openjdk
-COPY ./aggregator/build/libs/aggregator-all.jar .
-CMD java -jar aggregator-all.jar
