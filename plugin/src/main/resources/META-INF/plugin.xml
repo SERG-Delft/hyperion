@@ -48,7 +48,7 @@
 
 
     <!-- Minimum and maximum build of IDE compatible with the plugin -->
-    <idea-version since-build="201" until-build="201.*"/>
+    <idea-version since-build="201.4163"/>
 
     <extensions defaultExtensionNs="com.intellij">
         <externalAnnotator implementationClass="plugin.tooltip.LogExternalAnnotator" language="JAVA" />
