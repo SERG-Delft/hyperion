@@ -1,3 +1,0 @@
-FROM openjdk
-COPY ./plugin/build/libs/plugin-all.jar .
-CMD java -jar plugin-all.jar
