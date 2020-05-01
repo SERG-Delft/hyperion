@@ -1,20 +1,43 @@
 # Runs Gradle Check on every pull request and push to master
-name: Gradle check
+# Only runs Gradle Check on changed modules
+name: Gradle check Hyperion
 
 on:
   pull_request:
   push:
     branches:
       - master
-      - setup-project
-
-
 
 jobs:
-  check:
+  gradle-check:
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    - name: gradlew check on Hyperion level project
-      run: gradlew check
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 100
+
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      - uses: marceloprado/has-changed-path@master
+        id: hyperion-aggregator
+        with:
+          paths: aggregator/
+
+      - uses: marceloprado/has-changed-path@master
+        id: hyperion-plugin
+        with:
+          paths: plugin/
+
+      - name: gradle check aggregator
+        if: steps.hyperion-aggregator.outputs.changed == 'true'
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: :aggregator:check
+
+      - name: gradle check plugin
+        if: steps.hyperion-plugin.outputs.changed == 'true'
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: :plugin:check
