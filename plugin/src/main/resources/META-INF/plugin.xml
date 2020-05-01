@@ -51,8 +51,7 @@
     <idea-version since-build="201" until-build="201.*"/>
 
     <extensions defaultExtensionNs="com.intellij">
-        <codeInsight.lineMarkerProvider language=""
-                                        implementationClass="plugin.tooltip.FileLineMarkerProvider"/>
+        <externalAnnotator implementationClass="plugin.tooltip.LogExternalAnnotator" language="JAVA" />
     </extensions>
 
 <!--    <applicationListeners>-->
