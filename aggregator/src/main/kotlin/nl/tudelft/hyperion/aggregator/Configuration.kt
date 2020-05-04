@@ -13,9 +13,23 @@ import java.nio.file.Path
  * metrics.
  */
 data class Configuration(
+        /**
+         * The JDBC url to the database.
+         */
         val databaseUrl: String,
+        /**
+         * The port on which the web service should listen.
+         */
         val port: Int,
-        val granularity: Int
+        /**
+         * The granularity of aggregations, in seconds.
+         */
+        val granularity: Int,
+        /**
+         * The time in seconds aggregated entries should persist after
+         * their creation.
+         */
+        val aggregationTtl: Long
 ) {
     /**
      * Ensures that this is a valid configuration, i.e. that all properties
@@ -36,6 +50,15 @@ data class Configuration(
         // Ensure that our granularity is somewhat reasonable.
         if (granularity <= 0) {
             throw IllegalArgumentException("configuration.granularity may not be negative")
+        }
+
+        // Ensure that our TTL is not negative or less than the granularity.
+        if (aggregationTtl <= 0) {
+            throw IllegalArgumentException("configuration.aggregationTtl may not be negative")
+        }
+
+        if (aggregationTtl <= granularity) {
+            throw IllegalArgumentException("configuration.aggregationTtl may not be less than the granularity: the database would always be empty!")
         }
 
         return this

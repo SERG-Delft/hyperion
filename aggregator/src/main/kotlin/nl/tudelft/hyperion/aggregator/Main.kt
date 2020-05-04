@@ -1,7 +1,12 @@
 @file:JvmName("Main")
+
 package nl.tudelft.hyperion.aggregator
 
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.runBlocking
 import nl.tudelft.hyperion.aggregator.database.Database
+import nl.tudelft.hyperion.aggregator.workers.startAPIWorker
+import nl.tudelft.hyperion.aggregator.workers.startExpiryWorker
 import java.nio.file.Path
 
 private val logger = mu.KotlinLogging.logger { }
@@ -31,4 +36,12 @@ fun main() {
     }
 
     logger.info { "Hyperion Aggregator running on port ${config.port} with a granularity of ${config.granularity} seconds. ^C to exit." }
+
+    // Run tasks blocking. Should never return.
+    runBlocking {
+        joinAll(
+                startExpiryWorker(config),
+                startAPIWorker(config)
+        )
+    }
 }
