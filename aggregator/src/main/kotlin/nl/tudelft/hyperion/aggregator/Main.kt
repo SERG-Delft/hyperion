@@ -7,7 +7,7 @@ fun main(vararg args: String) {
 }
 
 fun add(x: Int, y: Int): Int {
-    if (y == x) {
+    if (x == y) {
         return 2 * x
     }
     return x + y
