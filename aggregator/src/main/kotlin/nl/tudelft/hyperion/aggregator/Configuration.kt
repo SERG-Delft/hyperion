@@ -29,7 +29,7 @@ data class Configuration(
          * The time in seconds aggregated entries should persist after
          * their creation.
          */
-        val aggregationTtl: Long
+        val aggregationTtl: Int
 ) {
     /**
      * Ensures that this is a valid configuration, i.e. that all properties

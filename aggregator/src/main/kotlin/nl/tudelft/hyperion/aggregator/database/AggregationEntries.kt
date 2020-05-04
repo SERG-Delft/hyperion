@@ -50,7 +50,7 @@ object AggregationEntries : Table() {
      * The amount of triggers this specific combination of project-version-file-name-severity
      * has had over a time period of `Configuration.granularity` seconds long.
      */
-    val numTriggers = text("num_triggers")
+    val numTriggers = integer("num_triggers")
 
     // Index for speeding up queries.
     val projectFileIdx = index("aggregation_entries_idx_project_file", false, project, file)
