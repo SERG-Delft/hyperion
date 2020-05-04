@@ -1,6 +1,6 @@
 @file:JvmName("Main")
 
-package plugin
+package nl.tudelft.hyperion.plugin
 
 fun main(vararg args: String) {
     println("Plugin shows itself UwU")

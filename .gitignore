@@ -7,3 +7,7 @@
 /captures
 # Ignore Gradle build output directory
 build
+
+# Ignore jars
+/plugin/*.jar
+/aggregator/*.jar
