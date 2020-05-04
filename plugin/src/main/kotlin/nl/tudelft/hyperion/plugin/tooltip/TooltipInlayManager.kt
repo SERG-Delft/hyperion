@@ -1,4 +1,4 @@
-package plugin.tooltip
+package nl.tudelft.hyperion.plugin.tooltip
 
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor

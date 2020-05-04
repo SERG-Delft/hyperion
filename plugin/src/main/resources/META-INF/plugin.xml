@@ -51,17 +51,17 @@
     <idea-version since-build="201.4163"/>
 
     <extensions defaultExtensionNs="com.intellij">
-        <externalAnnotator implementationClass="plugin.tooltip.LogExternalAnnotator" language="JAVA" />
+        <externalAnnotator implementationClass="nl.tudelft.hyperion.plugin.tooltip.LogExternalAnnotator" language="JAVA" />
     </extensions>
 
 <!--    <applicationListeners>-->
-<!--        <listener class="plugin.tooltip.FileUpdatedListener" topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>-->
+<!--        <listener class="nl.tudelft.hyperion.plugin.tooltip.FileUpdatedListener" topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>-->
 <!--    </applicationListeners>-->
 
     <project-components>
         <component>
             <implementation-class>
-                plugin.tooltip.FileOpenedListener
+                nl.tudelft.hyperion.plugin.tooltip.FileOpenedListener
             </implementation-class>
         </component>
     </project-components>

@@ -1,4 +1,4 @@
-package plugin.tooltip
+package nl.tudelft.hyperion.plugin.tooltip
 
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationHolder
@@ -11,7 +11,6 @@ import com.intellij.psi.PsiFile
 import com.intellij.util.ui.ImageUtil
 import java.awt.Color
 import java.awt.image.BufferedImage
-import javax.swing.Icon
 import javax.swing.ImageIcon
 
 class LogExternalAnnotator : ExternalAnnotator<String, String>() {

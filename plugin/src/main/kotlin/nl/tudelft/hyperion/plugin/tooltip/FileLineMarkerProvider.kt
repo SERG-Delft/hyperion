@@ -1,4 +1,4 @@
-package plugin.tooltip
+package nl.tudelft.hyperion.plugin.tooltip
 
 import com.intellij.codeInsight.daemon.RelatedItemLineMarkerInfo
 import com.intellij.codeInsight.daemon.RelatedItemLineMarkerProvider
