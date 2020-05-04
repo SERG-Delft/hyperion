@@ -17,9 +17,9 @@ jacoco {
 
 dependencies {
     // Yaml deserialization
-    implementation("com.fasterxml.jackson.core", "jackson-databind", "2.7.1-1")
-    implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.7.1-2")
-    implementation("com.fasterxml.jackson.dataformat", "jackson-dataformat-yaml", "2.7.1")
+    implementation("com.fasterxml.jackson.core", "jackson-databind", "2.9.4")
+    implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.9.4")
+    implementation("com.fasterxml.jackson.dataformat", "jackson-dataformat-yaml", "2.9.4")
 
     // Web server
     implementation("io.javalin", "javalin", "3.8.0")
@@ -30,6 +30,10 @@ dependencies {
     implementation("org.jetbrains.exposed", "exposed-jdbc", "0.23.1")
     implementation("org.jetbrains.exposed", "exposed-jodatime", "0.23.1")
     implementation("org.postgresql", "postgresql", "42.2.12")
+
+    // Logging
+    implementation("io.github.microutils", "kotlin-logging", "1.7.9")
+    implementation("org.slf4j", "slf4j-simple", "1.7.28")
 }
 
 tasks.jacocoTestReport {
@@ -66,5 +70,5 @@ tasks.build {
 }
 
 tasks.shadowJar {
-    destinationDir = File("./");
+    destinationDir = File("./")
 }
