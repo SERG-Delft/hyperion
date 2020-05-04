@@ -2,10 +2,9 @@ package nl.tudelft.hyperion.aggregator.api
 
 import nl.tudelft.hyperion.aggregator.Configuration
 import nl.tudelft.hyperion.aggregator.database.AggregationEntries
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.sum
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.joda.time.DateTime
 import kotlin.math.max
 import kotlin.math.min
 
@@ -40,6 +39,7 @@ fun computeMetrics(configuration: Configuration, project: String, file: String, 
     return intervals.map {
         // Clamp to values within bounds.
         val interval = max(min(it, configuration.aggregationTtl), configuration.granularity)
+        val startTime = DateTime.now().minusSeconds(interval)
 
         // Group on version
         val grouped = transaction {
@@ -48,7 +48,7 @@ fun computeMetrics(configuration: Configuration, project: String, file: String, 
                     .slice(AggregationEntries.version, AggregationEntries.line, AggregationEntries.severity, AggregationEntries.numTriggers.sum())
                     // WHERE file = ? AND project = ?
                     .select {
-                        (AggregationEntries.file eq file) and (AggregationEntries.project eq project)
+                        (AggregationEntries.file eq file) and (AggregationEntries.project eq project) and (AggregationEntries.timestamp greater startTime)
                     }
                     // GROUP BY version, severity, line
                     .groupBy(AggregationEntries.version, AggregationEntries.severity, AggregationEntries.line)

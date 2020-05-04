@@ -53,5 +53,6 @@ object AggregationEntries : Table() {
     val numTriggers = integer("num_triggers")
 
     // Index for speeding up queries.
+    @Suppress("unused")
     val projectFileIdx = index("aggregation_entries_idx_project_file", false, project, file)
 }
