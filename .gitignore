@@ -11,4 +11,4 @@ build
 # Ignore jars
 /plugin/*.jar
 /aggregator/*.jar
-/datasource/*.jar
+/datasource/**/*.jar
