@@ -1,3 +1,3 @@
 FROM openjdk:14
-COPY plugin-all.jar .
+COPY rename-plugin-all.jar .
 CMD java -jar plugin-all.jar

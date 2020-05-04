@@ -3,7 +3,7 @@
 package nl.tudelft.hyperion.plugin
 
 fun main(vararg args: String) {
-    println("Plugin shows itself UwU")
+    println("Plugin renames")
 }
 
 fun add(x: Int, y: Int): Int {
