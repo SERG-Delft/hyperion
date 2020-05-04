@@ -15,6 +15,23 @@ jacoco {
     reportsDir = file("$buildDir/jacoco")
 }
 
+dependencies {
+    // Yaml deserialization
+    implementation("com.fasterxml.jackson.core", "jackson-databind", "2.7.1-1")
+    implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.7.1-2")
+    implementation("com.fasterxml.jackson.dataformat", "jackson-dataformat-yaml", "2.7.1")
+
+    // Web server
+    implementation("io.javalin", "javalin", "3.8.0")
+
+    // Database connection
+    implementation("org.jetbrains.exposed", "exposed-core", "0.23.1")
+    implementation("org.jetbrains.exposed", "exposed-dao", "0.23.1")
+    implementation("org.jetbrains.exposed", "exposed-jdbc", "0.23.1")
+    implementation("org.jetbrains.exposed", "exposed-jodatime", "0.23.1")
+    implementation("org.postgresql", "postgresql", "42.2.12")
+}
+
 tasks.jacocoTestReport {
     reports {
         xml.isEnabled = false
