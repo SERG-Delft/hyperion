@@ -8,7 +8,7 @@ plugins {
 }
 
 application {
-    mainClassName = "plugin.Main"
+    mainClassName = "nl.tudelft.hyperion.plugin.Main"
 }
 
 jacoco {

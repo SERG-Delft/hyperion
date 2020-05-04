@@ -1,17 +1,17 @@
-package plugin
+package nl.tudelft.hyperion.aggregator
 
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class MainTest() {
     @Test
     fun addTwoTwo() {
-        Assertions.assertEquals(4, add(2, 2))
+        assertEquals(4, add(2, 2))
     }
 
     @Test
     fun addTwoOne() {
-        Assertions.assertEquals(3, add(2, 1))
+        assertEquals(3, add(2, 1))
     }
 
     @Test

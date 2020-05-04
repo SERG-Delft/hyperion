@@ -2,7 +2,7 @@ plugins {
     kotlin("jvm") version "1.3.71"
 }
 
-group = "nl.sapmannen"
+group = "nl.tudelft.hyperion"
 version = "1.0-SNAPSHOT"
 
 sourceSets {
@@ -28,7 +28,7 @@ tasks.check {
 }
 
 allprojects {
-    apply(plugin= "kotlin")
+    apply(plugin = "kotlin")
 
     repositories {
         mavenCentral()

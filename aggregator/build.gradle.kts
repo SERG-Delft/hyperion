@@ -7,15 +7,13 @@ plugins {
 }
 
 application {
-    mainClassName = "aggregator.Main"
+    mainClassName = "nl.tudelft.hyperion.aggregator.Main"
 }
 
 jacoco {
     toolVersion = "0.8.5"
     reportsDir = file("$buildDir/jacoco")
 }
-
-
 
 tasks.jacocoTestReport {
     reports {

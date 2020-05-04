@@ -1,6 +1,6 @@
 @file:JvmName("Main")
 
-package aggregator
+package nl.tudelft.hyperion.aggregator
 
 fun main(vararg args: String) {
     println("HAHA aggregator goes brrrrr")
