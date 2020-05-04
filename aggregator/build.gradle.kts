@@ -10,6 +10,10 @@ application {
     mainClassName = "nl.tudelft.hyperion.aggregator.Main"
 }
 
+dependencies {
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.8.0")
+}
+
 jacoco {
     toolVersion = "0.8.5"
     reportsDir = file("$buildDir/jacoco")

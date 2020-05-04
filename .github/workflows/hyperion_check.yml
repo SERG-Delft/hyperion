@@ -30,6 +30,13 @@ jobs:
         with:
           paths: plugin/
 
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
       - name: gradle check aggregator
         if: steps.hyperion-aggregator.outputs.changed == 'true'
         uses: eskatos/gradle-command-action@v1
