@@ -16,7 +16,8 @@ fun main() {
 
     // Load config
     val config = try {
-        Configuration.load(Path.of("./aggregator.yaml").toAbsolutePath())
+        val config = Configuration.load(Path.of("./aggregator.yaml").toAbsolutePath())
+        config.validate() // ensure the config is somewhat valid
     } catch (ex: Exception) {
         logger.error(ex) { "Failed to parse configuration. Does the file exist and is it valid YAML?" }
         return
@@ -29,5 +30,5 @@ fun main() {
         return
     }
 
-    logger.info { "Hyperion Aggregator running on port ${config.port}. ^C to exit." }
+    logger.info { "Hyperion Aggregator running on port ${config.port} with a granularity of ${config.granularity} seconds. ^C to exit." }
 }

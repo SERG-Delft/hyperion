@@ -5,6 +5,10 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.Database as ExposedDatabase
 
+/**
+ * Utility methods for connecting to the database. Any database
+ * manipulations are done directly through Exposed.
+ */
 class Database {
     companion object {
         private val logger = mu.KotlinLogging.logger { }
@@ -14,11 +18,6 @@ class Database {
          * creating required tables if needed. Throws an error if connecting fails.
          */
         fun connect(config: Configuration) {
-            // Ensure that we have a config URL somewhat decent.
-            if (!config.databaseUrl.startsWith("postgresql:")) {
-                throw IllegalArgumentException("Configuration database URL must start with `postgresql:`.")
-            }
-
             // Attempt to connect to the database
             try {
                 ExposedDatabase.connect("jdbc:${config.databaseUrl}")

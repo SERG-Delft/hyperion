@@ -3,6 +3,7 @@ package nl.tudelft.hyperion.aggregator
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import java.lang.IllegalArgumentException
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -16,6 +17,30 @@ data class Configuration(
         val port: Int,
         val granularity: Int
 ) {
+    /**
+     * Ensures that this is a valid configuration, i.e. that all properties
+     * have sensible values. Will throw an exception for values that are
+     * incorrect.
+     */
+    fun validate(): Configuration {
+        // Ensure this is a valid JDBC URL.
+        if (!databaseUrl.startsWith("postgresql:")) {
+            throw IllegalArgumentException("configuration.databaseUrl must start with `postgresql:`")
+        }
+
+        // Ensure that our port is valid.
+        if (port <= 1 || port >= 65535) {
+            throw IllegalArgumentException("configuration.port must be a valid port number <= 65535")
+        }
+
+        // Ensure that our granularity is somewhat reasonable.
+        if (granularity <= 0) {
+            throw IllegalArgumentException("configuration.granularity may not be negative")
+        }
+
+        return this
+    }
+
     companion object {
         private val logger = mu.KotlinLogging.logger { }
 
