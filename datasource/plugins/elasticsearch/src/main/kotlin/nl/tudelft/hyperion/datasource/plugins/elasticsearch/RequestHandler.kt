@@ -6,12 +6,14 @@ import org.elasticsearch.action.search.SearchResponse
 import java.io.PrintWriter
 import java.io.StringWriter
 
-private val logger = KotlinLogging.logger {}
-
 /**
  * Class that transforms responses from Elasticsearch and sends them to a broker.
  */
 class RequestHandler : ActionListener<SearchResponse> {
+
+    companion object {
+        private val logger = KotlinLogging.logger {}
+    }
 
     /**
      * Passes the response as a serialized JSON string to the broker.
@@ -19,7 +21,7 @@ class RequestHandler : ActionListener<SearchResponse> {
      * @param response [SearchResponse] object to send
      */
     override fun onResponse(response: SearchResponse?) {
-        TODO("Not yet implemented")
+        TODO("Send to message queue")
     }
 
     /**

@@ -1,5 +1,3 @@
-@file:JvmName("Main")
-
 package nl.tudelft.hyperion.datasource.plugins.elasticsearch
 
 import mu.KotlinLogging
@@ -18,30 +16,34 @@ import kotlin.concurrent.fixedRateTimer
 private val logger = KotlinLogging.logger {}
 
 /**
- * Elasticsearch plugin that periodically queries a database.
+ * Plugin that periodically queries an Elasticsearch instance.
+ * Starts a daemon that sends a search query every [pollInterval].
  *
- * @param hostname
- * @param index
- * @param port
- * @param scheme
- * @property pollInterval
+ * @param hostname the hostname of the ES instance
+ * @param port which port the ES instance is located on
+ * @param scheme which scheme to use, should be http or https
+ * @property index the name of the index to query
+ * @property pollInterval the interval between requests in milliseconds
  * @property responseHitMax the maximum amount of hits to return, ideally all
  *  matches should be returned. But this is limited to index.max_result_window,
  *  which is 10K by default
  */
 class Elasticsearch(
         hostname: String,
-        index: String,
         port: Int = 9200,
         scheme: String = "http",
+        private val index: String,
         private val pollInterval: Long = 1000L,
         private val responseHitMax: Int = 10_000
 ) : DataSourcePlugin {
 
     private val client = RestHighLevelClient(RestClient.builder(HttpHost(hostname, port, scheme)))
-    private val searchRequest = createSearchRequest(index)
     private var timer: Timer? = null
     private var finished = false
+
+    companion object {
+        private val requestHandler = RequestHandler()
+    }
 
     override fun start() {
         if (finished)
@@ -49,7 +51,8 @@ class Elasticsearch(
 
         // Create a new handler for each request
         timer = fixedRateTimer("requestScheduler", period = pollInterval, daemon = true) {
-            client.searchAsync(searchRequest, RequestOptions.DEFAULT, RequestHandler())
+            val searchRequest = createSearchRequest(index)
+            client.searchAsync(searchRequest, RequestOptions.DEFAULT, requestHandler)
         }
     }
 
@@ -64,7 +67,7 @@ class Elasticsearch(
     }
 
     /**
-     * Creates the default search request.
+     * Creates a search request that queries all logs between a certain timestamp.
      *
      * @param index the name of the ES index to query from
      * @return the created search request
@@ -79,7 +82,4 @@ class Elasticsearch(
 
         return searchRequest.source(searchSourceBuilder)
     }
-}
-
-fun main() {
 }
