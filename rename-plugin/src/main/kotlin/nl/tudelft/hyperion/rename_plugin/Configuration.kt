@@ -6,11 +6,9 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import java.nio.file.Files
 import java.nio.file.Path
 
-class Rename(val to : String, val from : String)
+class Rename(val from : String, val to : String)
 
 class Configuration(
-        val field : String,
-        val match : String,
         val rename : List<Rename>
 ) {
     companion object {
