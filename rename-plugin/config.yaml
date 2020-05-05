@@ -1,0 +1,7 @@
+# Configuration file for rename plugin
+
+field : "message"
+match : "\\[.*?\\] INFO [^:]+:(\\d+) - .*"
+rename :
+  - to : "location.line"
+    from : "number"
