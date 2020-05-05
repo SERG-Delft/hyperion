@@ -7,8 +7,14 @@ plugins {
     id("com.github.johnrengelman.shadow").version("5.2.0")
 }
 
+dependencies {
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.7.1-1")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.7.1-2")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.7.1")
+}
+
 application {
-    mainClassName = "nl.tudelft.hyperion.plugin.Main"
+    mainClassName = "nl.tudelft.hyperion.rename_plugin.Main"
 }
 
 jacoco {
