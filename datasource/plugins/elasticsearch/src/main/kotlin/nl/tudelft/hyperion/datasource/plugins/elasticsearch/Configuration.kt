@@ -1,5 +1,6 @@
 package nl.tudelft.hyperion.datasource.plugins.elasticsearch
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
@@ -12,27 +13,44 @@ import java.nio.file.Path
  * Contains the necessary arguments to communicate and pull data from
  * Elasticsearch.
  */
-class Configuration(
+data class Configuration(
         val hostname: String,
         val index: String,
-        val port: Int,
-        val scheme: String,
+        var port: Int?,
+        var scheme: String?,
+        @JsonProperty("timestamp_field")
         val timestampField: String,
+        @JsonProperty("poll_interval")
         val pollInterval: Long,
-        val responseHitMax: Int,
+        @JsonProperty("response_hit_count")
+        val responseHitCount: Int,
         val username: String?,
         val password: String?
 ) {
 
+    init {
+        // set default values if field is missing
+        // jackson does not support default value setting as of 2.7.1
+        if (port == null) {
+            port = 9200
+        }
+
+        if (scheme == null) {
+            scheme = "http"
+        }
+    }
+
     /**
      * Verifies that the configuration is correct.
+     *
+     * @throws IllegalArgumentException if any of the fields are invalid
      */
     fun verify() {
         if (port !in 0..65535) {
             throw IllegalArgumentException("port must be between 0 and 65535 but was port=$port")
         }
 
-        val schemeLower = scheme.toLowerCase()
+        val schemeLower = scheme!!.toLowerCase()
         if (schemeLower != "http" && schemeLower != "https") {
             throw IllegalArgumentException("scheme must be 'http' or 'https' but not scheme=$schemeLower")
         }
@@ -41,8 +59,8 @@ class Configuration(
             throw IllegalArgumentException("poll_interval must be a positive non-zero integer")
         }
 
-        if (responseHitMax < 1) {
-            throw IllegalArgumentException("response_hit_max must be a positive non-zero integer")
+        if (responseHitCount < 1) {
+            throw IllegalArgumentException("response_hit_count must be a positive non-zero integer")
         }
     }
 
@@ -75,5 +93,4 @@ class Configuration(
                     .also(Configuration::verify)
         }
     }
-
 }

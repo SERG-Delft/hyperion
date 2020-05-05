@@ -20,8 +20,15 @@ class RequestHandler : ActionListener<SearchResponse> {
      *
      * @param response [SearchResponse] object to send
      */
-    override fun onResponse(response: SearchResponse?) {
-        TODO("Send to message queue")
+    override fun onResponse(response: SearchResponse) {
+        try {
+            // TODO send response to the message queue
+            return
+        } catch (e: Exception) {
+            val sw = StringWriter()
+            e.printStackTrace(PrintWriter(sw))
+            logger.error { "Error during sending response to the message queue: \n$sw" }
+        }
     }
 
     /**
@@ -29,9 +36,9 @@ class RequestHandler : ActionListener<SearchResponse> {
      *
      * @param e [Exception] caused by the sent request
      */
-    override fun onFailure(e: Exception?) {
+    override fun onFailure(e: Exception) {
         val sw = StringWriter()
-        e!!.printStackTrace(PrintWriter(sw))
+        e.printStackTrace(PrintWriter(sw))
         logger.error { "Error during handling of Elasticsearch response: \n$sw" }
     }
 }

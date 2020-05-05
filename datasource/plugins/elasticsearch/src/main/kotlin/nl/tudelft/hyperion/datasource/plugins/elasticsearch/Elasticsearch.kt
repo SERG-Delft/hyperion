@@ -13,45 +13,43 @@ import java.lang.IllegalStateException
 import java.util.*
 import kotlin.concurrent.fixedRateTimer
 
-private val logger = KotlinLogging.logger {}
-
 /**
  * Plugin that periodically queries an Elasticsearch instance.
- * Starts a daemon that sends a search query every [pollInterval].
+ * Starts a daemon that sends a search query every [Configuration.pollInterval].
  *
- * @param hostname the hostname of the ES instance
- * @param port which port the ES instance is located on
- * @param scheme which scheme to use, should be http or https
- * @property index the name of the index to query
- * @property pollInterval the interval between requests in milliseconds
- * @property responseHitMax the maximum amount of hits to return, ideally all
- *  matches should be returned. But this is limited to index.max_result_window,
- *  which is 10K by default
+ * @property config the configuration to use
  */
-class Elasticsearch(
-        hostname: String,
-        port: Int = 9200,
-        scheme: String = "http",
-        private val index: String,
-        private val pollInterval: Long = 1000L,
-        private val responseHitMax: Int = 10_000
-) : DataSourcePlugin {
+class Elasticsearch(private val config: Configuration) : DataSourcePlugin {
 
-    private val client = RestHighLevelClient(RestClient.builder(HttpHost(hostname, port, scheme)))
-    private var timer: Timer? = null
     private var finished = false
+    private var timer: Timer? = null
+    private val client = RestHighLevelClient(RestClient.builder(HttpHost(
+            config.hostname,
+            config.port!!,
+            config.scheme!!)))
+
+    init {
+        if (config.responseHitCount >= 10_000) {
+            logger.warn {
+                """
+                response_hit_max=$config.responseHitMax, by default this value is capped at 10.000. 
+                Elasticsearch will deny requests if index.max_result_window is not configured.
+                """.trimIndent()
+            }
+        }
+    }
 
     companion object {
         private val requestHandler = RequestHandler()
+        private val logger = KotlinLogging.logger {}
     }
 
     override fun start() {
         if (finished)
             throw IllegalStateException("Elasticsearch client is already closed")
 
-        // Create a new handler for each request
-        timer = fixedRateTimer("requestScheduler", period = pollInterval, daemon = true) {
-            val searchRequest = createSearchRequest(index)
+        timer = fixedRateTimer("requestScheduler", period = config.pollInterval, daemon = true) {
+            val searchRequest = createSearchRequest(config.index)
             client.searchAsync(searchRequest, RequestOptions.DEFAULT, requestHandler)
         }
     }
@@ -78,7 +76,7 @@ class Elasticsearch(
 
         val searchSourceBuilder = SearchSourceBuilder()
         searchSourceBuilder.query(QueryBuilders.matchAllQuery())
-        searchSourceBuilder.size(responseHitMax)
+        searchSourceBuilder.size(config.responseHitCount)
 
         return searchRequest.source(searchSourceBuilder)
     }
