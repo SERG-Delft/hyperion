@@ -16,7 +16,7 @@ dependencies {
 }
 
 application {
-    mainClassName = "nl.tudelft.hyperion.rename_plugin.Main"
+    mainClassName = "nl.tudelft.hyperion.renamer.Main"
 }
 
 jacoco {
