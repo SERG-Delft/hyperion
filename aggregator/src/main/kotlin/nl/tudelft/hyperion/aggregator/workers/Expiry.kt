@@ -1,6 +1,9 @@
 package nl.tudelft.hyperion.aggregator.workers
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import nl.tudelft.hyperion.aggregator.Configuration
 import nl.tudelft.hyperion.aggregator.database.AggregationEntries
 import org.jetbrains.exposed.sql.transactions.transaction

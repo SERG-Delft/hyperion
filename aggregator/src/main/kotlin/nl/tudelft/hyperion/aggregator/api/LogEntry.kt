@@ -26,32 +26,32 @@ import org.joda.time.DateTime
  * }
  */
 data class LogEntry(
-        /**
-         * Some unique identifier that represents the project, such as the repo or package name.
-         */
-        val project: String,
+    /**
+     * Some unique identifier that represents the project, such as the repo or package name.
+     */
+    val project: String,
 
-        /**
-         * Some way to represent the version the project is running on, such as a git commit hash.
-         */
-        val version: String,
+    /**
+     * Some way to represent the version the project is running on, such as a git commit hash.
+     */
+    val version: String,
 
-        /**
-         * Some way to represent the severity of the log line. Usually a standard severity, but
-         * this is not required.
-         * TODO: Maybe make this optional?
-         */
-        val severity: String,
+    /**
+     * Some way to represent the severity of the log line. Usually a standard severity, but
+     * this is not required.
+     * TODO: Maybe make this optional?
+     */
+    val severity: String,
 
-        /**
-         * The location where the log was triggered.
-         */
-        val location: LogLocation,
+    /**
+     * The location where the log was triggered.
+     */
+    val location: LogLocation,
 
-        /**
-         * The time at which this log statement happened.
-         */
-        val timestamp: DateTime
+    /**
+     * The time at which this log statement happened.
+     */
+    val timestamp: DateTime
 ) {
     companion object {
         private val mapper = ObjectMapper(JsonFactory())
@@ -77,13 +77,13 @@ data class LogEntry(
  * See LogEntry for more details.
  */
 data class LogLocation(
-        /**
-         * The file in which the log was triggered.
-         */
-        val file: String,
+    /**
+     * The file in which the log was triggered.
+     */
+    val file: String,
 
-        /**
-         * The line in which the log was triggered.
-         */
-        val line: Int
+    /**
+     * The line in which the log was triggered.
+     */
+    val line: Int
 )

@@ -153,10 +153,10 @@ private data class IntermediateAggregate(val severity: String, var count: Int)
  * @see AggregationEntries
  */
 private data class AggregateInsertContainer(
-        val project: String,
-        val version: String,
-        val severity: String,
-        val file: String,
-        val line: Int,
-        val numTriggers: Int
+    val project: String,
+    val version: String,
+    val severity: String,
+    val file: String,
+    val line: Int,
+    val numTriggers: Int
 )

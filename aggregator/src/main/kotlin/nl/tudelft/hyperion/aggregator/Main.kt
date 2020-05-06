@@ -44,10 +44,10 @@ fun main() {
     // Run tasks blocking. Should never return.
     runBlocking {
         joinAll(
-                startExpiryWorker(config),
-                startAPIWorker(config),
-                aggregationManager.startCommitWorker(),
-                startElasticSearchIntakeWorker(aggregationManager)
+            startExpiryWorker(config),
+            startAPIWorker(config),
+            aggregationManager.startCommitWorker(),
+            startElasticSearchIntakeWorker(aggregationManager)
         )
     }
 }

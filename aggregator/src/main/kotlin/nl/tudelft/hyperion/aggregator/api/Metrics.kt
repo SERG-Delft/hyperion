@@ -2,7 +2,9 @@ package nl.tudelft.hyperion.aggregator.api
 
 import nl.tudelft.hyperion.aggregator.Configuration
 import nl.tudelft.hyperion.aggregator.database.AggregationEntries
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.sum
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 import kotlin.math.max
@@ -14,8 +16,8 @@ import kotlin.math.min
  * an interval of 60 represents the logs that happened in the last minute.
  */
 data class MetricsResult(
-        val interval: Int,
-        val versions: Map<String, List<Metric>>
+    val interval: Int,
+    val versions: Map<String, List<Metric>>
 )
 
 /**
@@ -25,9 +27,9 @@ data class MetricsResult(
  * triggered.
  */
 data class Metric(
-        val line: Int,
-        val severity: String,
-        val count: Int
+    val line: Int,
+    val severity: String,
+    val count: Int
 )
 
 /**
@@ -44,18 +46,16 @@ fun computeMetrics(configuration: Configuration, project: String, file: String, 
         // Group on version
         val entries = transaction {
             val grouped = AggregationEntries
-                    // SELECT version, line, severity, SUM(num_triggers)
-                    .slice(AggregationEntries.version, AggregationEntries.line, AggregationEntries.severity, AggregationEntries.numTriggers.sum())
-                    // WHERE file = ? AND project = ?
-                    .select {
-                        (AggregationEntries.file eq file) and (AggregationEntries.project eq project) and (AggregationEntries.timestamp greater startTime)
-                    }
-                    // GROUP BY version, severity, line
-                    .groupBy(AggregationEntries.version, AggregationEntries.severity, AggregationEntries.line)
-                    // convert to list
-                    .map { it }
-                    // group by version string
-                    .groupBy { it[AggregationEntries.version] }
+                // SELECT version, line, severity, SUM(num_triggers)
+                .slice(AggregationEntries.version, AggregationEntries.line, AggregationEntries.severity, AggregationEntries.numTriggers.sum())
+                // WHERE file = ? AND project = ?
+                .select {
+                    (AggregationEntries.file eq file) and (AggregationEntries.project eq project) and (AggregationEntries.timestamp greater startTime)
+                }
+                // GROUP BY version, severity, line
+                .groupBy(AggregationEntries.version, AggregationEntries.severity, AggregationEntries.line)
+                // group by version string
+                .groupBy { it[AggregationEntries.version] }
 
             // Convert to expected format.
             MetricsResult(interval, grouped.mapValues { (_, rows) ->

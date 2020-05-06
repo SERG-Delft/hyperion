@@ -3,7 +3,6 @@ package nl.tudelft.hyperion.aggregator
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import java.lang.IllegalArgumentException
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -13,23 +12,23 @@ import java.nio.file.Path
  * metrics.
  */
 data class Configuration(
-        /**
-         * The JDBC url to the database.
-         */
-        val databaseUrl: String,
-        /**
-         * The port on which the web service should listen.
-         */
-        val port: Int,
-        /**
-         * The granularity of aggregations, in seconds.
-         */
-        val granularity: Int,
-        /**
-         * The time in seconds aggregated entries should persist after
-         * their creation.
-         */
-        val aggregationTtl: Int
+    /**
+     * The JDBC url to the database.
+     */
+    val databaseUrl: String,
+    /**
+     * The port on which the web service should listen.
+     */
+    val port: Int,
+    /**
+     * The granularity of aggregations, in seconds.
+     */
+    val granularity: Int,
+    /**
+     * The time in seconds aggregated entries should persist after
+     * their creation.
+     */
+    val aggregationTtl: Int
 ) {
     /**
      * Ensures that this is a valid configuration, i.e. that all properties

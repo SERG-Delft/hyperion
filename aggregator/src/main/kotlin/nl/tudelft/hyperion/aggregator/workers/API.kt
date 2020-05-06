@@ -37,8 +37,8 @@ fun handleMetrics(configuration: Configuration, ctx: Context) {
     val project = ctx.queryParam("project") ?: throw BadRequestResponse("Missing project query parameter")
     val file = ctx.queryParam("file") ?: throw BadRequestResponse("Missing file query parameter")
     val intervals = (ctx.queryParam("intervals") ?: throw BadRequestResponse("Missing intervals query parameter"))
-            .split(",")
-            .map { it.toInt() }
+        .split(",")
+        .map { it.toInt() }
 
     ctx.json(computeMetrics(configuration, project, file, intervals))
 }

@@ -77,3 +77,7 @@ tasks.build {
 tasks.shadowJar {
     destinationDir = File("./")
 }
+
+detekt {
+
+}

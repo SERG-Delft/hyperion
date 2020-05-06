@@ -1,6 +1,6 @@
 package nl.tudelft.hyperion.aggregator.database
 
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.jodatime.datetime
 
 /**
