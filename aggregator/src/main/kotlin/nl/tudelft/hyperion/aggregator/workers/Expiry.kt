@@ -24,7 +24,10 @@ fun startExpiryWorker(configuration: Configuration) = GlobalScope.launch {
         transaction {
             // Cannot represent the interval syntax using exposed, unfortunately.
             // This is not vulnerable to sql injection as all the properties are hardcoded.
-            exec("DELETE FROM ${AggregationEntries.tableName} WHERE ${AggregationEntries.timestamp.name} < now() - interval '${configuration.aggregationTtl} seconds'")
+            exec(
+                "DELETE FROM ${AggregationEntries.tableName} WHERE ${AggregationEntries.timestamp.name} < now()" +
+                    "- interval '${configuration.aggregationTtl} seconds'"
+            )
         }
 
         logger.debug { "Deleted expired rows." }

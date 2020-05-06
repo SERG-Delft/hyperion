@@ -57,7 +57,10 @@ data class Configuration(
         }
 
         if (aggregationTtl <= granularity) {
-            throw IllegalArgumentException("configuration.aggregationTtl may not be less than the granularity: the database would always be empty!")
+            throw IllegalArgumentException(
+                "configuration.aggregationTtl may not be less than the granularity:" +
+                    "the database would always be empty!"
+            )
         }
 
         return this

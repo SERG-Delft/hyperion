@@ -102,12 +102,15 @@ private data class IntermediateAggregates(val project: String, val version: Stri
      */
     fun aggregate(entry: LogEntry) {
         val fileAggregates = aggregates.getOrPut(entry.location.file, ::mutableMapOf)
-        val lineAggregates = fileAggregates.getOrPut(entry.location.line, { IntermediateAggregate(entry.severity, 0) })
+        val lineAggregates = fileAggregates.getOrPut(entry.location.line, {
+            IntermediateAggregate(entry.severity, 0)
+        })
 
         // Warn if the two do not match in severity.
         if (lineAggregates.severity != entry.severity) {
             logger.warn {
-                "Existing severity of ${entry.location.file}:${entry.location.line} (${lineAggregates.severity}) does not match new severity: ${entry.severity}"
+                "Existing severity of ${entry.location.file}:${entry.location.line} (${lineAggregates.severity})" +
+                    " does not match new severity: ${entry.severity}"
             }
         }
 

@@ -26,10 +26,11 @@ import kotlin.coroutines.suspendCoroutine
 suspend fun <T> CompletableFuture<T>.await(): T =
     suspendCoroutine { cont: Continuation<T> ->
         whenComplete { result, exception ->
-            if (exception == null) // the future has been completed normally
+            if (exception == null) { // the future has been completed normally
                 cont.resume(result)
-            else // the future has completed with an exception
+            } else { // the future has completed with an exception
                 cont.resumeWithException(exception)
+            }
         }
     }
 
@@ -58,38 +59,44 @@ fun startElasticSearchIntakeWorker(aggregationManager: AggregationManager) = Glo
         val req = HttpRequest.newBuilder()
             .uri(URI("http://localhost:9200/logs/_search"))
             .headers("Content-Type", "application/json")
-            .POST(HttpRequest.BodyPublishers.ofString("""
-                {
-                    "_source": ["@timestamp", "log4j_line", "log4j_level", "log4j_file"],
-                    "query": {
-                        "bool": {
-                            "must": [
-                                {
-                                    "range": {
-                                        "@timestamp": {
-                                            "gte": "$endTime",
-                                            "lte": "$startTime"
+            .POST(
+                HttpRequest.BodyPublishers.ofString(
+                    """
+                        {
+                            "_source": ["@timestamp", "log4j_line", "log4j_level", "log4j_file"],
+                            "query": {
+                                "bool": {
+                                    "must": [
+                                        {
+                                            "range": {
+                                                "@timestamp": {
+                                                    "gte": "$endTime",
+                                                    "lte": "$startTime"
+                                                }
+                                            }
                                         }
-                                    }
+                                    ]
                                 }
-                            ]
+                            }
                         }
-                    }
-                }
-            """.trimIndent()))
+                    """.trimIndent()
+                )
+            )
             .build()
 
         val resp = client.sendAsync(req, HttpResponse.BodyHandlers.ofString()).await()
         val response = mapper.readValue(resp.body(), ESResponse::class.java)
 
         for (log in response.hits.hits) {
-            aggregationManager.aggregate(LogEntry(
-                "TestProject",
-                "v1.0.0",
-                log._source.severity,
-                LogLocation(log._source.file, log._source.line),
-                log._source.timestamp
-            ))
+            aggregationManager.aggregate(
+                LogEntry(
+                    "TestProject",
+                    "v1.0.0",
+                    log._source.severity,
+                    LogLocation(log._source.file, log._source.line),
+                    log._source.timestamp
+                )
+            )
         }
 
         logger.debug { "Polled logs. Received ${response.hits.hits.count()} new log lines." }
@@ -103,9 +110,10 @@ fun startElasticSearchIntakeWorker(aggregationManager: AggregationManager) = Glo
     // Never returns.
 }
 
+/* ktlint-disable ConstructorParameterNaming */
 data class ESResponse(val hits: ESResponseHits)
 data class ESResponseHits(val hits: List<ESHit>)
-data class ESHit(val _source: ESHitSource) // ktlint-disable constructor-parameter-naming
+data class ESHit(val _source: ESHitSource)
 data class ESHitSource(
     @JsonProperty("log4j_file")
     val file: String,

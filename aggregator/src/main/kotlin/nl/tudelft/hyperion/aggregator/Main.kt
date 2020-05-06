@@ -18,6 +18,7 @@ private val logger = mu.KotlinLogging.logger { }
  * initiates a database connection and sets up runners on different
  * threads for managing intake and database cleanup.
  */
+@Suppress("TooGenericExceptionCaught")
 fun main() {
     logger.info { "Starting Hyperion Aggregator..." }
 
@@ -33,13 +34,19 @@ fun main() {
     try {
         Database.connect(config)
     } catch (ex: Exception) {
-        logger.error(ex) { "Failed to connect to the database. Ensure that the database is running and that the connection URL is correct." }
+        logger.error(ex) {
+            "Failed to connect to the database. Ensure that the database" +
+                " is running and that the connection URL is correct."
+        }
         return
     }
 
     val aggregationManager = AggregationManager(config)
 
-    logger.info { "Hyperion Aggregator running on port ${config.port} with a granularity of ${config.granularity} seconds. ^C to exit." }
+    logger.info {
+        "Hyperion Aggregator running on port ${config.port} with a" +
+            " granularity of ${config.granularity} seconds. ^C to exit."
+    }
 
     // Run tasks blocking. Should never return.
     runBlocking {

@@ -37,7 +37,12 @@ data class Metric(
  * and intervals. This will run async and return a job that can be awaited for the
  * result of the computation.
  */
-fun computeMetrics(configuration: Configuration, project: String, file: String, intervals: List<Int>): List<MetricsResult> {
+fun computeMetrics(
+    configuration: Configuration,
+    project: String,
+    file: String,
+    intervals: List<Int>
+): List<MetricsResult> {
     return intervals.map {
         // Clamp to values within bounds.
         val interval = max(min(it, configuration.aggregationTtl), configuration.granularity)
@@ -47,10 +52,16 @@ fun computeMetrics(configuration: Configuration, project: String, file: String, 
         val entries = transaction {
             val grouped = AggregationEntries
                 // SELECT version, line, severity, SUM(num_triggers)
-                .slice(AggregationEntries.version, AggregationEntries.line, AggregationEntries.severity, AggregationEntries.numTriggers.sum())
+                .slice(
+                    AggregationEntries.version,
+                    AggregationEntries.line,
+                    AggregationEntries.severity,
+                    AggregationEntries.numTriggers.sum()
+                )
                 // WHERE file = ? AND project = ?
                 .select {
-                    (AggregationEntries.file eq file) and (AggregationEntries.project eq project) and (AggregationEntries.timestamp greater startTime)
+                    (AggregationEntries.file eq file) and (AggregationEntries.project eq project) and
+                        (AggregationEntries.timestamp greater startTime)
                 }
                 // GROUP BY version, severity, line
                 .groupBy(AggregationEntries.version, AggregationEntries.severity, AggregationEntries.line)
@@ -59,7 +70,13 @@ fun computeMetrics(configuration: Configuration, project: String, file: String, 
 
             // Convert to expected format.
             MetricsResult(interval, grouped.mapValues { (_, rows) ->
-                rows.map { Metric(it[AggregationEntries.line], it[AggregationEntries.severity], it[AggregationEntries.numTriggers.sum()]!!) }
+                rows.map {
+                    Metric(
+                        it[AggregationEntries.line],
+                        it[AggregationEntries.severity],
+                        it[AggregationEntries.numTriggers.sum()]!!
+                    )
+                }
             })
         }
 
