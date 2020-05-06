@@ -102,7 +102,7 @@ class Elasticsearch(private val config: Configuration) : DataSourcePlugin {
         logger.info { "Starting Redis client" }
 
         val jedis = Jedis(config.redis.host, config.redis.port!!)
-        val requestHandler = RequestHandler(jedis, config.redis.channel)
+        val requestHandler = RequestHandler(jedis, config.redis.channel!!)
 
         logger.info { "Starting retrieval of logs" }
 

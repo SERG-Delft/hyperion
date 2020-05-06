@@ -4,30 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import nl.tudelft.hyperion.datasource.common.RedisConfig
 import java.lang.IllegalArgumentException
 import java.nio.file.Files
 import java.nio.file.Path
-
-/**
- * Configuration for Redis communication.
- *
- * @property host hostname of the Redis instance to publish to
- * @property port port of the Redis instance to publish to
- * @property channel name of the Redis channel to publish to
- */
-data class RedisConfig(
-        val host: String,
-        var port: Int?,
-        val channel: String
-) {
-    init {
-        // set default values if field is missing
-        // jackson does not support default value setting as of 2.7.1
-        if (port == null) {
-            port = 6379
-        }
-    }
-}
 
 /**
  * Configuration for Elasticsearch communication.

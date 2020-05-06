@@ -13,6 +13,7 @@ import java.io.StringWriter
  * @param jedis Jedis client for publishing to
  * @param channel channel to publish to
  */
+@Suppress("TooGenericExceptionCaught")
 class RequestHandler(private val jedis: Jedis, private val channel: String) : ActionListener<SearchResponse> {
 
     companion object {
