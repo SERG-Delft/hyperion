@@ -12,16 +12,28 @@ import java.nio.file.Path
  * Represents a configuration setup for the Elasticsearch plugin.
  * Contains the necessary arguments to communicate and pull data from
  * Elasticsearch.
+ *
+ * @property hostname hostname of the Elasticsearch server
+ * @property index which index to retrieve documents from
+ * @property port port of the Elasticsearch server
+ * @property scheme scheme to use for retrieval, is either `http` or `https`
+ * @property authentication whether authentication is enabled
+ * @property timestampField which field to use for querying based on time
+ * @property pollInterval time between sending queries in seconds
+ * @property responseHitCount amount of hits to expect
+ * @property username username to pass if authentication is set to true
+ * @property password password to pass if authentication is set to true
  */
 data class Configuration(
         val hostname: String,
         val index: String,
         var port: Int?,
         var scheme: String?,
+        val authentication: Boolean,
         @JsonProperty("timestamp_field")
         val timestampField: String,
         @JsonProperty("poll_interval")
-        val pollInterval: Long,
+        val pollInterval: Int,
         @JsonProperty("response_hit_count")
         val responseHitCount: Int,
         val username: String?,
@@ -61,6 +73,10 @@ data class Configuration(
 
         if (responseHitCount < 1) {
             throw IllegalArgumentException("response_hit_count must be a positive non-zero integer")
+        }
+
+        if (authentication && username == null && password == null) {
+            throw IllegalArgumentException("username and password must be provided to use authentication")
         }
     }
 

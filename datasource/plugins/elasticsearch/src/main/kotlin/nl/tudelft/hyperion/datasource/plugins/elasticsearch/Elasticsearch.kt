@@ -3,13 +3,16 @@ package nl.tudelft.hyperion.datasource.plugins.elasticsearch
 import mu.KotlinLogging
 import nl.tudelft.hyperion.datasource.common.DataSourcePlugin
 import org.apache.http.HttpHost
+import org.apache.http.auth.AuthScope
+import org.apache.http.auth.UsernamePasswordCredentials
+import org.apache.http.client.CredentialsProvider
+import org.apache.http.impl.client.BasicCredentialsProvider
 import org.elasticsearch.action.search.SearchRequest
 import org.elasticsearch.client.RequestOptions
 import org.elasticsearch.client.RestClient
 import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.search.builder.SearchSourceBuilder
-import java.lang.IllegalStateException
 import java.util.*
 import kotlin.concurrent.fixedRateTimer
 
@@ -18,15 +21,13 @@ import kotlin.concurrent.fixedRateTimer
  * Starts a daemon that sends a search query every [Configuration.pollInterval].
  *
  * @property config the configuration to use
+ *  it is assumed to be correct, otherwise exceptions can be thrown
  */
 class Elasticsearch(private val config: Configuration) : DataSourcePlugin {
 
     private var finished = false
     private var timer: Timer? = null
-    private val client = RestHighLevelClient(RestClient.builder(HttpHost(
-            config.hostname,
-            config.port!!,
-            config.scheme!!)))
+    private var client: RestHighLevelClient
 
     init {
         if (config.responseHitCount >= 10_000) {
@@ -37,19 +38,76 @@ class Elasticsearch(private val config: Configuration) : DataSourcePlugin {
                 """.trimIndent()
             }
         }
+
+        val clientBuilder = RestClient.builder(HttpHost(
+                config.hostname,
+                config.port!!,
+                config.scheme!!))
+
+        // add credentials to httpClient if authentication is enabled
+        if (config.authentication) {
+            val credentialsProvider: CredentialsProvider = BasicCredentialsProvider()
+
+            credentialsProvider.setCredentials(AuthScope.ANY,
+                    UsernamePasswordCredentials(config.username!!, config.password!!))
+
+            clientBuilder.setHttpClientConfigCallback { httpClientBuilder ->
+                httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)
+            }
+        }
+
+        this.client = RestHighLevelClient(clientBuilder)
+
+        logger.info { "Elasticsearch client created successfully" }
     }
 
     companion object {
-        private val requestHandler = RequestHandler()
         private val logger = KotlinLogging.logger {}
+        private val requestHandler = RequestHandler()
+
+        /**
+         * Creates a search request that queries all logs between a certain timestamp.
+         *
+         * @param index the name of the ES index to query from
+         * @return the created search request
+         */
+        private fun createSearchRequest(
+                index: String,
+                timeStampField: String,
+                currentTime: Long,
+                range: Int,
+                responseHitCount: Int): SearchRequest {
+
+            val searchRequest = SearchRequest()
+            searchRequest.indices(index)
+
+            val query = QueryBuilders
+                    .rangeQuery(timeStampField)
+                    .from(currentTime - range)
+                    .to(currentTime)
+                    .format("epoch_second")
+
+            val searchBuilder = SearchSourceBuilder()
+            searchBuilder.query(query)
+            searchBuilder.size(responseHitCount)
+
+            return searchRequest.source(searchBuilder)
+        }
     }
 
     override fun start() {
         if (finished)
             throw IllegalStateException("Elasticsearch client is already closed")
 
-        timer = fixedRateTimer("requestScheduler", period = config.pollInterval, daemon = true) {
-            val searchRequest = createSearchRequest(config.index)
+        logger.info { "Starting retrieval of logs" }
+
+        timer = fixedRateTimer("requestScheduler", period = config.pollInterval.toLong() * 1000, daemon = true) {
+            val searchRequest = createSearchRequest(config.index,
+                    config.timestampField,
+                    System.currentTimeMillis() / 1000,
+                    config.pollInterval,
+                    config.responseHitCount)
+
             client.searchAsync(searchRequest, RequestOptions.DEFAULT, requestHandler)
         }
     }
@@ -62,22 +120,5 @@ class Elasticsearch(private val config: Configuration) : DataSourcePlugin {
         logger.info { "Elasticsearch plugin closed" }
         client.close()
         finished = true
-    }
-
-    /**
-     * Creates a search request that queries all logs between a certain timestamp.
-     *
-     * @param index the name of the ES index to query from
-     * @return the created search request
-     */
-    private fun createSearchRequest(index: String): SearchRequest {
-        val searchRequest = SearchRequest()
-        searchRequest.indices(index)
-
-        val searchSourceBuilder = SearchSourceBuilder()
-        searchSourceBuilder.query(QueryBuilders.matchAllQuery())
-        searchSourceBuilder.size(config.responseHitCount)
-
-        return searchRequest.source(searchSourceBuilder)
     }
 }
