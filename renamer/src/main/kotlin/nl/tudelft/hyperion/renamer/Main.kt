@@ -1,6 +1,6 @@
 @file:JvmName("Main")
 
-package nl.tudelft.hyperion.rename_plugin
+package nl.tudelft.hyperion.renamer
 
 import java.nio.file.Path
 

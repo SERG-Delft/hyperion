@@ -1,4 +1,4 @@
-package nl.tudelft.hyperion.rename_plugin
+package nl.tudelft.hyperion.renamer
 
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper

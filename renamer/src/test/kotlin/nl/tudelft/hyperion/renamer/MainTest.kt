@@ -1,4 +1,4 @@
-package nl.tudelft.hyperion.rename_plugin
+package nl.tudelft.hyperion.renamer
 
 import org.junit.jupiter.api.Test
 
