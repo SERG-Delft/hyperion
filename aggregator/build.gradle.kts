@@ -39,6 +39,9 @@ dependencies {
     // Logging
     implementation("io.github.microutils", "kotlin-logging", "1.7.9")
     implementation("org.slf4j", "slf4j-simple", "1.7.28")
+
+    // Testing
+    testImplementation("io.mockk", "mockk", "1.10.0")
 }
 
 tasks.jacocoTestReport {
