@@ -28,10 +28,14 @@ fun renameFromPath(jsonPath : Path, config : Configuration) : String {
 fun rename(json : String, config: Configuration) : String {
     val mapper = jacksonObjectMapper()
     val tree = mapper.readTree(json)
-    val curVal = tree.findPath(config.rename[0].from)
 
-    (tree.findParent(config.rename[0].from) as ObjectNode).put(config.rename[0].to, curVal)
-    (tree.findParent(config.rename[0].from) as ObjectNode).remove(config.rename[0].from)
+    for(i in config.rename.indices) {
+        if(tree.findParent(config.rename[i].from) != null) {
+            val curVal = tree.findPath(config.rename[i].from)
+            (tree.findParent(config.rename[i].from) as ObjectNode).put(config.rename[i].to, curVal)
+            (tree.findParent(config.rename[i].from) as ObjectNode).remove(config.rename[i].from)
+        }
+    }
 
     return tree.toPrettyString()
 }
