@@ -7,6 +7,7 @@ import kotlinx.coroutines.runBlocking
 import nl.tudelft.hyperion.aggregator.database.Database
 import nl.tudelft.hyperion.aggregator.workers.AggregationManager
 import nl.tudelft.hyperion.aggregator.workers.startAPIWorker
+import nl.tudelft.hyperion.aggregator.workers.startElasticSearchIntakeWorker
 import nl.tudelft.hyperion.aggregator.workers.startExpiryWorker
 import java.nio.file.Path
 
@@ -45,7 +46,8 @@ fun main() {
         joinAll(
                 startExpiryWorker(config),
                 startAPIWorker(config),
-                aggregationManager.startCommitWorker()
+                aggregationManager.startCommitWorker(),
+                startElasticSearchIntakeWorker(aggregationManager)
         )
     }
 }

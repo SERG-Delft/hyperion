@@ -43,6 +43,8 @@ class AggregationManager(private val configuration: Configuration) {
      */
     suspend fun aggregate(entry: LogEntry) {
         aggregateLock.withLock {
+            logger.debug { "Aggregating log entry: $entry" }
+
             val projectAggregates = aggregateMap.getOrPut(entry.project, ::mutableMapOf)
             val versionAggregates = projectAggregates.getOrPut(entry.version, {
                 val intermediates = IntermediateAggregates(entry.project, entry.version)

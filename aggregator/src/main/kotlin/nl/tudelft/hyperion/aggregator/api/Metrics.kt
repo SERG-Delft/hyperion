@@ -42,8 +42,8 @@ fun computeMetrics(configuration: Configuration, project: String, file: String, 
         val startTime = DateTime.now().minusSeconds(interval)
 
         // Group on version
-        val grouped = transaction {
-            AggregationEntries
+        val entries = transaction {
+            val grouped = AggregationEntries
                     // SELECT version, line, severity, SUM(num_triggers)
                     .slice(AggregationEntries.version, AggregationEntries.line, AggregationEntries.severity, AggregationEntries.numTriggers.sum())
                     // WHERE file = ? AND project = ?
@@ -56,11 +56,13 @@ fun computeMetrics(configuration: Configuration, project: String, file: String, 
                     .map { it }
                     // group by version string
                     .groupBy { it[AggregationEntries.version] }
+
+            // Convert to expected format.
+            MetricsResult(interval, grouped.mapValues { (_, rows) ->
+                rows.map { Metric(it[AggregationEntries.line], it[AggregationEntries.severity], it[AggregationEntries.numTriggers.sum()]!!) }
+            })
         }
 
-        // Convert to expected format.
-        MetricsResult(interval, grouped.mapValues { (_, rows) ->
-            rows.map { Metric(it[AggregationEntries.line], it[AggregationEntries.severity], it[AggregationEntries.numTriggers.sum()]!!) }
-        })
+        entries
     }
 }
