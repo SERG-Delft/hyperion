@@ -8,14 +8,7 @@ import io.javalin.http.Context
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import nl.tudelft.hyperion.aggregator.Configuration
-import nl.tudelft.hyperion.aggregator.api.Metric
-import nl.tudelft.hyperion.aggregator.api.MetricsResult
 import nl.tudelft.hyperion.aggregator.api.computeMetrics
-import nl.tudelft.hyperion.aggregator.database.AggregationEntries
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.transactions.transaction
-import kotlin.math.max
-import kotlin.math.min
 
 /**
  * Starts a new worker that hosts a web server for API requests.

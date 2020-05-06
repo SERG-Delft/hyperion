@@ -14,7 +14,7 @@ fun startExpiryWorker(configuration: Configuration) = GlobalScope.launch {
 
     logger.debug { "Starting expiry worker..." }
 
-    while (true) {
+    while (isActive) {
         logger.debug { "Running deletion..." }
 
         // Delete rows that are too old.

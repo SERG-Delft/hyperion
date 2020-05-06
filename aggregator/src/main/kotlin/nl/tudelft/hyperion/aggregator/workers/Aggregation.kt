@@ -2,6 +2,7 @@ package nl.tudelft.hyperion.aggregator.workers
 
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -61,7 +62,7 @@ class AggregationManager(private val configuration: Configuration) {
     fun startCommitWorker() = GlobalScope.launch {
         logger.debug { "Starting aggregation commit worker..." }
 
-        while (true) {
+        while (isActive) {
             delay(configuration.granularity * 1000L)
             commit()
         }
