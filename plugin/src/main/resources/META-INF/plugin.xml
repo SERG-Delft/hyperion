@@ -50,18 +50,11 @@
     <!-- Minimum and maximum build of IDE compatible with the plugin -->
     <idea-version since-build="201.4163"/>
 
-    <extensions defaultExtensionNs="com.intellij">
-        <externalAnnotator implementationClass="nl.tudelft.hyperion.plugin.tooltip.LogExternalAnnotator" language="JAVA" />
-    </extensions>
-
-<!--    <applicationListeners>-->
-<!--        <listener class="nl.tudelft.hyperion.plugin.tooltip.FileUpdatedListener" topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>-->
-<!--    </applicationListeners>-->
 
     <project-components>
         <component>
             <implementation-class>
-                nl.tudelft.hyperion.plugin.tooltip.FileOpenedListener
+                nl.tudelft.hyperion.plugin.visualization.FileOpenedListener
             </implementation-class>
         </component>
     </project-components>
