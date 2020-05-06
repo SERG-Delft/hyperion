@@ -9,9 +9,28 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 /**
- * Represents a configuration setup for the Elasticsearch plugin.
- * Contains the necessary arguments to communicate and pull data from
- * Elasticsearch.
+ * Configuration for Redis communication.
+ *
+ * @property host hostname of the Redis instance to publish to
+ * @property port port of the Redis instance to publish to
+ * @property channel name of the Redis channel to publish to
+ */
+data class RedisConfig(
+        val host: String,
+        var port: Int?,
+        val channel: String
+) {
+    init {
+        // set default values if field is missing
+        // jackson does not support default value setting as of 2.7.1
+        if (port == null) {
+            port = 6379
+        }
+    }
+}
+
+/**
+ * Configuration for Elasticsearch communication.
  *
  * @property hostname hostname of the Elasticsearch server
  * @property index which index to retrieve documents from
@@ -19,12 +38,11 @@ import java.nio.file.Path
  * @property scheme scheme to use for retrieval, is either `http` or `https`
  * @property authentication whether authentication is enabled
  * @property timestampField which field to use for querying based on time
- * @property pollInterval time between sending queries in seconds
  * @property responseHitCount amount of hits to expect
  * @property username username to pass if authentication is set to true
  * @property password password to pass if authentication is set to true
  */
-data class Configuration(
+data class ElasticsearchConfig(
         val hostname: String,
         val index: String,
         var port: Int?,
@@ -32,14 +50,11 @@ data class Configuration(
         val authentication: Boolean,
         @JsonProperty("timestamp_field")
         val timestampField: String,
-        @JsonProperty("poll_interval")
-        val pollInterval: Int,
         @JsonProperty("response_hit_count")
         val responseHitCount: Int,
         val username: String?,
         val password: String?
 ) {
-
     init {
         // set default values if field is missing
         // jackson does not support default value setting as of 2.7.1
@@ -67,16 +82,43 @@ data class Configuration(
             throw IllegalArgumentException("scheme must be 'http' or 'https' but not scheme=$schemeLower")
         }
 
-        if (pollInterval < 1) {
-            throw IllegalArgumentException("poll_interval must be a positive non-zero integer")
-        }
-
         if (responseHitCount < 1) {
             throw IllegalArgumentException("response_hit_count must be a positive non-zero integer")
         }
 
         if (authentication && username == null && password == null) {
             throw IllegalArgumentException("username and password must be provided to use authentication")
+        }
+    }
+}
+
+/**
+ * Represents a configuration setup for the Elasticsearch plugin.
+ * Contains the necessary arguments to communicate and pull data from
+ * Elasticsearch.
+ *
+ * @property pollInterval time between sending queries in seconds
+ * @property redis Redis configuration
+ * @property es Elasticsearch configuration
+ */
+data class Configuration(
+        @JsonProperty("poll_interval")
+        val pollInterval: Int,
+        val redis: RedisConfig,
+        @JsonProperty("elasticsearch")
+        val es: ElasticsearchConfig
+) {
+
+    /**
+     * Verifies that the configuration is correct.
+     *
+     * @throws IllegalArgumentException if any of the fields are invalid
+     */
+    fun verify() {
+        es.verify()
+
+        if (pollInterval < 1) {
+            throw IllegalArgumentException("poll_interval must be a positive non-zero integer")
         }
     }
 

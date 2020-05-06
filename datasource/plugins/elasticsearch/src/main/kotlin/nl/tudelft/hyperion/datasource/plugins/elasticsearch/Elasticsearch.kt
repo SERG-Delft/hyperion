@@ -13,6 +13,7 @@ import org.elasticsearch.client.RestClient
 import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.search.builder.SearchSourceBuilder
+import redis.clients.jedis.Jedis
 import java.util.*
 import kotlin.concurrent.fixedRateTimer
 
@@ -30,7 +31,7 @@ class Elasticsearch(private val config: Configuration) : DataSourcePlugin {
     private var client: RestHighLevelClient
 
     init {
-        if (config.responseHitCount >= 10_000) {
+        if (config.es.responseHitCount >= 10_000) {
             logger.warn {
                 """
                 response_hit_max=$config.responseHitMax, by default this value is capped at 10.000. 
@@ -40,16 +41,16 @@ class Elasticsearch(private val config: Configuration) : DataSourcePlugin {
         }
 
         val clientBuilder = RestClient.builder(HttpHost(
-                config.hostname,
-                config.port!!,
-                config.scheme!!))
+                config.es.hostname,
+                config.es.port!!,
+                config.es.scheme!!))
 
         // add credentials to httpClient if authentication is enabled
-        if (config.authentication) {
+        if (config.es.authentication) {
             val credentialsProvider: CredentialsProvider = BasicCredentialsProvider()
 
             credentialsProvider.setCredentials(AuthScope.ANY,
-                    UsernamePasswordCredentials(config.username!!, config.password!!))
+                    UsernamePasswordCredentials(config.es.username!!, config.es.password!!))
 
             clientBuilder.setHttpClientConfigCallback { httpClientBuilder ->
                 httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)
@@ -63,7 +64,6 @@ class Elasticsearch(private val config: Configuration) : DataSourcePlugin {
 
     companion object {
         private val logger = KotlinLogging.logger {}
-        private val requestHandler = RequestHandler()
 
         /**
          * Creates a search request that queries all logs between a certain timestamp.
@@ -99,14 +99,19 @@ class Elasticsearch(private val config: Configuration) : DataSourcePlugin {
         if (finished)
             throw IllegalStateException("Elasticsearch client is already closed")
 
+        logger.info { "Starting Redis client" }
+
+        val jedis = Jedis(config.redis.host, config.redis.port!!)
+        val requestHandler = RequestHandler(jedis, config.redis.channel)
+
         logger.info { "Starting retrieval of logs" }
 
         timer = fixedRateTimer("requestScheduler", period = config.pollInterval.toLong() * 1000, daemon = true) {
-            val searchRequest = createSearchRequest(config.index,
-                    config.timestampField,
+            val searchRequest = createSearchRequest(config.es.index,
+                    config.es.timestampField,
                     System.currentTimeMillis() / 1000,
                     config.pollInterval,
-                    config.responseHitCount)
+                    config.es.responseHitCount)
 
             client.searchAsync(searchRequest, RequestOptions.DEFAULT, requestHandler)
         }

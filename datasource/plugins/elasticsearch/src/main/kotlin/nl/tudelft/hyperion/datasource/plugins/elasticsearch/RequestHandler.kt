@@ -3,13 +3,17 @@ package nl.tudelft.hyperion.datasource.plugins.elasticsearch
 import mu.KotlinLogging
 import org.elasticsearch.action.ActionListener
 import org.elasticsearch.action.search.SearchResponse
+import redis.clients.jedis.Jedis
 import java.io.PrintWriter
 import java.io.StringWriter
 
 /**
  * Class that transforms responses from Elasticsearch and sends them to a broker.
+ *
+ * @param jedis Jedis client for publishing to
+ * @param channel channel to publish to
  */
-class RequestHandler : ActionListener<SearchResponse> {
+class RequestHandler(private val jedis: Jedis, private val channel: String) : ActionListener<SearchResponse> {
 
     companion object {
         private val logger = KotlinLogging.logger {}
@@ -22,8 +26,9 @@ class RequestHandler : ActionListener<SearchResponse> {
      */
     override fun onResponse(response: SearchResponse) {
         try {
-            // TODO send response to the message queue
-            return
+            for (hit in response.hits) {
+                jedis.publish(channel, hit.sourceAsString)
+            }
         } catch (e: Exception) {
             val sw = StringWriter()
             e.printStackTrace(PrintWriter(sw))
