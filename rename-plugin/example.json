@@ -1,0 +1,7 @@
+{
+  "project" : "some unique identifier for project, such as the repo name or package",
+  "version" : "some way to represent the version, such as a git tag or hash",
+  "severity" : "some severity, no fixed format",
+  "log_line" : 10,
+  "timestamp" : "ISO 8601 timestamp format"
+}
