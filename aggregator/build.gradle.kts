@@ -79,5 +79,5 @@ tasks.shadowJar {
 }
 
 detekt {
-
+    config = files("detekt-config.yml")
 }
