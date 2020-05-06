@@ -1,5 +1,12 @@
 # Configuration file for rename plugin
 
+redis :
+  host : "host"
+  portIn : 6380
+  channelIn : 1
+  portOut : 6381
+  channelOut : 2
+
 rename :
   - from : "log_line"
     to : "location.line"
