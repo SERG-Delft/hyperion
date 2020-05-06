@@ -5,6 +5,7 @@ package nl.tudelft.hyperion.aggregator
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.runBlocking
 import nl.tudelft.hyperion.aggregator.database.Database
+import nl.tudelft.hyperion.aggregator.workers.AggregationManager
 import nl.tudelft.hyperion.aggregator.workers.startAPIWorker
 import nl.tudelft.hyperion.aggregator.workers.startExpiryWorker
 import java.nio.file.Path
@@ -35,13 +36,16 @@ fun main() {
         return
     }
 
+    val aggregationManager = AggregationManager(config)
+
     logger.info { "Hyperion Aggregator running on port ${config.port} with a granularity of ${config.granularity} seconds. ^C to exit." }
 
     // Run tasks blocking. Should never return.
     runBlocking {
         joinAll(
                 startExpiryWorker(config),
-                startAPIWorker(config)
+                startAPIWorker(config),
+                aggregationManager.startCommitWorker()
         )
     }
 }

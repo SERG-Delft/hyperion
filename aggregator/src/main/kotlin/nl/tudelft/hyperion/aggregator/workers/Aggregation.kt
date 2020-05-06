@@ -1,6 +1,8 @@
 package nl.tudelft.hyperion.aggregator.workers
 
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import nl.tudelft.hyperion.aggregator.Configuration
@@ -13,12 +15,12 @@ import org.joda.time.DateTime
 private val logger = mu.KotlinLogging.logger {}
 
 /**
- * Manages the intake tasks for {@link LogEntry} entries. This manager
+ * Manages the aggregation tasks for {@link LogEntry} entries. This manager
  * provides a method for consuming log entries, such that an external worker
  * (usually the channel consumer/redis) can provide entries. Is responsible
  * for aggregating intermediate values and committing them to the database.
  */
-class IntakeManager(private val configuration: Configuration) {
+class AggregationManager(private val configuration: Configuration) {
     /**
      * Manages intermediate aggregates. Is a map of project: version: aggregates.
      */
@@ -35,11 +37,29 @@ class IntakeManager(private val configuration: Configuration) {
     private val aggregateLock = Mutex()
 
     /**
+     * Aggregates the specified log entry. Note that this function suspends. You'll
+     * need to run it through a primitive like `runBlocking`.
+     */
+    suspend fun aggregate(entry: LogEntry) {
+        aggregateLock.withLock {
+            val projectAggregates = aggregateMap.getOrPut(entry.project, ::mutableMapOf)
+            val versionAggregates = projectAggregates.getOrPut(entry.version, {
+                val intermediates = IntermediateAggregates(entry.project, entry.version)
+                intermediateAggregates.add(intermediates)
+
+                intermediates
+            })
+
+            versionAggregates.aggregate(entry)
+        }
+    }
+
+    /**
      * Starts a new commit worker that will periodically commit all intermediate
      * aggregates to the database.
      */
-    public suspend fun startCommitWorker() {
-        logger.debug { "Starting intake commit worker..." }
+    fun startCommitWorker() = GlobalScope.launch {
+        logger.debug { "Starting aggregation commit worker..." }
 
         while (true) {
             delay(configuration.granularity * 1000L)
@@ -53,7 +73,7 @@ class IntakeManager(private val configuration: Configuration) {
      */
     private suspend fun commit() {
         aggregateLock.withLock {
-            logger.debug { "Running intake commit..." }
+            logger.debug { "Running aggregation commit..." }
 
             // Commit every aggregate.
             // TODO: Do this async?
@@ -62,14 +82,14 @@ class IntakeManager(private val configuration: Configuration) {
             intermediateAggregates.clear()
             aggregateMap.clear()
 
-            logger.debug { "Intake commit completed." }
+            logger.debug { "Aggregation commit completed." }
         }
     }
 }
 
 /**
  * Represents a set of intermediate aggregates for a specific (project, version)
- * pair. Stored in the central intake manager.
+ * pair. Stored in the central aggregation manager.
  */
 private data class IntermediateAggregates(val project: String, val version: String) {
     private val aggregates: MutableMap<String, MutableMap<Int, IntermediateAggregate>> = mutableMapOf()
