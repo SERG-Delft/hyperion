@@ -20,9 +20,9 @@ class Rename(val from : String, val to : String)
 data class RedisConfig(
         val host: String,
         var portIn: Int?,
-        val channelIn: String,
+        val channelIn: Int,
         var portOut: Int?,
-        val channelOut: String
+        val channelOut: Int
 ) {
     init {
         // set default values if field is missing
