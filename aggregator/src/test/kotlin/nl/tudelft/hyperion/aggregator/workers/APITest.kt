@@ -24,9 +24,8 @@ class APITest {
             val config = Configuration("a", 1, 1, 1)
             val ctx = mockk<Context>(relaxed = true)
 
-            every {
-                ctx.queryParam("project")
-            } returns null
+            every { ctx.queryParam(any()) } returns "10"
+            every { ctx.queryParam(eq(it)) } returns null
 
             assertThrows<BadRequestResponse> {
                 handleMetrics(config, ctx)
