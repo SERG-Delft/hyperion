@@ -14,7 +14,8 @@ fun main(vararg args: String) {
     // tested with a fresh redis docker image
 
     // load config for Plugin Manager
-    println("Loading config from ${args[0]}")
+
+
     val config = Configuration.load(Path.of(args[0]).toAbsolutePath())
     println("Starting Plugin Manager")
     PluginManager(config)
