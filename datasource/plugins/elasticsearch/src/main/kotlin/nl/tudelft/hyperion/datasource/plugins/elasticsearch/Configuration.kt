@@ -66,7 +66,7 @@ data class ElasticsearchConfig(
             throw IllegalArgumentException("response_hit_count must be a positive non-zero integer")
         }
 
-        if (authentication && username == null && password == null) {
+        if (authentication && (username == null || password == null)) {
             throw IllegalArgumentException("username and password must be provided to use authentication")
         }
     }

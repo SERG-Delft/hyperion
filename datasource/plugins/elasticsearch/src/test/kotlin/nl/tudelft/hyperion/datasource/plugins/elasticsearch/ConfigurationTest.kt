@@ -8,8 +8,9 @@ import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
+import java.lang.IllegalArgumentException
+import kotlin.reflect.full.memberProperties
 import kotlin.reflect.KClass
-import kotlin.reflect.memberProperties
 
 /**
  * Tests the parsing of configuration files.
@@ -107,5 +108,25 @@ class ConfigurationTest {
                 """.trimIndent()
 
         assertThrows<JsonMappingException> { Configuration.parse(config) }
+    }
+
+    @Test
+    fun `test missing username for authentication`() {
+        val config =
+                """
+                poll_interval: 10
+                elasticsearch:
+                  hostname: foo
+                  index: logs
+                  timestamp_field: "@timestamp"
+                  authentication: yes
+                  response_hit_count: 10
+                  password: correcthorsebatterystaple
+                redis:
+                  host: localhost
+                  channel: foo
+                """.trimIndent()
+
+        assertThrows<IllegalArgumentException> { Configuration.parse(config) }
     }
 }

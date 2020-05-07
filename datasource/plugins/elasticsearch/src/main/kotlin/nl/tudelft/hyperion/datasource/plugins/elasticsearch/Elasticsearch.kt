@@ -71,7 +71,7 @@ class Elasticsearch(private val config: Configuration) : DataSourcePlugin {
          * @param index the name of the ES index to query from
          * @return the created search request
          */
-        private fun createSearchRequest(
+        fun createSearchRequest(
                 index: String,
                 timeStampField: String,
                 currentTime: Long,

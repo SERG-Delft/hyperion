@@ -19,6 +19,7 @@ dependencies {
 
     // Used for testing
     testImplementation("org.junit.jupiter", "junit-jupiter-params", "5.6.2")
+    testImplementation("io.mockk", "mockk", "1.9.3")
 
     // Used for logging
     implementation("io.github.microutils", "kotlin-logging", "1.7.9")
@@ -26,12 +27,11 @@ dependencies {
 
     // Necessary for the elasticsearch rest client
     implementation("org.apache.logging.log4j", "log4j-core", "2.13.2")
-    implementation("org.apache.logging.log4j", "log4j-slf4j-impl", "2.13.2")
 
     // Used for YAML deserialization
-    implementation("com.fasterxml.jackson.core", "jackson-databind", "2.7.1-1")
-    implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.7.1-2")
-    implementation("com.fasterxml.jackson.dataformat", "jackson-dataformat-yaml","2.7.1")
+    implementation("com.fasterxml.jackson.core", "jackson-databind", "2.9.4")
+    implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.9.4")
+    implementation("com.fasterxml.jackson.dataformat", "jackson-dataformat-yaml","2.9.4")
 
     // Add datasource commons
     implementation(project("::datasource:common"))
