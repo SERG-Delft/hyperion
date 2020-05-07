@@ -3,48 +3,19 @@ package nl.tudelft.hyperion.renamer
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import nl.tudelft.hyperion.pluginmanager.hyperionplugin.PluginConfiguration
 import java.nio.file.Files
 import java.nio.file.Path
 
 class Rename(val from : String, val to : String)
 
 /**
- * Configuration for Redis communication.
- *
- * @property host hostname of the Redis instance
- * @property portIn port of the Redis instance to subscribe to
- * @property channelIn name of the Redis channel to subscribe to
- * @property portOut port of the Redis instance to publish to
- * @property channelOut name of the Redis channel to publish to
- */
-data class RedisConfig(
-        val host: String,
-        var portIn: Int?,
-        val channelIn: Int,
-        var portOut: Int?,
-        val channelOut: Int
-) {
-    init {
-        // set default values if field is missing
-        // jackson does not support default value setting as of 2.7.1
-        if (portIn == null) {
-            portIn = 6380
-        }
-
-        if (portOut == null) {
-            portOut = 6381
-        }
-    }
-}
-
-/**
  * Configuration for renaming plugin
- * @param redis the Redis configuration
  * @param rename the list of renaming schemes
  */
-class Configuration(
-        val redis : RedisConfig,
-        val rename : List<Rename>
+data class Configuration(
+        val rename : List<Rename>,
+        val pluginConfig: PluginConfiguration
 ) {
     companion object {
         /**

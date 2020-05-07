@@ -1,11 +1,10 @@
 # Configuration file for rename plugin
 
-redis :
-  host : "host"
-  portIn : 6380
-  channelIn : 1
-  portOut : 6381
-  channelOut : 2
+pluginConfig :
+  name: "Plugin1"
+  redis:
+    host: "192.168.2.168"
+    port: 6379
 
 rename :
   - from : "log_line"

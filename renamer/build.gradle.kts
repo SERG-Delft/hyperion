@@ -15,6 +15,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.3.70")
 
     implementation("redis.clients", "jedis", "3.2.0")
+
+    compile(project(":pluginmanager"))
 }
 
 application {
