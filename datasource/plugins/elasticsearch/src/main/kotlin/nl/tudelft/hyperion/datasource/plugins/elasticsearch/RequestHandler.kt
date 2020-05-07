@@ -3,18 +3,17 @@ package nl.tudelft.hyperion.datasource.plugins.elasticsearch
 import mu.KotlinLogging
 import org.elasticsearch.action.ActionListener
 import org.elasticsearch.action.search.SearchResponse
-import redis.clients.jedis.Jedis
+import org.elasticsearch.search.SearchHit
 import java.io.PrintWriter
 import java.io.StringWriter
 
 /**
  * Class that transforms responses from Elasticsearch and sends them to a broker.
  *
- * @param jedis Jedis client for publishing to
- * @param channel channel to publish to
+ * @param action closure that handles the response
  */
 @Suppress("TooGenericExceptionCaught")
-class RequestHandler(private val jedis: Jedis, private val channel: String) : ActionListener<SearchResponse> {
+class RequestHandler(private val action: (SearchHit) -> Unit) : ActionListener<SearchResponse> {
 
     companion object {
         private val logger = KotlinLogging.logger {}
@@ -27,9 +26,7 @@ class RequestHandler(private val jedis: Jedis, private val channel: String) : Ac
      */
     override fun onResponse(response: SearchResponse) {
         try {
-            for (hit in response.hits) {
-                jedis.publish(channel, hit.sourceAsString)
-            }
+            response.hits.forEach(action)
         } catch (e: Exception) {
             val sw = StringWriter()
             e.printStackTrace(PrintWriter(sw))

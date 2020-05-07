@@ -2,6 +2,8 @@ package nl.tudelft.hyperion.datasource.plugins.elasticsearch
 
 import mu.KotlinLogging
 import nl.tudelft.hyperion.datasource.common.DataSourcePlugin
+import nl.tudelft.hyperion.pluginmanager.hyperionplugin.HyperionPlugin
+import nl.tudelft.hyperion.pluginmanager.hyperionplugin.PluginConfiguration
 import org.apache.http.HttpHost
 import org.apache.http.auth.AuthScope
 import org.apache.http.auth.UsernamePasswordCredentials
@@ -12,8 +14,8 @@ import org.elasticsearch.client.RequestOptions
 import org.elasticsearch.client.RestClient
 import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.index.query.QueryBuilders
+import org.elasticsearch.search.SearchHit
 import org.elasticsearch.search.builder.SearchSourceBuilder
-import redis.clients.jedis.Jedis
 import java.util.*
 import kotlin.concurrent.fixedRateTimer
 
@@ -21,16 +23,25 @@ import kotlin.concurrent.fixedRateTimer
  * Plugin that periodically queries an Elasticsearch instance.
  * Starts a daemon that sends a search query every [Configuration.pollInterval].
  *
+ * @constructor
+ * Takes the fields from the configuration format defined in this plugin
+ * and creates a [nl.tudelft.hyperion.pluginmanager.hyperionplugin.PluginConfiguration]
+ *
  * @property config the configuration to use
  *  it is assumed to be correct, otherwise exceptions can be thrown
  */
-class Elasticsearch(private val config: Configuration) : DataSourcePlugin {
+class Elasticsearch(_pluginConfig: PluginConfiguration) : HyperionPlugin(_pluginConfig), DataSourcePlugin {
 
+    private lateinit var config: Configuration
+    private lateinit var client: RestHighLevelClient
     private var finished = false
     private var timer: Timer? = null
-    private var client: RestHighLevelClient
 
-    init {
+    constructor(
+            config: Configuration
+    ) : this(PluginConfiguration(config.redis, config.registrationChannelPostfix, config.name)) {
+        this.config = config
+
         if (config.es.responseHitCount >= 10_000) {
             logger.warn {
                 """
@@ -55,6 +66,8 @@ class Elasticsearch(private val config: Configuration) : DataSourcePlugin {
             clientBuilder.setHttpClientConfigCallback { httpClientBuilder ->
                 httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)
             }
+
+            logger.info { "Elasticsearch authentication enabled" }
         }
 
         this.client = RestHighLevelClient(clientBuilder)
@@ -95,14 +108,23 @@ class Elasticsearch(private val config: Configuration) : DataSourcePlugin {
         }
     }
 
+    /**
+     * Passes a searchHit to the assigned Redis pub channel.
+     *
+     * @param searchHit the searchHit to send in JSON
+     */
+    private fun sendHit(searchHit: SearchHit) {
+        val sync = this.pub.sync()
+        sync.publish(pubChannel, searchHit.sourceAsString)
+    }
+
     override fun start() {
         if (finished)
             throw IllegalStateException("Elasticsearch client is already closed")
 
         logger.info { "Starting Redis client" }
 
-        val jedis = Jedis(config.redis.host, config.redis.port!!)
-        val requestHandler = RequestHandler(jedis, config.redis.channel!!)
+        val requestHandler = RequestHandler(::sendHit)
 
         logger.info { "Starting retrieval of logs" }
 
@@ -124,6 +146,15 @@ class Elasticsearch(private val config: Configuration) : DataSourcePlugin {
     override fun cleanup() {
         logger.info { "Elasticsearch plugin closed" }
         client.close()
+
+        logger.info { "Closing Redis pub/sub connection" }
+        pub.flushCommands()
+        pub.close()
+
         finished = true
+    }
+
+    override fun work(message: String): String {
+        throw IllegalStateException("work should not be called on Elasticsearch plugin")
     }
 }

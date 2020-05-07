@@ -4,7 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import nl.tudelft.hyperion.datasource.common.RedisConfig
+import nl.tudelft.hyperion.pluginmanager.RedisConfig
+import org.apache.logging.log4j.core.config.plugins.PluginConfiguration
 import java.lang.IllegalArgumentException
 import java.nio.file.Files
 import java.nio.file.Path
@@ -86,7 +87,10 @@ data class Configuration(
         val pollInterval: Int,
         val redis: RedisConfig,
         @JsonProperty("elasticsearch")
-        val es: ElasticsearchConfig
+        val es: ElasticsearchConfig,
+        @JsonProperty("registration_channel_postfix")
+        var registrationChannelPostfix: String?,
+        val name: String
 ) {
 
     /**

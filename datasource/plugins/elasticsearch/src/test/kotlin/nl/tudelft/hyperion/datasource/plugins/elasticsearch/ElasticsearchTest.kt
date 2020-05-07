@@ -1,6 +1,6 @@
 package nl.tudelft.hyperion.datasource.plugins.elasticsearch
 
-import nl.tudelft.hyperion.datasource.common.RedisConfig
+import nl.tudelft.hyperion.pluginmanager.RedisConfig
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -14,7 +14,7 @@ class ElasticsearchTest {
     fun init() {
         testConfig = Configuration(
                 5,
-                RedisConfig("foo", 6379, "bar"),
+                RedisConfig("foo", 6379),
                 ElasticsearchConfig(
                         "host",
                         "index",
@@ -25,7 +25,9 @@ class ElasticsearchTest {
                         10,
                         null,
                         null
-                )
+                ),
+                null,
+                "elastic"
         )
     }
 

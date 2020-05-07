@@ -36,6 +36,7 @@ class ConfigurationTest {
     fun `test valid config`() {
         val config =
                 """
+                name: elastic
                 poll_interval: 5
                 elasticsearch:
                   hostname: foo
@@ -48,7 +49,6 @@ class ConfigurationTest {
                 redis:
                   host: localhost
                   port: 6379
-                  channel: foo
                 """.trimIndent()
 
         assertDoesNotThrow { Configuration.parse(config) }
@@ -62,6 +62,7 @@ class ConfigurationTest {
     fun `test optional elasticsearch fields`(param: String, value: Any) {
         val config = Configuration.parse(
                 """
+                name: elastic
                 poll_interval: 5
                 elasticsearch:
                   hostname: foo
@@ -71,7 +72,6 @@ class ConfigurationTest {
                   response_hit_count: 10
                 redis:
                   host: localhost
-                  channel: foo
                 """.trimIndent())
 
         val result = ElasticsearchConfig::class.getProp(param, config.es)
@@ -82,6 +82,7 @@ class ConfigurationTest {
     fun `test invalid field type`() {
         val config =
                 """
+                name: elastic
                 poll_interval: foo
                 elasticsearch:
                   hostname: foo
@@ -91,7 +92,6 @@ class ConfigurationTest {
                   response_hit_count: 10
                 redis:
                   host: localhost
-                  channel: foo
                 """.trimIndent()
 
         assertThrows<InvalidFormatException> { Configuration.parse(config) }
@@ -101,10 +101,10 @@ class ConfigurationTest {
     fun `test missing elasticsearch field`() {
         val config =
                 """
+                name: elastic
                 poll_interval: 42
                 redis:
                   host: localhost
-                  channel: foo
                 """.trimIndent()
 
         assertThrows<JsonMappingException> { Configuration.parse(config) }
@@ -114,6 +114,7 @@ class ConfigurationTest {
     fun `test missing username for authentication`() {
         val config =
                 """
+                name: elastic
                 poll_interval: 10
                 elasticsearch:
                   hostname: foo
@@ -124,7 +125,6 @@ class ConfigurationTest {
                   password: correcthorsebatterystaple
                 redis:
                   host: localhost
-                  channel: foo
                 """.trimIndent()
 
         assertThrows<IllegalArgumentException> { Configuration.parse(config) }

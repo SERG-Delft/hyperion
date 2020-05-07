@@ -15,7 +15,7 @@ dependencies {
     implementation("org.elasticsearch.client", "elasticsearch-rest-high-level-client", "7.6.2")
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.3.5")
     implementation("com.github.ajalt", "clikt", "2.6.0")
-    implementation("redis.clients", "jedis", "3.2.0")
+    implementation("io.lettuce", "lettuce-core", "5.3.0.RELEASE")
 
     // Used for testing
     testImplementation("org.junit.jupiter", "junit-jupiter-params", "5.6.2")
@@ -29,12 +29,13 @@ dependencies {
     implementation("org.apache.logging.log4j", "log4j-core", "2.13.2")
 
     // Used for YAML deserialization
-    implementation("com.fasterxml.jackson.core", "jackson-databind", "2.9.4")
-    implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.9.4")
-    implementation("com.fasterxml.jackson.dataformat", "jackson-dataformat-yaml","2.9.4")
+    implementation("com.fasterxml.jackson.core", "jackson-databind", "2.11.0")
+    implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.11.0")
+    implementation("com.fasterxml.jackson.dataformat", "jackson-dataformat-yaml","2.11.0")
 
     // Add datasource commons
-    implementation(project("::datasource:common"))
+    implementation(project(":datasource:common"))
+    implementation(project(":pluginmanager"))
 }
 
 application {

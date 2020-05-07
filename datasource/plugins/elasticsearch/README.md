@@ -7,7 +7,7 @@ Running in standalone requires the Redis channel to be specified in the configur
 
 ### Example usage standalone
 
-```shell script
+```
 $ java -jar elasticsearch-all.jar                                                     
 Usage: command [OPTIONS] COMMAND [ARGS]...
 
@@ -32,6 +32,7 @@ $ java -jar elasticsearch-all.jar run config.yml
 
 ```yaml
 poll_interval: 5
+name: elasticsearch
 
 elasticsearch:
   hostname: elk.njkyu.com
@@ -45,25 +46,30 @@ elasticsearch:
 redis:
   host: localhost
   port: 6379
-  channel: Foo
 ``` 
 
 The full spec is as follows:
 
 ```yaml
 poll_interval: <num>
+name: <string>
+registration_channel_postfix: <string?, default="-config">
 
 elasticsearch:
   hostname: <string>
   index: <string>
-  port: <num, optional, default=9200>
+  port: <num?, default=9200>
   scheme: <string, http | https>
   timestamp_field: <string>
-  authentication: <boolean>
   response_hit_count: <num>
+  authentication: <boolean>
+
+  # username and password are necessary
+  # if authentication=true
+  username: <string?>
+  password: <string?>
 
 redis:
   host: <string>
-  port: <num, optional, default=6379>
-  channel: <string, optional>
+  port: <num?, default=6379>
 ``` 
