@@ -2,14 +2,13 @@ package nl.tudelft.hyperion.aggregator.workers
 
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import nl.tudelft.hyperion.aggregator.Configuration
+import nl.tudelft.hyperion.aggregator.utils.withSpecificTransaction
 import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Test
 
 class ExpiryTest {
@@ -24,19 +23,13 @@ class ExpiryTest {
             // Do nothing
         }
 
-        // Mock transaction { }
-        mockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
-        every {
-            transaction<Any>(null, captureLambda())
-        } answers {
-            lambda<Transaction.() -> Any>().captured.invoke(transaction)
-        }
-
-        // Run expiry handler for 1.1 seconds. It should invoke the deletion twice (once, delay, twice)
-        runBlocking {
-            val worker = startExpiryWorker(Configuration("a", 1, 1, 1))
-            delay(1100L)
-            worker.cancel()
+        withSpecificTransaction(transaction) {
+            // Run expiry handler for 1.1 seconds. It should invoke the deletion twice (once, delay, twice)
+            runBlocking {
+                val worker = startExpiryWorker(Configuration("a", 1, 1, 1))
+                delay(1100L)
+                worker.cancel()
+            }
         }
 
         // Assert twice.
@@ -63,19 +56,13 @@ class ExpiryTest {
             }
         }
 
-        // Mock transaction { }
-        mockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
-        every {
-            transaction<Any>(null, captureLambda())
-        } answers {
-            lambda<Transaction.() -> Any>().captured.invoke(transaction)
-        }
-
-        // Run expiry handler for 1.1 seconds. It should invoke the deletion twice (once, delay, twice)
-        runBlocking {
-            val worker = startExpiryWorker(Configuration("a", 1, 1, 1))
-            delay(1100L)
-            worker.cancel()
+        withSpecificTransaction(transaction) {
+            // Run expiry handler for 1.1 seconds. It should invoke the deletion twice (once, delay, twice)
+            runBlocking {
+                val worker = startExpiryWorker(Configuration("a", 1, 1, 1))
+                delay(1100L)
+                worker.cancel()
+            }
         }
 
         // Assert twice.
