@@ -8,17 +8,6 @@ import nl.tudelft.hyperion.pluginmanager.RedisConfig
 import java.nio.file.Files
 import java.nio.file.Path
 
-// TODO: have one generic redisconfig accros all configurations
-data class RedisConfig(
-        var host: String,
-        var port: Int?
-) {
-    init {
-        if (port == null) {
-            port = 6739
-        }
-    }
-}
 
 data class PluginConfiguration(
         val redis: RedisConfig,
