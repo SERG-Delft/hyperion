@@ -42,6 +42,7 @@ dependencies {
 
     // Testing
     testImplementation("io.mockk", "mockk", "1.10.0")
+    testImplementation("org.xerial", "sqlite-jdbc", "3.31.1")
 }
 
 tasks.jacocoTestReport {

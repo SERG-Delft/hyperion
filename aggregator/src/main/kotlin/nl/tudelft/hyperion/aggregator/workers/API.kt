@@ -38,6 +38,13 @@ fun handleMetrics(configuration: Configuration, ctx: Context) {
     val file = ctx.queryParam("file") ?: throw BadRequestResponse("Missing file query parameter")
     val intervals = (ctx.queryParam("intervals") ?: throw BadRequestResponse("Missing intervals query parameter"))
         .split(",")
+        .map {
+            if (it.contains(Regex("[^0-9]"))) {
+                throw BadRequestResponse("'intervals' query must contain numbers only")
+            }
+
+            it
+        }
         .map { it.toInt() }
 
     ctx.json(computeMetrics(configuration, project, file, intervals))
