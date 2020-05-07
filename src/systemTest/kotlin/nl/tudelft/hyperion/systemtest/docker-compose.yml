@@ -14,19 +14,25 @@ services:
       - "6379:6379"
   datasource:
     dockerfile: ../../../../../../../sampleplugin
-      args:
-        - configpath=datasource.yml
-      ports:
-        - "6379:6379"
+    args:
+      - configpath=datasource.yml
+    ports:
+      - "6379:6379"
   renamer:
     dockerfile: ../../../../../../../sampleplugin
-      args:
-        - configpath=renamer.yml
-      ports:
-        - "6379:6379"
+    args:
+      - configpath=renamer.yml
+    ports:
+      - "6379:6379"
   aggregator:
     dockerfile: ../../../../../../../sampleplugin
-      args:
-        - configpath=aggregator.yml
-      ports:
-        - "6379:6379"
+    args:
+      - configpath=aggregator.yml
+    ports:
+      - "6379:6379"
+
+
+
+
+
+
