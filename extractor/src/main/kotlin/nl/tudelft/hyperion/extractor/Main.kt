@@ -2,6 +2,8 @@
 
 package nl.tudelft.hyperion.extractor
 
+import java.nio.file.Path
+
 fun main(vararg args: String) {
-    println("Extractor extracts")
+    val config = Configuration.load(Path.of("./extractor/config.yaml").toAbsolutePath())
 }

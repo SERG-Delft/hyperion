@@ -11,6 +11,16 @@ application {
     mainClassName = "nl.tudelft.hyperion.extractor.Main"
 }
 
+dependencies {
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.7.1-1")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.10.2")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.7.1")
+
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.3.70")
+
+    implementation("redis.clients", "jedis", "3.2.0")
+}
+
 jacoco {
     toolVersion = "0.8.5"
     reportsDir = file("$buildDir/jacoco")

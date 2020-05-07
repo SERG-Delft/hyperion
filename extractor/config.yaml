@@ -1,0 +1,5 @@
+field : "message"
+match : "[.*?] INFO [^:]+:(\\d+) - .*"
+rename :
+  to : "location.line"
+  type : "number"
