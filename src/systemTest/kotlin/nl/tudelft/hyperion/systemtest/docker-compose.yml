@@ -6,6 +6,6 @@ services:
   redis:
     image: "redis:latest"
   pluginmanager:
-    build: /pluginmanager/
+    build: ../../../../../../../pluginmanager
     ports:
       - "6379:6379"
