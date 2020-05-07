@@ -7,28 +7,28 @@ services:
     image: "redis:latest"
   pluginmanager:
     build:
-      dockerfile: ../../../../../../../pluginmanager
+      context: ../../../../../../../pluginmanager
       args:
         - configpath=pluginmanager.yaml
     ports:
       - "6379:6379"
   datasource:
     build:
-      dockerfile: ../../../../../../../sampleplugin
+      context: ../../../../../../../sampleplugin
       args:
         - configpath=datasource.yml
     ports:
       - "6379:6379"
   renamer:
     build:
-      dockerfile: ../../../../../../../sampleplugin
+      context: ../../../../../../../sampleplugin
       args:
         - configpath=renamer.yml
     ports:
       - "6379:6379"
   aggregator:
     build:
-      dockerfile: ../../../../../../../sampleplugin
+      context: ../../../../../../../sampleplugin
       args:
         - configpath=aggregator.yml
     ports:
