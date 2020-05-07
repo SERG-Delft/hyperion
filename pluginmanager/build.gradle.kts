@@ -12,7 +12,14 @@ application {
 }
 
 dependencies {
-    implementation("io.lettuce:lettuce-core:5.3.0.RELEASE")
+    // redis client
+    implementation("io.lettuce", "lettuce-core", "5.3.0.RELEASE")
+
+    // yaml parsing
+    implementation("com.fasterxml.jackson.core", "jackson-databind", "2.9.4")
+    implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.10.2")
+    implementation("com.fasterxml.jackson.datatype", "jackson-datatype-joda", "2.9.4")
+    implementation("com.fasterxml.jackson.dataformat", "jackson-dataformat-yaml", "2.9.4")
 }
 
 jacoco {
