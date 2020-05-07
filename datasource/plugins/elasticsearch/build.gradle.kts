@@ -17,6 +17,9 @@ dependencies {
     implementation("com.github.ajalt", "clikt", "2.6.0")
     implementation("redis.clients", "jedis", "3.2.0")
 
+    // Used for testing
+    testImplementation("org.junit.jupiter", "junit-jupiter-params", "5.6.2")
+
     // Used for logging
     implementation("io.github.microutils", "kotlin-logging", "1.7.9")
     implementation("org.slf4j", "slf4j-simple", "1.7.28")
