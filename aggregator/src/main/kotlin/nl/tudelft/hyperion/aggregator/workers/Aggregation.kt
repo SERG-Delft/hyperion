@@ -45,28 +45,42 @@ class AggregationManager(private val configuration: Configuration) {
         aggregateLock.withLock {
             logger.debug { "Aggregating log entry: $entry" }
 
-            val projectAggregates = aggregateMap.getOrPut(entry.project, ::mutableMapOf)
-            val versionAggregates = projectAggregates.getOrPut(entry.version, {
-                val intermediates = IntermediateAggregates(entry.project, entry.version)
-                intermediateAggregates.add(intermediates)
-
-                intermediates
-            })
-
+            val versionAggregates = getIntermediateAggregates(entry.project, entry.version)
             versionAggregates.aggregate(entry)
         }
+    }
+
+    /**
+     * Returns a cached intermediate aggregate for this commit cycle, if one exists.
+     * If one does not exist, a new IntermediateAggregates instance is created.
+     */
+    fun getIntermediateAggregates(project: String, version: String): IntermediateAggregates {
+        val projectAggregates = aggregateMap.getOrPut(project, ::mutableMapOf)
+
+        return projectAggregates.getOrPut(version, {
+            val intermediates = IntermediateAggregates(project, version)
+            intermediateAggregates.add(intermediates)
+
+            intermediates
+        })
     }
 
     /**
      * Starts a new commit worker that will periodically commit all intermediate
      * aggregates to the database.
      */
+    @Suppress("TooGenericExceptionCaught")
     fun startCommitWorker() = GlobalScope.launch {
         logger.debug { "Starting aggregation commit worker..." }
 
         while (isActive) {
             delay(configuration.granularity * 1000L)
-            commit()
+
+            try {
+                commit()
+            } catch (ex: Exception) {
+                logger.error(ex) { "Failed to commit aggregates." }
+            }
         }
     }
 
@@ -74,7 +88,7 @@ class AggregationManager(private val configuration: Configuration) {
      * Commits the current aggregates to the database and clears the database list.
      * @see IntermediateAggregates.commit
      */
-    private suspend fun commit() {
+    suspend fun commit() {
         aggregateLock.withLock {
             logger.debug { "Running aggregation commit..." }
 
@@ -94,8 +108,20 @@ class AggregationManager(private val configuration: Configuration) {
  * Represents a set of intermediate aggregates for a specific (project, version)
  * pair. Stored in the central aggregation manager.
  */
-private data class IntermediateAggregates(val project: String, val version: String) {
+data class IntermediateAggregates(val project: String, val version: String) {
     private val aggregates: MutableMap<String, MutableMap<Int, IntermediateAggregate>> = mutableMapOf()
+
+    /**
+     * Returns a cached intermediate aggregate for this commit cycle, if one exists.
+     * If one does not exist, a new IntermediateAggregates instance is created.
+     */
+    fun getIntermediateAggregate(file: String, line: Int, severity: String): IntermediateAggregate {
+        val fileAggregates = aggregates.getOrPut(file, ::mutableMapOf)
+
+        return fileAggregates.getOrPut(line, {
+            IntermediateAggregate(severity, 0)
+        })
+    }
 
     /**
      * Aggregates the specified LogEntry in this intermediate aggregation.
@@ -139,6 +165,9 @@ private data class IntermediateAggregates(val project: String, val version: Stri
                 this[AggregationEntries.numTriggers] = it.numTriggers
             }
         }
+
+        // Clear local.
+        aggregates.clear()
     }
 }
 
@@ -148,7 +177,7 @@ private data class IntermediateAggregates(val project: String, val version: Stri
  * two logs on the same line differ in severity, a warning will be logged
  * and the first one encountered will be the value persisted).
  */
-private data class IntermediateAggregate(val severity: String, var count: Int)
+data class IntermediateAggregate(val severity: String, var count: Int)
 
 /**
  * Intermediate container for efficiently inserting all entries in the database
