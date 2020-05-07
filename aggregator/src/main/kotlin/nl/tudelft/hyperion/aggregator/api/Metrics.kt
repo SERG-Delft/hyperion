@@ -47,6 +47,7 @@ fun computeMetrics(
         // Clamp to values within bounds.
         val interval = max(min(it, configuration.aggregationTtl), configuration.granularity)
         val startTime = DateTime.now().minusSeconds(interval)
+        val endTime = DateTime.now()
 
         // Group on version
         val entries = transaction {
@@ -61,7 +62,7 @@ fun computeMetrics(
                 // WHERE file = ? AND project = ?
                 .select {
                     (AggregationEntries.file eq file) and (AggregationEntries.project eq project) and
-                        (AggregationEntries.timestamp greater startTime)
+                        (AggregationEntries.timestamp greater startTime) and (AggregationEntries.timestamp less endTime)
                 }
                 // GROUP BY version, severity, line
                 .groupBy(AggregationEntries.version, AggregationEntries.severity, AggregationEntries.line)
