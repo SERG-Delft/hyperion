@@ -38,7 +38,9 @@ data class RedisConfig(
 }
 
 /**
- *
+ * Configuration for renaming plugin
+ * @param redis the Redis configuration
+ * @param rename the list of renaming schemes
  */
 class Configuration(
         val redis : RedisConfig,
