@@ -1,0 +1,11 @@
+# Sets up redis, plugin manager and 3 sample plugins
+# run this from top level
+
+version: '3'
+services:
+  redis:
+    image: "redis:latest"
+  pluginmanager:
+    build: /pluginmanager/
+    ports:
+      - "6379:6379"

@@ -15,11 +15,12 @@ fun main(vararg args: String) {
 
     // load config for Plugin Manager
     val config = Configuration.load(Path.of("pluginmanager.yaml").toAbsolutePath())
-    val configp1 = PluginConfiguration.load(Path.of("sampleplugin1.yaml").toAbsolutePath())
-
     println("Starting Plugin Manager")
-    val pm = PluginManager(config)
+    PluginManager(config)
 
+    // loading plugins
+    /*
+    val configp1 = PluginConfiguration.load(Path.of("sampleplugin1.yaml").toAbsolutePath())
     // PluginManager does not have refs to plugins in practice
     val p1 = SamplePlugin(configp1)
 
@@ -29,4 +30,5 @@ fun main(vararg args: String) {
     for (x in 0..1000) {
         p1.onMessage("$x")
     }
+    */
 }
