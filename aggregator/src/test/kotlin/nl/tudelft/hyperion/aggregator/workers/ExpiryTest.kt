@@ -3,6 +3,7 @@ package nl.tudelft.hyperion.aggregator.workers
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -42,6 +43,8 @@ class ExpiryTest {
         verify(exactly = 2) {
             transaction.exec(match { it.contains("DELETE FROM") })
         }
+
+        unmockkAll()
     }
 
     @Test
@@ -79,5 +82,7 @@ class ExpiryTest {
         verify(exactly = 2) {
             transaction.exec(match { it.contains("DELETE FROM") })
         }
+
+        unmockkAll()
     }
 }

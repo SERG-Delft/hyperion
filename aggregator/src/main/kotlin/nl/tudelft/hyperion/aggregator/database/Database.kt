@@ -24,7 +24,7 @@ object Database {
         } catch (ex: Exception) {
             throw RuntimeException(
                 "Failed to connect to the database. Ensure that the database is running and that" +
-                    "the connection URL is correct.",
+                    " the connection URL is correct.",
                 ex
             )
         }

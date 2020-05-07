@@ -5,6 +5,7 @@ import io.javalin.http.Context
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import io.mockk.unmockkAll
 import io.mockk.verify
 import nl.tudelft.hyperion.aggregator.Configuration
 import nl.tudelft.hyperion.aggregator.api.computeMetrics
@@ -75,5 +76,7 @@ class APITest {
         verify {
             computeMetrics(config, "test", "test.java", listOf(10, 20, 30))
         }
+
+        unmockkAll()
     }
 }
