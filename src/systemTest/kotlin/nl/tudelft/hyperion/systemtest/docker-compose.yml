@@ -9,13 +9,24 @@ services:
     build:
       dockerfile: ../../../../../../../pluginmanager
       args:
-        - configpath=kip.yaml
-
+        - configpath=pluginmanager.yaml
     ports:
       - "6379:6379"
-  # TODO: load sampleplugin three time, datasource, plugin, Aggregator
-
-
-
-
-
+  datasource:
+    dockerfile: ../../../../../../../sampleplugin
+      args:
+        - configpath=datasource.yml
+      ports:
+        - "6379:6379"
+  renamer:
+    dockerfile: ../../../../../../../sampleplugin
+      args:
+        - configpath=renamer.yml
+      ports:
+        - "6379:6379"
+  aggregator:
+    dockerfile: ../../../../../../../sampleplugin
+      args:
+        - configpath=aggregator.yml
+      ports:
+        - "6379:6379"

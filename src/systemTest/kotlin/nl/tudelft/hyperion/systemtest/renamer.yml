@@ -1,0 +1,4 @@
+name: "Renamer"
+redis:
+  host: "redis"
+  port: 6379
