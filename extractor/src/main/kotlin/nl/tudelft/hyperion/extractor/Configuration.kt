@@ -11,7 +11,7 @@ import java.nio.file.Path
  * @param to : The name of the new field
  * @param type : type of the extracted value
  */
-class Rename(to : String, type : String)
+data class Rename(val to : String, val type : String)
 
 /**
  * Data class for the configuration of the plugin
