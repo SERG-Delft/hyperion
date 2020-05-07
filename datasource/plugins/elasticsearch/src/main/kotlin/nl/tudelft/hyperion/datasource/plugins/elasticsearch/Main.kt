@@ -7,7 +7,6 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.default
-import java.lang.IllegalArgumentException
 import java.nio.file.Path
 import kotlin.system.exitProcess
 
@@ -16,9 +15,6 @@ const val DEFAULT_CONFIG_FILE = "config.yml"
 val HELP_TEXT = """
     Periodically pull data from an Elasticsearch instance and send it to the
     Hyperion pipeline.
-        
-    Can either be run via a config file by passing `--file` or by manually 
-    passing the necessary arguments for communication with Elasticsearch
     """.trimIndent()
 
 /**
@@ -74,14 +70,6 @@ class Run : CliktCommand(help = "Run with the the given config file") {
     }
 }
 
-/**
- * Command that starts the service with command line arguments
- * instead of a config file.
- */
-class Args : CliktCommand(help = "Run with the provided args") {
-    override fun run() = TODO("Not yet implemented")
-}
-
 fun main(args: Array<String>) = Command()
-        .subcommands(Verify(), Run(), Args())
+        .subcommands(Verify(), Run())
         .main(args)

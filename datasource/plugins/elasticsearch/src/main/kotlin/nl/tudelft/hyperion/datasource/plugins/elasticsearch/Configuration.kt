@@ -123,7 +123,7 @@ data class Configuration(
          * @param content the configuration as a YAML string
          * @return the parsed configuration
          */
-        private fun parse(content: String): Configuration {
+        fun parse(content: String): Configuration {
             val mapper = ObjectMapper(YAMLFactory())
             mapper.registerModule(KotlinModule())
 

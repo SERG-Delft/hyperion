@@ -83,7 +83,7 @@ class Elasticsearch(private val config: Configuration) : DataSourcePlugin {
 
             val query = QueryBuilders
                     .rangeQuery(timeStampField)
-                    .from(currentTime - range)
+                    .gt(currentTime - range)
                     .to(currentTime)
                     .format("epoch_second")
 
