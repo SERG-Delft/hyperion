@@ -23,7 +23,7 @@ fun main(vararg args: String) {
     // write message to pl
     val currentDateTime = LocalDateTime.now()
     println(currentDateTime)
-    for (x in 0..10000) {
+    for (x in 0..1000) {
         p1.onMessage("$x")
     }
 }
