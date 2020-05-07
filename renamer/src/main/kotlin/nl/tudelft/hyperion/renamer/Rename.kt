@@ -30,10 +30,12 @@ fun rename(json : String, config: Configuration) : String {
     val tree = mapper.readTree(json)
 
     for(i in config.rename.indices) {
-        if(tree.findParent(config.rename[i].from) != null) {
-            val curVal = tree.findPath(config.rename[i].from)
-            (tree.findParent(config.rename[i].from) as ObjectNode).put(config.rename[i].to, curVal)
-            (tree.findParent(config.rename[i].from) as ObjectNode).remove(config.rename[i].from)
+        val parent = tree.findParent(config.rename[i].from)
+        if(parent != null) {
+            val value = tree.findPath(config.rename[i].from)
+
+            (parent as ObjectNode).put(config.rename[i].to, value)
+            (parent as ObjectNode).remove(config.rename[i].from)
         }
     }
 
