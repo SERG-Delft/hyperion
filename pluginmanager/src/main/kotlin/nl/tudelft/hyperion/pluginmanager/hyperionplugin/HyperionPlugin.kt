@@ -27,6 +27,9 @@ abstract class HyperionPlugin(private val config: PluginConfiguration) {
         // TODO: use logging instead of printing
         println("Starting HyperionPLugin-${config.name}")
         register()
+        while (true) {
+            Thread.sleep(Long.MAX_VALUE)
+        }
     }
 
     fun onMessage(message: String) {
