@@ -3,6 +3,7 @@ package nl.tudelft.hyperion.extractor
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import nl.tudelft.hyperion.pluginmanager.RedisConfig
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -17,12 +18,15 @@ data class Extract(val to : String, val type : String)
  * Data class for the configuration of the plugin
  * @param field : name of the field to match
  * @param match : regex to match the value of the field on
- * @param rename : renaming scheme
+ * @param extract : naming scheme
  */
-class Configuration(
+data class Configuration(
         val field : String,
         val match : String,
-        val extract : List<Extract>
+        val extract : List<Extract>,
+        val redis: RedisConfig,
+        var registrationChannelPostfix: String?,
+        val name: String
 ) {
     companion object {
         /**
