@@ -184,7 +184,7 @@ data class IntermediateAggregate(val severity: String, var count: Int)
  * in a single batch call. Corresponds to the fields declared in
  * @see AggregationEntries
  */
-private data class AggregateInsertContainer(
+data class AggregateInsertContainer(
     val project: String,
     val version: String,
     val severity: String,
