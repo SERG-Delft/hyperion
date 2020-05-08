@@ -31,7 +31,7 @@ class DocumentTooltipListener(private var tooltips : MutableSet<Pair<LogInfo, In
         while (it.hasNext()) {
             val tooltip = it.next()
 
-            if ((tooltip.second.offset >= event.offset && tooltip.second.offset < event.offset + event.oldLength + event.newLength)) {
+            if (tooltip.second.offset >= event.offset && tooltip.second.offset < event.offset + event.oldLength + event.newLength) {
 
                 // Dispose tooltip inlay.
                 val editor = tooltip.second.editor
