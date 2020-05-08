@@ -3,7 +3,7 @@ package nl.tudelft.hyperion.renamer
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import nl.tudelft.hyperion.pluginmanager.hyperionplugin.PluginConfiguration
+import nl.tudelft.hyperion.pluginmanager.RedisConfig
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -15,7 +15,9 @@ class Rename(val from : String, val to : String)
  */
 data class Configuration(
         val rename : List<Rename>,
-        val pluginConfig: PluginConfiguration
+        val redis: RedisConfig,
+        var registrationChannelPostfix: String?,
+        val name: String
 ) {
     companion object {
         /**

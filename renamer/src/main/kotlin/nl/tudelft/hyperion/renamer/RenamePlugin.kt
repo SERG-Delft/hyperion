@@ -4,8 +4,14 @@ import nl.tudelft.hyperion.pluginmanager.hyperionplugin.HyperionPlugin
 import nl.tudelft.hyperion.pluginmanager.hyperionplugin.PluginConfiguration
 import java.nio.file.Path
 
-class RenamePlugin(private val config: PluginConfiguration): HyperionPlugin(config) {
+class RenamePlugin(_pluginConfig: PluginConfiguration): HyperionPlugin(_pluginConfig) {
+    private lateinit var config: Configuration
+
+    constructor(
+            config: Configuration
+    ) : this(PluginConfiguration(config.redis, config.registrationChannelPostfix, config.name)) { this.config = config }
+
     override fun work(message: String): String {
-        return rename(message, Configuration.load(Path.of("./renamer/config.yaml").toAbsolutePath()))
+        return rename(message, config)
     }
 }
