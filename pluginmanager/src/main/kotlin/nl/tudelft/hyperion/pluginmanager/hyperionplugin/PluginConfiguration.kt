@@ -8,6 +8,7 @@ import nl.tudelft.hyperion.pluginmanager.RedisConfig
 import java.nio.file.Files
 import java.nio.file.Path
 
+private val logger = mu.KotlinLogging.logger {}
 
 data class PluginConfiguration(
         val redis: RedisConfig,

@@ -7,8 +7,9 @@ import io.lettuce.core.pubsub.RedisPubSubListener
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection
 import nl.tudelft.hyperion.pluginmanager.hyperionplugin.PluginConfiguration
 
-
 abstract class HyperionPlugin(private val config: PluginConfiguration) {
+    private val logger = mu.KotlinLogging.logger {}
+
     var registered = false
     private val channelConfig = "${config.name}${config.registrationChannelPostfix}"
 
@@ -24,9 +25,9 @@ abstract class HyperionPlugin(private val config: PluginConfiguration) {
     lateinit var redisClient: RedisClient
 
     init {
-        // TODO: use logging instead of printing
-        println("Starting HyperionPLugin-${config.name}")
+        logger.info {"Starting HyperionPLugin-${config.name}"}
         register()
+        logger.info {"HyperionPLugin-${config.name} enters infinte sleep on main thread"}
         while (true) {
             Thread.sleep(Long.MAX_VALUE)
         }
@@ -51,12 +52,14 @@ abstract class HyperionPlugin(private val config: PluginConfiguration) {
 
         if (publisher) {
             connectPublisher()
+            logger.info {"${config.name} registered as publisher on: $pubChannel"}
         }
         if (subscriber) {
             connectSubscriber()
+            logger.info {"${config.name} registered as subscriber on: $subChannel"}
         }
         registered = true
-        println("${config.name} registered as pub: $publisher, sub: $subscriber")
+        logger.info {"${config.name} registered as pub: $publisher, sub: $subscriber"}
     }
 
     fun connectPublisher() {

@@ -2,35 +2,33 @@
 
 package nl.tudelft.hyperion.pluginmanager
 
-import nl.tudelft.hyperion.pluginmanager.hyperionplugin.PluginConfiguration
-import nl.tudelft.hyperion.pluginmanager.hyperionplugin.SamplePlugin
 import java.nio.file.Path
-import java.time.LocalDateTime
+
+private val logger = mu.KotlinLogging.logger {}
 
 
+/**
+ * Main entry point for the pluginmanager. Loads the configuration,
+ * pushes the plugin configuration to redis and exits.
+ */
 fun main(vararg args: String) {
-    // order of plugins is as of now configured _in code_ in the PluginManager
-    // use the onMessage function in the first plugin to put a message in the pipeline
-    // tested with a fresh redis docker image
 
-    // load config for Plugin Manager
-
-    println("Loading config from ${args[0]}")
-    val config = Configuration.load(Path.of(args[0]).toAbsolutePath())
-    println("Starting Plugin Manager")
-    PluginManager(config)
-
-    // loading plugins
-    /*
-    val configp1 = PluginConfiguration.load(Path.of("sampleplugin1.yaml").toAbsolutePath())
-    // PluginManager does not have refs to plugins in practice
-    val p1 = SamplePlugin(configp1)
-
-    // write message to pl
-    val currentDateTime = LocalDateTime.now()
-    println(currentDateTime)
-    for (x in 0..1000) {
-        p1.onMessage("$x")
+    logger.info {"Loading config from ${args[0]}"}
+    val config = try {
+        val config = Configuration.load(Path.of(args[0]).toAbsolutePath())
+        config.verify()
+        config
+    } catch (ex: Exception) {
+        logger.error(ex) {"Failed to parse configuration. Does the file exist and is it valid YAML?"}
+        return
     }
-    */
+
+    logger.info {"Starting Plugin Manager"}
+    try {
+        PluginManager(config)
+    } catch (ex: Exception) {
+        logger.error(ex) {"Failed to execute Plugin Manager"}
+        return
+    }
+    logger.info {"Started Plugin Manager"}
 }

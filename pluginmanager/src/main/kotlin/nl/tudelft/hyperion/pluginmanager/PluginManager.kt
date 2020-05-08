@@ -2,15 +2,21 @@ package nl.tudelft.hyperion.pluginmanager
 
 import io.lettuce.core.*
 
+private val logger = mu.KotlinLogging.logger {}
+
 class PluginManager(config: Configuration) {
     private val channelConfig = config.registrationChannelPostfix
     private val cm = ConnectionManager(RedisURI.create(config.redis.host, config.redis.port!!))
     private val plugins = config.plugins
 
-    // TODO: use logging instead of printing
     init {
-        configPlugins()
-        println("Written config to redis")
+        logger.info {"Write plugin config to redis"}
+        try {
+            configPlugins()
+        } catch (ex: Exception) {
+            logger.error(ex) {"Failed to push plugin config to redis"}
+        }
+        logger.info {"Written config to redis"}
     }
 
     private fun configPlugins() {

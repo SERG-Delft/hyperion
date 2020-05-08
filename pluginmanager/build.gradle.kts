@@ -20,6 +20,10 @@ dependencies {
     implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.10.2")
     implementation("com.fasterxml.jackson.datatype", "jackson-datatype-joda", "2.9.4")
     implementation("com.fasterxml.jackson.dataformat", "jackson-dataformat-yaml", "2.9.4")
+
+    // Logging
+    implementation("io.github.microutils", "kotlin-logging", "1.7.9")
+    implementation("org.slf4j", "slf4j-simple", "1.7.28")
 }
 
 jacoco {
