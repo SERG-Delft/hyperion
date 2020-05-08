@@ -78,6 +78,7 @@ class RedisIntake(
      * and instead assume that any message on a channel that we've subscribed to
      * contains valid log entries.
      */
+    @Suppress("TooGenericExceptionCaught")
     override fun message(channel: String, message: String) {
         logger.debug { "Received message from redis: '$message'" }
 
@@ -97,7 +98,7 @@ class RedisIntake(
         }
     }
 
-    //<editor-fold desc="Redis pub-sub listener unused callbacks">
+    // <editor-fold desc="Redis pub-sub listener unused callbacks">
     override fun psubscribed(pattern: String?, count: Long) {
         // Do nothing
     }
@@ -117,7 +118,7 @@ class RedisIntake(
     override fun message(pattern: String?, channel: String?, message: String?) {
         // Do nothing
     }
-    //</editor-fold>
+    // </editor-fold>
 }
 
 /**
