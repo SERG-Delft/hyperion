@@ -1,3 +1,5 @@
+@file:JvmName("Main")
+
 package nl.tudelft.hyperion.sampleplugin
 
 import nl.tudelft.hyperion.pluginmanager.hyperionplugin.SamplePlugin
