@@ -1,5 +1,7 @@
 field : "message"
-match : "\\[.*?\\] INFO [^:]+:(\\d+) - .*"
-rename :
-  to : "location.line"
-  type : "number"
+match : "\\[.+?\\] INFO [^:]+:(\\d+) (-) .+"
+extract :
+  - to : "location.line"
+    type : "number"
+  - to : "dash"
+    type : "string"
