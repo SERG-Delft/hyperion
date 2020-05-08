@@ -36,6 +36,10 @@ dependencies {
     implementation("org.jetbrains.exposed", "exposed-jodatime", "0.23.1")
     implementation("org.postgresql", "postgresql", "42.2.12")
 
+    // Intake
+    implementation("io.lettuce", "lettuce-core", "5.3.0.RELEASE")
+    implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-jdk8", "1.3.5")
+
     // Logging
     implementation("io.github.microutils", "kotlin-logging", "1.7.9")
     implementation("org.slf4j", "slf4j-simple", "1.7.28")

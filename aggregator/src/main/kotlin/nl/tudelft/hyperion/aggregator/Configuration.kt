@@ -28,7 +28,11 @@ data class Configuration(
      * The time in seconds aggregated entries should persist after
      * their creation.
      */
-    val aggregationTtl: Int
+    val aggregationTtl: Int,
+    /**
+     * The connection information for the redis server.
+     */
+    val redisConfiguration: RedisConfiguration = RedisConfiguration("localhost")
 ) {
     /**
      * Ensures that this is a valid configuration, i.e. that all properties
@@ -62,6 +66,9 @@ data class Configuration(
                     "the database would always be empty!"
             )
         }
+
+        // Ensure nested configs are valid.
+        redisConfiguration.validate()
 
         return this
     }
@@ -97,5 +104,27 @@ data class Configuration(
 
             return mapper.readValue(content, Configuration::class.java)
         }
+    }
+}
+
+/**
+ * Represents the connection information for the redis pub/sub server.
+ */
+data class RedisConfiguration(
+    val host: String,
+    val port: Int = 6379
+) {
+    /**
+     * Ensures that this is a valid configuration, i.e. that all properties
+     * have sensible values. Will throw an exception for values that are
+     * incorrect.
+     */
+    fun validate(): RedisConfiguration {
+        // Ensure that our port is valid.
+        if (port <= 1 || port >= 65535) {
+            throw IllegalArgumentException("configuration.redis.port must be a valid port number <= 65535")
+        }
+
+        return this
     }
 }
