@@ -32,7 +32,7 @@ data class Configuration(
     /**
      * The connection information for the redis server.
      */
-    val redisConfiguration: RedisConfiguration = RedisConfiguration("localhost")
+    val redis: RedisConfiguration = RedisConfiguration("localhost")
 ) {
     /**
      * Ensures that this is a valid configuration, i.e. that all properties
@@ -68,7 +68,7 @@ data class Configuration(
         }
 
         // Ensure nested configs are valid.
-        redisConfiguration.validate()
+        redis.validate()
 
         return this
     }

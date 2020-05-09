@@ -24,7 +24,9 @@ fun main() {
 
     // Load config
     val config = try {
-        val config = Configuration.load(Path.of("./aggregator.yaml").toAbsolutePath())
+        val config = Configuration.load(
+            Path.of(System.getenv("HYPERION_AGGREGATOR_CONFIG") ?: "./aggregator.yaml").toAbsolutePath()
+        )
         config.validate() // ensure the config is somewhat valid
     } catch (ex: Exception) {
         logger.error(ex) { "Failed to parse configuration. Does the file exist and is it valid YAML?" }
@@ -48,7 +50,7 @@ fun main() {
             " granularity of ${config.granularity} seconds. ^C to exit."
     }
 
-    val intake = RedisIntake(config.redisConfiguration, aggregationManager)
+    val intake = RedisIntake(config.redis, aggregationManager)
 
     // Run tasks blocking. Should never return.
     runBlocking {
