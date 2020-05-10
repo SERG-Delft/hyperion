@@ -36,13 +36,14 @@ class RedisIntake(
     @Suppress("TooGenericExceptionCaught")
     suspend fun setup() {
         try {
-
             logger.info { "Connecting to redis at $uri..." }
 
             val connection = redisClient.connectAsync(
                 StringCodec.UTF8,
                 uri
             ).await()
+
+            logger.info { "Connected to redis." }
 
             val commands = connection.async()
             val channel = commands.hget(CONFIG_PATH, "subChannel").await()
@@ -71,6 +72,8 @@ class RedisIntake(
 
         val pubsubCommands = pubsubConnection.async()
         pubsubCommands.subscribe(channel).await()
+
+        logger.info { "Subscribed to '$channel'." }
     }
 
     /**
