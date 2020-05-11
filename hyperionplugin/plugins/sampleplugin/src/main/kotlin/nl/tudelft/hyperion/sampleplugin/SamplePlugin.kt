@@ -1,7 +1,7 @@
 package nl.tudelft.hyperion.hyperionplugin.plugins.sampleplugin
 
-import nl.tudelft.hyperion.pluginmanager.hyperionplugin.HyperionPlugin
-import nl.tudelft.hyperion.pluginmanager.hyperionplugin.PluginConfiguration
+import nl.tudelft.hyperion.hyperionplugin.common.HyperionPlugin
+import nl.tudelft.hyperion.hyperionplugin.common.PluginConfiguration
 
 class SamplePlugin(private val config: PluginConfiguration): HyperionPlugin(config) {
 

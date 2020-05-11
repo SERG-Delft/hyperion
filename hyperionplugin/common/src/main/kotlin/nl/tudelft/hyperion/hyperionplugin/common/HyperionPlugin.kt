@@ -5,7 +5,6 @@ import io.lettuce.core.RedisURI
 import io.lettuce.core.pubsub.RedisPubSubAdapter
 import io.lettuce.core.pubsub.RedisPubSubListener
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection
-import nl.tudelft.hyperion.pluginmanager.hyperionplugin.PluginConfiguration
 
 abstract class HyperionPlugin(private val config: PluginConfiguration) {
     private val logger = mu.KotlinLogging.logger {}
@@ -28,7 +27,6 @@ abstract class HyperionPlugin(private val config: PluginConfiguration) {
         logger.info {"Starting HyperionPLugin-${config.name}"}
         register()
         logger.info {"HyperionPLugin-${config.name} enters infinte sleep on main thread"}
-        // TODO: enable infinte sleep with logging
     }
 
     fun onMessage(message: String) {
@@ -60,7 +58,7 @@ abstract class HyperionPlugin(private val config: PluginConfiguration) {
         logger.info {"${config.name} registered as pub: $publisher, sub: $subscriber"}
     }
 
-    fun connectPublisher() {
+    private fun connectPublisher() {
         val conn = redisClient.connect()
         val sync = conn.sync()
 
@@ -68,7 +66,7 @@ abstract class HyperionPlugin(private val config: PluginConfiguration) {
         pub = redisClient.connectPubSub()
     }
 
-    fun connectSubscriber() {
+    private fun connectSubscriber() {
         val conn = redisClient.connect()
         val sync = conn.sync()
 
