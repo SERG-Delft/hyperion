@@ -9,4 +9,4 @@
 build
 
 # Ignore jars
-# **/*.jar
+**/*.jar
