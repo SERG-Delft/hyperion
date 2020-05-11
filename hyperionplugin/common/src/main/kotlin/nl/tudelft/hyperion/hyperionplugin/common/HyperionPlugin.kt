@@ -1,4 +1,4 @@
-package nl.tudelft.hyperion.pluginmanager.hyperionplugin
+package nl.tudelft.hyperion.hyperionplugin.common
 
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI

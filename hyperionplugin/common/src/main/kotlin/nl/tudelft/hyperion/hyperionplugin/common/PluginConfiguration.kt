@@ -1,4 +1,4 @@
-package nl.tudelft.hyperion.pluginmanager.hyperionplugin
+package nl.tudelft.hyperion.hyperionplugin.common
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory

@@ -1,14 +1,8 @@
 plugins {
-    application
     jacoco
     kotlin("jvm")
-    id("org.jetbrains.intellij") version "0.4.18"
     id("io.gitlab.arturbosch.detekt").version("1.8.0")
     id("com.github.johnrengelman.shadow").version("5.2.0")
-}
-
-application {
-    mainClassName = "nl.tudelft.hyperion.sampleplugin.Main"
 }
 
 dependencies {
@@ -69,4 +63,8 @@ tasks.build {
 
 tasks.shadowJar {
     destinationDir = File("./");
+}
+
+detekt {
+    config = files("detekt-config.yml")
 }

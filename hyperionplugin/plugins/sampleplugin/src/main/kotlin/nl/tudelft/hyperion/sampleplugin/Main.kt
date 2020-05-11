@@ -1,8 +1,7 @@
 @file:JvmName("Main")
 
-package nl.tudelft.hyperion.sampleplugin
+package nl.tudelft.hyperion.hyperionplugin.plugins.sampleplugin
 
-import nl.tudelft.hyperion.pluginmanager.hyperionplugin.SamplePlugin
 import nl.tudelft.hyperion.pluginmanager.hyperionplugin.PluginConfiguration
 import java.nio.file.Path
 

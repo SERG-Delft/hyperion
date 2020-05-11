@@ -1,6 +1,8 @@
 rootProject.name = "Hyperion"
 
-include("pluginmanager")
 include("aggregator")
+include("hyperionplugin")
+include("hyperionplugin:common")
+include("hyperionplugin:plugins:sampleplugin")
 include("plugin")
-include("sampleplugin")
+include("pluginmanager")

@@ -1,7 +1,7 @@
-package nl.tudelft.hyperion.pluginmanager.hyperionplugin
+package nl.tudelft.hyperion.hyperionplugin.plugins.sampleplugin
 
+import nl.tudelft.hyperion.pluginmanager.hyperionplugin.HyperionPlugin
 import nl.tudelft.hyperion.pluginmanager.hyperionplugin.PluginConfiguration
-import java.time.LocalDateTime
 
 class SamplePlugin(private val config: PluginConfiguration): HyperionPlugin(config) {
 
