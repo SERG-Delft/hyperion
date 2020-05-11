@@ -5,12 +5,23 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.nio.file.Files
 import java.nio.file.Path
 
+/**
+ * Function that extract information from a json log message from file
+ * @param path The absolute path of the json to be extracted
+ * @param config A extraction configuration for the messages
+ * @return A string representation of the json with additional extracted fields
+ */
 fun extract(path : Path, config : Configuration) : String {
     val input = Files.readString(path)
 
     return extract(input, config)
 }
 
+/**
+ * Function that checks whether a child exists and creates it otherwise
+ * @param name The name of the child to be found or created
+ * @return The child node as ObjectNode
+ */
 fun ObjectNode.findOrCreateChild(name: String): ObjectNode {
     if (this.get(name) != null) {
         return this.get(name) as ObjectNode
@@ -19,6 +30,13 @@ fun ObjectNode.findOrCreateChild(name: String): ObjectNode {
     return this.putObject(name)
 }
 
+/**
+ * Function that adds a new node with a (possibly hierarchical) path and a value to an ObjectNode
+ * @param type The type of the value
+ * @param value The value of the node to be added
+ * @param name The location of the new node
+ * @return The ObjectNode with the newly added information
+ */
 fun ObjectNode.put(type : String, value : String, name : String) : ObjectNode {
     val parts = name.split(".")
 
@@ -43,6 +61,12 @@ fun ObjectNode.put(type : String, value : String, name : String) : ObjectNode {
     return this
 }
 
+/**
+ * Function that extracts information from a JSON string according to a configuration
+ * @param input The json string
+ * @param config The extraction configuration
+ * @return A JSON string with additional extracted information
+ */
 fun extract(input : String, config : Configuration) : String {
     val mapper = jacksonObjectMapper()
     val tree = mapper.readTree(input)
