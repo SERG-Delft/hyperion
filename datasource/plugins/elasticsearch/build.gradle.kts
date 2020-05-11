@@ -20,6 +20,9 @@ dependencies {
     // Used for testing
     testImplementation("org.junit.jupiter", "junit-jupiter-params", "5.6.2")
     testImplementation("io.mockk", "mockk", "1.9.3")
+    testImplementation("net.bytebuddy", "byte-buddy", "1.10.10")
+    testImplementation("org.testcontainers", "testcontainers", "1.14.1")
+    testImplementation("org.testcontainers", "junit-jupiter", "1.14.1")
 
     // Used for logging
     implementation("io.github.microutils", "kotlin-logging", "1.7.9")

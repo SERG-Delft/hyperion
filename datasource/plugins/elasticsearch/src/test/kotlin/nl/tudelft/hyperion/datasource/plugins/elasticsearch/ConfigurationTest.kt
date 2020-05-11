@@ -19,7 +19,6 @@ import kotlin.reflect.full.memberProperties
  */
 class ConfigurationTest {
 
-    lateinit var rawConfig: String
     lateinit var testConfig: Configuration
 
     companion object {
@@ -35,26 +34,27 @@ class ConfigurationTest {
         fun <T : Any> KClass<T>.getProp(name: String, receiver: T): Any {
             return memberProperties.first { it.name == name }.get(receiver)!!
         }
+
+        val rawConfig =
+            """
+            name: elastic
+            poll_interval: 5
+            elasticsearch:
+              hostname: foo
+              index: logs
+              port: 9200
+              scheme: http
+              timestamp_field: "@timestamp"
+              authentication: no
+              response_hit_count: 10
+            redis:
+              host: localhost
+              port: 6379
+            """.trimIndent()
     }
 
     @BeforeEach
     fun init() {
-        rawConfig =
-                """
-                name: elastic
-                poll_interval: 5
-                elasticsearch:
-                  hostname: foo
-                  index: logs
-                  port: 9200
-                  scheme: http
-                  timestamp_field: "@timestamp"
-                  authentication: no
-                  response_hit_count: 10
-                redis:
-                  host: localhost
-                  port: 6379
-                """.trimIndent()
 
         testConfig = Configuration(
                 5,
