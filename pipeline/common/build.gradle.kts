@@ -14,7 +14,6 @@ dependencies {
     // Yaml/JSON deserialization
     implementation("com.fasterxml.jackson.core", "jackson-databind", "2.9.4")
     implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.9.4")
-    implementation("com.fasterxml.jackson.datatype", "jackson-datatype-joda", "2.9.4")
     implementation("com.fasterxml.jackson.dataformat", "jackson-dataformat-yaml", "2.9.4")
 
     // Logging

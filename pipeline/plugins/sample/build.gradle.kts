@@ -12,6 +12,8 @@ jacoco {
 }
 
 dependencies {
+    implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.3.5")
+
     // Add pipeline commons
     implementation(project(":pipeline:common"))
 }

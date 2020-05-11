@@ -57,6 +57,10 @@ abstract class AbstractPipelinePlugin(
         val subChannel = commands.queryPluginConfig("subChannel")
         val pubChannel = commands.queryPluginConfig("pubChannel")
 
+        logger.info {
+            "Initializing ${config.id}, subscribing to $subChannel and publishing to $pubChannel"
+        }
+
         if (!isSubscriber || !isPublisher) {
             throw PipelinePluginInitializationException(
                 "Pipeline plugins inheriting from AbstractPipelinePlugin must be both a subscriber and a publisher"
@@ -80,6 +84,10 @@ abstract class AbstractPipelinePlugin(
 
         val listener = createPubSubListener(commands, pubChannel)
         pubSubConnection.addListener(listener)
+
+        logger.info {
+            "Plugin ${config.id} is running!"
+        }
 
         try {
             while (isActive) {
@@ -112,13 +120,13 @@ abstract class AbstractPipelinePlugin(
         outChannel: String
     ) = object : RedisPubSubAdapter<String, String>() {
         override fun message(channel: String?, message: String?) {
-            pluginThreadPool.launch messageHandler@{
+            pluginThreadPool.launch {
                 val result = try {
                     this@AbstractPipelinePlugin.process(message!!)
                 } catch (ex: Exception) {
                     logger.warn(ex) { "Error processing message: '$message'" }
                     null
-                } ?: return@messageHandler
+                } ?: return@launch
 
                 commands.publish(outChannel, result)
             }
