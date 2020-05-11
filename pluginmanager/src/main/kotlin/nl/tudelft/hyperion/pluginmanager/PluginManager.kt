@@ -1,9 +1,10 @@
 package nl.tudelft.hyperion.pluginmanager
 
-import io.lettuce.core.*
+import io.lettuce.core.RedisURI
 
 private val logger = mu.KotlinLogging.logger {}
 
+@Suppress("TooGenericExceptionCaught")
 class PluginManager(config: Configuration) {
     private val channelConfig = config.registrationChannelPostfix
     private val cm = ConnectionManager(RedisURI.create(config.redis.host, config.redis.port!!))

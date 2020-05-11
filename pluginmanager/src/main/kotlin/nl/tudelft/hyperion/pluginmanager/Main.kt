@@ -11,21 +11,27 @@ private val logger = mu.KotlinLogging.logger {}
  * Main entry point for the pluginmanager. Loads the configuration,
  * pushes the plugin configuration to redis and exits.
  */
+@Suppress("TooGenericExceptionCaught")
 fun main(vararg args: String) {
 
     logger.info {"Loading config from ${args[0]}"}
-    val config = try {
+    val config: Configuration? = try {
         val config = Configuration.load(Path.of(args[0]).toAbsolutePath())
         config.verify()
         config
-    } catch (ex: Exception) {
-        logger.error(ex) {"Failed to parse configuration. Does the file exist and is it valid YAML?"}
-        return
+    } catch (ex: FileSystemException) {
+        logger.error(ex) {"Failed to retrieve configuration file at ${args[0]}"}
+        null
+    } catch (ex: IllegalArgumentException) {
+        logger.error(ex) {"Failed to parse config file"}
+        null
     }
 
     logger.info {"Starting Plugin Manager"}
     try {
-        PluginManager(config)
+        if (config != null) {
+            PluginManager(config)
+        }
     } catch (ex: Exception) {
         logger.error(ex) {"Failed to execute Plugin Manager"}
         return

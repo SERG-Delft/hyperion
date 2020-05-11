@@ -1,6 +1,7 @@
 package nl.tudelft.hyperion.pluginmanager
 
-import io.lettuce.core.*
+import io.lettuce.core.RedisClient
+import io.lettuce.core.RedisURI
 import io.lettuce.core.api.StatefulRedisConnection
 
 private val logger = mu.KotlinLogging.logger {}
