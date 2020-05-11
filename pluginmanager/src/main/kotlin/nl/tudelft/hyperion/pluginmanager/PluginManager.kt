@@ -4,8 +4,6 @@ import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
 import io.lettuce.core.api.StatefulRedisConnection
 
-private val logger = mu.KotlinLogging.logger {}
-
 @Suppress("TooGenericExceptionCaught")
 class PluginManager(config: Configuration) {
     private val channelConfig = config.registrationChannelPostfix
@@ -15,6 +13,8 @@ class PluginManager(config: Configuration) {
     private val conn: StatefulRedisConnection<String, String> = redisClient.connect()
 
     private val plugins = config.plugins
+
+    private val logger = mu.KotlinLogging.logger {}
 
     init {
         logger.info {"Write plugin config to redis"}
