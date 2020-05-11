@@ -1,14 +1,17 @@
 package nl.tudelft.hyperion.renamer
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
+import nl.tudelft.hyperion.pluginmanager.RedisConfig
 
 class MainTest() {
     @Test
     fun testRenameLogLine() {
-        val config = Configuration(RedisConfig("localhost", 3800, 1, 3800, 2), listOf(Rename("log_line", "location.line")))
+        val config = Configuration(listOf(Rename("log_line", "location.line")), RedisConfig("host", 6379), null,"extractor")
 
         val expected = "{\n" +
                 "  \"project\" : \"some unique identifier for project, such as the repo name or package\",\n" +
@@ -36,7 +39,7 @@ class MainTest() {
 
     @Test
     fun testRenameNotFound() {
-        val config = Configuration(RedisConfig("localhost", 3800,1, 3800, 2), listOf(Rename("log_line", "location.line")))
+        val config = Configuration(listOf(Rename("log_line", "location.line")), RedisConfig("host", 6379), null,"extractor")
 
         val input = "{\n" +
                 "  \"project\" : \"some unique identifier for project, such as the repo name or package\",\n" +
@@ -52,21 +55,5 @@ class MainTest() {
         val treeAfter = mapper.readTree(rename(input, config))
 
         Assertions.assertEquals(treeBefore, treeAfter)
-    }
-
-    @Test
-    fun testConfigFromFile() {
-        val config = Configuration.load(Path.of("./config.yaml").toAbsolutePath())
-
-        Assertions.assertTrue(config.redis != null)
-        Assertions.assertTrue(config.rename != null)
-    }
-
-    @Test
-    fun redisAutoConfig() {
-        val config = Configuration(RedisConfig("localhost", null,1, null, 2), listOf(Rename("log_line", "location.line")))
-
-        Assertions.assertTrue(config.redis.portIn == 6380)
-        Assertions.assertTrue(config.redis.portOut == 6381)
     }
 }

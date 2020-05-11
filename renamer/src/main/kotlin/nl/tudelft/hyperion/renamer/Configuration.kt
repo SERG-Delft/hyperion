@@ -9,6 +9,8 @@ import java.nio.file.Path
 
 class Rename(val from : String, val to : String)
 
+data class RedisConfig(val host : String, val port : Int)
+
 /**
  * Configuration for renaming plugin
  * @param rename the list of renaming schemes
