@@ -4,6 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import io.mockk.verify
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import nl.tudelft.hyperion.aggregator.Configuration
@@ -29,7 +30,7 @@ class ExpiryTest : TestWithoutLogging() {
             runBlocking {
                 val worker = startExpiryWorker(Configuration("a", 1, 1, 1))
                 delay(1100L)
-                worker.cancel()
+                worker.cancelAndJoin()
             }
         }
 
@@ -62,7 +63,7 @@ class ExpiryTest : TestWithoutLogging() {
             runBlocking {
                 val worker = startExpiryWorker(Configuration("a", 1, 1, 1))
                 delay(1100L)
-                worker.cancel()
+                worker.cancelAndJoin()
             }
         }
 

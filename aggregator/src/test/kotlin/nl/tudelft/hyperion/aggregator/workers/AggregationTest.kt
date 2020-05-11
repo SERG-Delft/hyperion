@@ -7,6 +7,7 @@ import io.mockk.mockkStatic
 import io.mockk.spyk
 import io.mockk.unmockkAll
 import io.mockk.verify
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import nl.tudelft.hyperion.aggregator.Configuration
@@ -38,7 +39,7 @@ class AggregationTest : TestWithoutLogging() {
         runBlocking {
             val worker = aggregationManager.startCommitWorker()
             delay(2100L)
-            worker.cancel()
+            worker.cancelAndJoin()
         }
 
         // Assert twice.
@@ -60,7 +61,7 @@ class AggregationTest : TestWithoutLogging() {
         runBlocking {
             val worker = aggregationManager.startCommitWorker()
             delay(2100L)
-            worker.cancel()
+            worker.cancelAndJoin()
         }
 
         // Assert twice.

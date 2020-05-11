@@ -2,7 +2,9 @@
 
 package nl.tudelft.hyperion.aggregator
 
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import nl.tudelft.hyperion.aggregator.database.Database
 import nl.tudelft.hyperion.aggregator.intake.RedisIntake
@@ -17,20 +19,23 @@ private val logger = mu.KotlinLogging.logger { }
  * Main entry point for the aggregator. Loads the configuration,
  * initiates a database connection and sets up runners on different
  * threads for managing intake and database cleanup.
+ *
+ * Note that this is a coroutine that can be cancelled. It is called
+ * to be ran blocking by the actual main function
  */
 @Suppress("TooGenericExceptionCaught")
-fun main() {
+fun coMain(configPath: String) = GlobalScope.launch {
     logger.info { "Starting Hyperion Aggregator..." }
 
     // Load config
     val config = try {
         val config = Configuration.load(
-            Path.of(System.getenv("HYPERION_AGGREGATOR_CONFIG") ?: "./aggregator.yaml").toAbsolutePath()
+            Path.of(configPath).toAbsolutePath()
         )
         config.validate() // ensure the config is somewhat valid
     } catch (ex: Exception) {
         logger.error(ex) { "Failed to parse configuration. Does the file exist and is it valid YAML?" }
-        return
+        return@launch
     }
 
     try {
@@ -40,7 +45,7 @@ fun main() {
             "Failed to connect to the database. Ensure that the database" +
                 " is running and that the connection URL is correct."
         }
-        return
+        return@launch
     }
 
     val aggregationManager = AggregationManager(config)
@@ -51,15 +56,20 @@ fun main() {
     }
 
     val intake = RedisIntake(config.redis, aggregationManager)
+    intake.setup()
 
-    // Run tasks blocking. Should never return.
+    joinAll(
+        startExpiryWorker(config),
+        startAPIWorker(config),
+        aggregationManager.startCommitWorker()
+    )
+}
+
+/**
+ * Actual main function. Simply runs the coroutine version of main blocking.
+ */
+fun main() {
     runBlocking {
-        intake.setup()
-
-        joinAll(
-            startExpiryWorker(config),
-            startAPIWorker(config),
-            aggregationManager.startCommitWorker()
-        )
+        coMain(System.getenv("HYPERION_AGGREGATOR_CONFIG") ?: "./aggregator.yaml")
     }
 }

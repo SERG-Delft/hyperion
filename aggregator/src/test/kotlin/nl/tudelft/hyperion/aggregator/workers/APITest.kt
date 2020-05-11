@@ -7,7 +7,7 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import io.mockk.verify
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
 import nl.tudelft.hyperion.aggregator.Configuration
@@ -121,7 +121,7 @@ class APITest : TestWithoutLogging() {
             Assertions.assertEquals(response.body(), "OK!")
             Assertions.assertEquals(response.statusCode(), 200)
 
-            server.cancel()
+            server.cancelAndJoin()
         }
 
         verify(exactly = 1) {

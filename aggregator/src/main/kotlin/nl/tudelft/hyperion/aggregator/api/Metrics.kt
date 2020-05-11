@@ -64,6 +64,8 @@ fun computeMetrics(
                     (AggregationEntries.file eq file) and (AggregationEntries.project eq project) and
                         (AggregationEntries.timestamp greater startTime) and (AggregationEntries.timestamp less endTime)
                 }
+                // ORDER BY line ASC
+                .orderBy(AggregationEntries.line)
                 // GROUP BY version, severity, line
                 .groupBy(AggregationEntries.version, AggregationEntries.severity, AggregationEntries.line)
                 // group by version string

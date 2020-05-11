@@ -88,8 +88,8 @@ class MetricsTest : TestWithoutLogging() {
                     interval = 20, versions = mapOf(
                         "v1.0.0" to listOf(
                             Metric(line = 11, severity = "INFO", count = 15),
-                            Metric(line = 37, severity = "INFO", count = 3),
-                            Metric(line = 20, severity = "WARN", count = 3)
+                            Metric(line = 20, severity = "WARN", count = 3),
+                            Metric(line = 37, severity = "INFO", count = 3)
                         )
                     )
                 )
@@ -117,19 +117,19 @@ class MetricsTest : TestWithoutLogging() {
                     interval = 20, versions = mapOf(
                         "v1.0.0" to listOf(
                             Metric(line = 11, severity = "INFO", count = 20),
-                            Metric(line = 37, severity = "INFO", count = 4),
-                            Metric(line = 20, severity = "WARN", count = 4)
+                            Metric(line = 20, severity = "WARN", count = 4),
+                            Metric(line = 37, severity = "INFO", count = 4)
                         )
                     )
                 ),
                 MetricsResult(
                     interval = 120, versions = mapOf(
                         "v1.0.0" to listOf(
+                            Metric(line = 11, severity = "INFO", count = 144),
+                            Metric(line = 20, severity = "WARN", count = 36),
                             Metric(line = 23, severity = "ERROR", count = 16),
                             Metric(line = 34, severity = "ERROR", count = 28),
-                            Metric(line = 11, severity = "INFO", count = 144),
-                            Metric(line = 37, severity = "INFO", count = 84),
-                            Metric(line = 20, severity = "WARN", count = 36)
+                            Metric(line = 37, severity = "INFO", count = 84)
                         )
                     )
                 )
