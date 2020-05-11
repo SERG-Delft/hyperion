@@ -1,13 +1,19 @@
 package nl.tudelft.hyperion.pluginmanager
 
+import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
+import io.lettuce.core.api.StatefulRedisConnection
 
 private val logger = mu.KotlinLogging.logger {}
 
 @Suppress("TooGenericExceptionCaught")
 class PluginManager(config: Configuration) {
     private val channelConfig = config.registrationChannelPostfix
-    private val cm = ConnectionManager(RedisURI.create(config.redis.host, config.redis.port!!))
+
+    private val redisURI = RedisURI.create(config.redis.host, config.redis.port!!)
+    private val redisClient = RedisClient.create(redisURI)
+    private val conn: StatefulRedisConnection<String, String> = redisClient.connect()
+
     private val plugins = config.plugins
 
     init {
@@ -16,6 +22,9 @@ class PluginManager(config: Configuration) {
             configPlugins()
         } catch (ex: Exception) {
             logger.error(ex) {"Failed to push plugin config to redis"}
+        } finally {
+            closeConnection()
+            logger.debug {"Closed redis connection"}
         }
         logger.info {"Written config to redis"}
     }
@@ -32,12 +41,12 @@ class PluginManager(config: Configuration) {
             var pubChannel = "$plugin-output"
             when (index) {
                 0 -> {
-                    cm.hset("$plugin$channelConfig", mapOf("subscriber" to "false"))
+                    hset("$plugin$channelConfig", mapOf("subscriber" to "false"))
                     registerPublish(plugin, pubChannel)
                 }
                 plugins.size - 1 -> {
                     registerSubscribe(plugin, subChannel)
-                    cm.hset("$plugin$channelConfig", mapOf("publisher" to "false"))
+                    hset("$plugin$channelConfig", mapOf("publisher" to "false"))
                 }
                 else -> {
                     registerSubscribe(plugin, subChannel)
@@ -49,10 +58,21 @@ class PluginManager(config: Configuration) {
     }
 
     private fun registerPublish(plugin: String, channel: String) {
-        cm.hset("$plugin$channelConfig", mapOf("publisher" to "true", "pubChannel" to channel))
+        hset("$plugin$channelConfig", mapOf("publisher" to "true", "pubChannel" to channel))
     }
 
     private fun registerSubscribe(plugin: String, channel: String) {
-        cm.hset("$plugin$channelConfig", mapOf("subscriber" to "true", "subChannel" to channel))
+        hset("$plugin$channelConfig", mapOf("subscriber" to "true", "subChannel" to channel))
+    }
+
+    private fun hset(key: String, value: Map<String, String>) {
+        val sync = conn.sync()
+
+        sync.hset(key, value)
+    }
+
+    private fun closeConnection() {
+        conn.close()
+        redisClient.shutdown()
     }
 }
