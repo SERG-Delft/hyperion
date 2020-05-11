@@ -14,6 +14,8 @@ import java.nio.file.Path
  */
 data class Extract(val to : String, val type : String)
 
+data class RedisConfig(val host : String, val port : Int)
+
 /**
  * Data class for the configuration of the plugin
  * @param field : name of the field to match
