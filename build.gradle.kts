@@ -63,6 +63,8 @@ subprojects {
 
     sourceSets {
         create("integrationTest") {
+            compileClasspath += sourceSets.main.get().output
+            runtimeClasspath += sourceSets.main.get().output
             compileClasspath += project.files("src/integrationTest/")
             runtimeClasspath += project.files("src/integrationTest/")
         }

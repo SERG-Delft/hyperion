@@ -12,6 +12,9 @@ jobs:
   gradle-check:
     runs-on: ubuntu-latest
     steps:
+      - name: Check Docker Version
+        run: docker --version
+
       - uses: actions/checkout@v2
         with:
           fetch-depth: 100
@@ -42,9 +45,3 @@ jobs:
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: :aggregator:check
-
-      - name: gradle check plugin
-        if: steps.hyperion-plugin.outputs.changed == 'true'
-        uses: eskatos/gradle-command-action@v1
-        with:
-          arguments: :plugin:check

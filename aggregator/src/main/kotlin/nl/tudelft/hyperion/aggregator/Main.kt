@@ -10,5 +10,5 @@ fun add(x: Int, y: Int): Int {
     if (x == y) {
         return 2 * x
     }
-    return x + y
+    return y + x
 }
