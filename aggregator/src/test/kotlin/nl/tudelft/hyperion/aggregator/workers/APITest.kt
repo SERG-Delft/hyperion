@@ -7,12 +7,20 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import io.mockk.verify
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.future.await
+import kotlinx.coroutines.runBlocking
 import nl.tudelft.hyperion.aggregator.Configuration
 import nl.tudelft.hyperion.aggregator.api.computeMetrics
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.assertThrows
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
 
 class APITest {
     @TestFactory
@@ -75,6 +83,48 @@ class APITest {
         // Check
         verify {
             computeMetrics(config, "test", "test.java", listOf(10, 20, 30))
+        }
+
+        unmockkAll()
+    }
+
+    @Test
+    fun `Javalin HTTP handler should call handleMetrics`() {
+        mockkStatic("nl.tudelft.hyperion.aggregator.workers.APIKt")
+
+        every {
+            handleMetrics(any(), any())
+        } answers {
+            secondArg<Context>()
+                .status(200)
+                .result("OK!")
+        }
+
+        runBlocking {
+            val server = startAPIWorker(
+                Configuration("", 38172, 1, 1)
+            )
+
+            // make request
+            val request = HttpRequest
+                .newBuilder()
+                .uri(URI("http://localhost:38172/api/v1/metrics"))
+                .GET()
+                .build()
+
+            val response = HttpClient
+                .newHttpClient()
+                .sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .await()
+
+            Assertions.assertEquals(response.body(), "OK!")
+            Assertions.assertEquals(response.statusCode(), 200)
+
+            server.cancel()
+        }
+
+        verify(exactly = 1) {
+            handleMetrics(any(), any())
         }
 
         unmockkAll()

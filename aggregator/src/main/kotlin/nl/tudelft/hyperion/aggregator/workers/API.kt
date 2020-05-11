@@ -6,6 +6,8 @@ import io.javalin.apibuilder.ApiBuilder.path
 import io.javalin.http.BadRequestResponse
 import io.javalin.http.Context
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import nl.tudelft.hyperion.aggregator.Configuration
 import nl.tudelft.hyperion.aggregator.api.computeMetrics
@@ -28,6 +30,15 @@ fun startAPIWorker(configuration: Configuration) = GlobalScope.launch {
 
     app.start(configuration.port)
     logger.debug { "API worker running on port ${configuration.port}." }
+
+    try {
+        while (isActive) {
+            delay(Long.MAX_VALUE)
+        }
+    } finally {
+        logger.debug { "Stopping API worker..." }
+        app.stop()
+    }
 }
 
 /**

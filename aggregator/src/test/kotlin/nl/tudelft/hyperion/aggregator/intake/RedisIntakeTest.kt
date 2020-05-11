@@ -12,11 +12,13 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.spyk
-import io.mockk.verify
+import io.mockk.unmockkAll
 import kotlinx.coroutines.runBlocking
 import nl.tudelft.hyperion.aggregator.RedisConfiguration
 import nl.tudelft.hyperion.aggregator.workers.AggregationManager
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import java.lang.RuntimeException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 
@@ -86,6 +88,30 @@ class RedisIntakeTest {
 
             pubsubConnection.async().subscribe("channel")
         }
+
+        unmockkAll()
+    }
+
+    @Test
+    fun `Setup should gracefully handle connection errors`() {
+        mockkStatic("io.lettuce.core.RedisClient")
+        
+        every {
+            RedisClient.create(any<RedisURI>()).connectAsync(StringCodec.UTF8, any())
+        } throws RuntimeException("Nooo")
+
+        val intake = RedisIntake(
+            RedisConfiguration("localhost"),
+            mockk()
+        )
+
+        assertThrows<RedisIntakeInitializationException> {
+            runBlocking {
+                intake.setup()
+            }
+        }
+
+        unmockkAll()
     }
 
     @Test
