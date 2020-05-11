@@ -1,6 +1,7 @@
 package nl.tudelft.hyperion.pluginmanager
 
 import io.lettuce.core.RedisClient
+import io.lettuce.core.RedisConnectionException
 import io.lettuce.core.RedisURI
 import io.lettuce.core.api.StatefulRedisConnection
 
@@ -21,7 +22,7 @@ class PluginManager(config: Configuration) {
         try {
             configPlugins()
         } catch (ex: Exception) {
-            logger.error(ex) {"Failed to push plugin config to redis"}
+            logger.error(ex) {"Failed to push config to redis"}
         } finally {
             closeConnection()
             logger.debug {"Closed redis connection"}
