@@ -11,6 +11,38 @@ fun extract(path : Path, config : Configuration) : String {
     return extract(input, config)
 }
 
+fun ObjectNode.findOrCreateChild(name: String): ObjectNode {
+    if (this.get(name) != null) {
+        return this.get(name) as ObjectNode
+    }
+
+    return this.putObject(name)
+}
+
+fun ObjectNode.put(type : String, value : String, name : String) : ObjectNode {
+    val parts = name.split(".")
+
+    if (parts.size == 1) {
+        when (type) {
+            "number" -> this.put(parts[0], value.toInt())
+            "double" -> this.put(parts[0], value.toDouble())
+            else -> this.put(parts[0], value)
+        }
+    } else {
+        val target = parts.subList(1, parts.size - 1).fold(this.findOrCreateChild(parts[0]), {
+            p, c -> p.findOrCreateChild(c)
+        })
+
+        when (type) {
+            "number" -> target.put(parts.last(), value.toInt())
+            "double" -> target.put(parts.last(), value.toDouble())
+            else -> target.put(parts.last(), value)
+        }
+    }
+
+    return this
+}
+
 fun extract(input : String, config : Configuration) : String {
     val mapper = jacksonObjectMapper()
     val tree = mapper.readTree(input)
@@ -24,12 +56,7 @@ fun extract(input : String, config : Configuration) : String {
     matches?.groupValues?.forEach {
         if(i > 0) {
             val extract = extracts[i-1]
-            when (extract.type) {
-                "number" -> (tree.findParent(config.field) as ObjectNode).put(extract.to, it.toInt())
-                "double" -> (tree.findParent(config.field) as ObjectNode).put(extract.to, it.toDouble())
-                "string" -> (tree.findParent(config.field) as ObjectNode).put(extract.to, it)
-                else -> (tree.findParent(config.field) as ObjectNode).put(extract.to, it)
-            }
+            (tree.findParent(config.field) as ObjectNode).put(extract.type, it, extract.to)
         }
         i++
     }
