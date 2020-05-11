@@ -61,5 +61,5 @@ fun extract(input : String, config : Configuration) : String {
         i++
     }
 
-    return tree.toPrettyString()
+    return tree.toString();
 }

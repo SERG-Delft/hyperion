@@ -3,7 +3,7 @@ package nl.tudelft.hyperion.extractor
 import nl.tudelft.hyperion.pluginmanager.hyperionplugin.HyperionPlugin
 import nl.tudelft.hyperion.pluginmanager.hyperionplugin.PluginConfiguration
 
-class ExtractPlugin(_pluginConfig: PluginConfiguration): HyperionPlugin(_pluginConfig) {
+class ExtractPlugin(pluginConfig: PluginConfiguration): HyperionPlugin(pluginConfig) {
     private lateinit var config: Configuration
 
     constructor(
