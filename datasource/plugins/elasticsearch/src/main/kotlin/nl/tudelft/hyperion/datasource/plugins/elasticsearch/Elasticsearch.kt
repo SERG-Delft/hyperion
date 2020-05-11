@@ -12,6 +12,7 @@ import org.apache.http.impl.client.BasicCredentialsProvider
 import org.elasticsearch.action.search.SearchRequest
 import org.elasticsearch.client.RequestOptions
 import org.elasticsearch.client.RestClient
+import org.elasticsearch.client.RestClientBuilder
 import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.search.SearchHit
@@ -32,47 +33,17 @@ import kotlin.concurrent.fixedRateTimer
  */
 class Elasticsearch(_pluginConfig: PluginConfiguration) : HyperionPlugin(_pluginConfig), DataSourcePlugin {
 
-    private lateinit var config: Configuration
-    private lateinit var client: RestHighLevelClient
+    lateinit var config: Configuration
+    lateinit var client: RestHighLevelClient
     private var finished = false
     private var timer: Timer? = null
 
     constructor(
-            config: Configuration
+            config: Configuration,
+            client: RestHighLevelClient
     ) : this(PluginConfiguration(config.redis, config.registrationChannelPostfix, config.name)) {
         this.config = config
-
-        if (config.es.responseHitCount >= 10_000) {
-            logger.warn {
-                """
-                response_hit_max=$config.responseHitMax, by default this value is capped at 10.000. 
-                Elasticsearch will deny requests if index.max_result_window is not configured.
-                """.trimIndent()
-            }
-        }
-
-        val clientBuilder = RestClient.builder(HttpHost(
-                config.es.hostname,
-                config.es.port!!,
-                config.es.scheme!!))
-
-        // add credentials to httpClient if authentication is enabled
-        if (config.es.authentication) {
-            val credentialsProvider: CredentialsProvider = BasicCredentialsProvider()
-
-            credentialsProvider.setCredentials(AuthScope.ANY,
-                    UsernamePasswordCredentials(config.es.username!!, config.es.password!!))
-
-            clientBuilder.setHttpClientConfigCallback { httpClientBuilder ->
-                httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)
-            }
-
-            logger.info { "Elasticsearch authentication enabled" }
-        }
-
-        this.client = RestHighLevelClient(clientBuilder)
-
-        logger.info { "Elasticsearch client created successfully" }
+        this.client = client
     }
 
     companion object {
@@ -106,6 +77,58 @@ class Elasticsearch(_pluginConfig: PluginConfiguration) : HyperionPlugin(_plugin
 
             return searchRequest.source(searchBuilder)
         }
+
+        /**
+         * Builder for the Elasticsearch plugin.
+         *
+         * @param config Configuration to build from
+         * @return Elasticsearch object
+         */
+        fun build(config: Configuration): Elasticsearch {
+            if (config.es.responseHitCount >= 10_000) {
+                logger.warn {
+                    """
+                response_hit_max=$config.responseHitMax, by default this value is capped at 10.000. 
+                Elasticsearch will deny requests if index.max_result_window is not configured.
+                """.trimIndent()
+                }
+            }
+
+            val clientBuilder = RestClient.builder(HttpHost(
+                    config.es.hostname,
+                    config.es.port!!,
+                    config.es.scheme!!))
+
+            // add credentials to httpClient if authentication is enabled
+            if (config.es.authentication) {
+                clientBuilder.addAuthentication(config.es.username!!, config.es.password!!)
+
+                logger.info { "Elasticsearch authentication enabled" }
+            }
+
+            val client = RestHighLevelClient(clientBuilder)
+
+            logger.info { "Elasticsearch client created successfully" }
+
+            return Elasticsearch(config, client)
+        }
+
+        /**
+         * Modifies the http client to include authentication for requests.
+         *
+         * @param username Elasticsearch username
+         * @param password Elasticsearch password
+         */
+        fun RestClientBuilder.addAuthentication(username: String, password: String) {
+            val credentialsProvider: CredentialsProvider = BasicCredentialsProvider()
+
+            credentialsProvider.setCredentials(AuthScope.ANY,
+                    UsernamePasswordCredentials(username, password))
+
+            this.setHttpClientConfigCallback { httpClientBuilder ->
+                httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)
+            }
+        }
     }
 
     /**
@@ -128,7 +151,7 @@ class Elasticsearch(_pluginConfig: PluginConfiguration) : HyperionPlugin(_plugin
 
         logger.info { "Starting retrieval of logs" }
 
-        timer = fixedRateTimer("requestScheduler", period = config.pollInterval.toLong() * 1000, daemon = true) {
+        timer = fixedRateTimer("requestScheduler", period = config.pollInterval * 1000.toLong(), daemon = true) {
             val searchRequest = createSearchRequest(config.es.index,
                     config.es.timestampField,
                     System.currentTimeMillis() / 1000,

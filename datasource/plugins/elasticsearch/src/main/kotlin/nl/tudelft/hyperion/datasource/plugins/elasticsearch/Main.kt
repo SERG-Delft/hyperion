@@ -57,7 +57,7 @@ class Run : CliktCommand(help = "Run with the the given config file") {
 
         try {
             val config = Configuration.load(Path.of(path))
-            plugin = Elasticsearch(config)
+            plugin = Elasticsearch.build(config)
             plugin.start()
 
             while (true) {

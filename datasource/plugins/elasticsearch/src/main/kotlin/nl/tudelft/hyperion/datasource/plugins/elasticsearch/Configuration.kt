@@ -32,7 +32,7 @@ data class ElasticsearchConfig(
         @JsonProperty("timestamp_field")
         val timestampField: String,
         @JsonProperty("response_hit_count")
-        val responseHitCount: Int,
+        var responseHitCount: Int,
         val username: String?,
         val password: String?
 ) {
@@ -84,7 +84,7 @@ data class ElasticsearchConfig(
  */
 data class Configuration(
         @JsonProperty("poll_interval")
-        val pollInterval: Int,
+        var pollInterval: Int,
         val redis: RedisConfig,
         @JsonProperty("elasticsearch")
         val es: ElasticsearchConfig,

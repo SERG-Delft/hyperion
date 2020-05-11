@@ -2,20 +2,25 @@ package nl.tudelft.hyperion.datasource.plugins.elasticsearch
 
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.exc.InvalidFormatException
+import nl.tudelft.hyperion.pluginmanager.RedisConfig
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
-import java.lang.IllegalArgumentException
-import kotlin.reflect.full.memberProperties
+import java.io.File
 import kotlin.reflect.KClass
+import kotlin.reflect.full.memberProperties
 
 /**
  * Tests the parsing of configuration files.
  */
 class ConfigurationTest {
+
+    lateinit var rawConfig: String
+    lateinit var testConfig: Configuration
 
     companion object {
         /**
@@ -32,9 +37,9 @@ class ConfigurationTest {
         }
     }
 
-    @Test
-    fun `test valid config`() {
-        val config =
+    @BeforeEach
+    fun init() {
+        rawConfig =
                 """
                 name: elastic
                 poll_interval: 5
@@ -51,7 +56,31 @@ class ConfigurationTest {
                   port: 6379
                 """.trimIndent()
 
-        assertDoesNotThrow { Configuration.parse(config) }
+        testConfig = Configuration(
+                5,
+                RedisConfig(
+                        "localhost",
+                        6379
+                ),
+                ElasticsearchConfig(
+                        "foo",
+                        "logs",
+                        9200,
+                        "http",
+                        false,
+                        "time",
+                        10,
+                        null,
+                        null
+                ),
+                null,
+                "elastic"
+        )
+    }
+
+    @Test
+    fun `test valid config`() {
+        assertDoesNotThrow { Configuration.parse(rawConfig) }
     }
 
     @ParameterizedTest
@@ -128,5 +157,42 @@ class ConfigurationTest {
                 """.trimIndent()
 
         assertThrows<IllegalArgumentException> { Configuration.parse(config) }
+    }
+
+    @Test
+    fun `test illegal port Elasticsearch`() {
+        testConfig.es.port = -1
+        assertThrows<IllegalArgumentException> { testConfig.es.verify() }
+    }
+
+    @Test
+    fun `test illegal scheme Elasticsearch`() {
+        testConfig.es.scheme = "foo"
+        assertThrows<IllegalArgumentException> { testConfig.es.verify() }
+    }
+
+    @Test
+    fun `test illegal responseCount Elasticsearch()`() {
+        testConfig.es.responseHitCount = -1
+        assertThrows<IllegalArgumentException> { testConfig.es.verify() }
+    }
+
+    @Test
+    fun `test illegal arguments Configuration`() {
+        testConfig.pollInterval = -1
+        assertThrows<IllegalArgumentException> { testConfig.verify() }
+    }
+
+    @Test
+    fun `test configuration loading from file`() {
+        var file: File? = null
+
+        try {
+            file = createTempFile(suffix = ".yml")
+            file.writeText(rawConfig)
+            assertDoesNotThrow { Configuration.load(file.toPath()) }
+        } finally {
+            file?.delete()
+        }
     }
 }
