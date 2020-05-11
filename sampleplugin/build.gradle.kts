@@ -8,7 +8,7 @@ plugins {
 }
 
 application {
-    mainClassName = "nl.tudelft.hyperion.sampleplugin.MainKt"
+    mainClassName = "nl.tudelft.hyperion.sampleplugin.Main"
 }
 
 dependencies {

@@ -28,15 +28,13 @@ abstract class HyperionPlugin(private val config: PluginConfiguration) {
         logger.info {"Starting HyperionPLugin-${config.name}"}
         register()
         logger.info {"HyperionPLugin-${config.name} enters infinte sleep on main thread"}
-        while (true) {
-            Thread.sleep(Long.MAX_VALUE)
-        }
+        // TODO: enable infinte sleep with logging
     }
 
     fun onMessage(message: String) {
         val ret: String = work(message)
         if (publisher) {
-            val sync = pub.sync()
+            val sync = pub.async()
             sync.publish(pubChannel, ret)
         }
     }

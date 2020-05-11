@@ -11,4 +11,10 @@ fun main(vararg args: String) {
     val config = PluginConfiguration.load(Path.of(args[0]).toAbsolutePath())
     println("Starting plugin ${config.name}")
     SamplePlugin(config)
+
+    println("Going to sleep in ${Thread.currentThread().name}")
+
+    while (true) {
+        Thread.sleep(Long.MAX_VALUE)
+    }
 }
