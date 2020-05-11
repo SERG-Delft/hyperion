@@ -30,6 +30,16 @@ jobs:
         with:
           paths: plugin/
 
+      - uses: marceloprado/has-changed-path@master
+        id: hyperion-pluginmanager
+        with:
+          paths: pluginmanager/
+
+      - uses: marceloprado/has-changed-path@master
+        id: hyperion-sampleplugin
+        with:
+          paths: samplelplugin/
+
       - uses: actions/cache@v1
         with:
           path: ~/.gradle/caches
@@ -48,3 +58,15 @@ jobs:
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: :plugin:check
+
+      - name: gradle check pluginmanager
+        if: steps.hyperion-pluginmanager.outputs.changed == 'true'
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: :pluginmanager:check
+
+      - name: gradle check sampleplugin
+        if: steps.hyperion-sampleplugin.outputs.changed == 'true'
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: :sampleplugin:check
