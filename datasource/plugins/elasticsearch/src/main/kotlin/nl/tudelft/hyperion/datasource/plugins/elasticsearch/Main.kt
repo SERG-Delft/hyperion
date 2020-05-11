@@ -32,7 +32,6 @@ class Verify : CliktCommand(help = "Verify if the config file is in the correct 
     private val path by argument(help = "Path to the config file to verify").default(DEFAULT_CONFIG_FILE)
 
     override fun run() {
-        // TODO add more descriptive error messages
         try {
             Configuration.load(Path.of(path))
             echo("Format is correct")

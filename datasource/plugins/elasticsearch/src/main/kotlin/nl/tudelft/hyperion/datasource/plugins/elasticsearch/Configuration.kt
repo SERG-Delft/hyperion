@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import nl.tudelft.hyperion.pluginmanager.RedisConfig
-import org.apache.logging.log4j.core.config.plugins.PluginConfiguration
 import java.lang.IllegalArgumentException
 import java.nio.file.Files
 import java.nio.file.Path
@@ -81,6 +80,8 @@ data class ElasticsearchConfig(
  * @property pollInterval time between sending queries in seconds
  * @property redis Redis configuration
  * @property es Elasticsearch configuration
+ * @property registrationChannelPostfix postfix to add after the name for the redis hash
+ * @property name name of the plugin
  */
 data class Configuration(
         @JsonProperty("poll_interval")

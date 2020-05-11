@@ -31,7 +31,7 @@ import kotlin.concurrent.fixedRateTimer
  * @property config the configuration to use
  *  it is assumed to be correct, otherwise exceptions can be thrown
  */
-class Elasticsearch(_pluginConfig: PluginConfiguration) : HyperionPlugin(_pluginConfig), DataSourcePlugin {
+class Elasticsearch(pluginConfig: PluginConfiguration) : HyperionPlugin(pluginConfig), DataSourcePlugin {
 
     lateinit var config: Configuration
     lateinit var client: RestHighLevelClient
@@ -88,7 +88,7 @@ class Elasticsearch(_pluginConfig: PluginConfiguration) : HyperionPlugin(_plugin
             if (config.es.responseHitCount >= 10_000) {
                 logger.warn {
                     """
-                response_hit_max=$config.responseHitMax, by default this value is capped at 10.000. 
+                response_hit_max=$config.responseHitMax, by default this value is capped at 10.000.
                 Elasticsearch will deny requests if index.max_result_window is not configured.
                 """.trimIndent()
                 }
@@ -119,7 +119,7 @@ class Elasticsearch(_pluginConfig: PluginConfiguration) : HyperionPlugin(_plugin
          * @param username Elasticsearch username
          * @param password Elasticsearch password
          */
-        fun RestClientBuilder.addAuthentication(username: String, password: String) {
+        private fun RestClientBuilder.addAuthentication(username: String, password: String) {
             val credentialsProvider: CredentialsProvider = BasicCredentialsProvider()
 
             credentialsProvider.setCredentials(AuthScope.ANY,
