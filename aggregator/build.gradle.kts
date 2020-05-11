@@ -19,6 +19,12 @@ jacoco {
     reportsDir = file("$buildDir/jacoco")
 }
 
+tasks.integrationTest {
+    jacoco {
+        enabled = true
+    }
+}
+
 dependencies {
     // Yaml/JSON deserialization
     implementation("com.fasterxml.jackson.core", "jackson-databind", "2.9.4")
@@ -54,6 +60,11 @@ dependencies {
 }
 
 tasks.jacocoTestReport {
+    executionData(
+        tasks.run.get(),
+        tasks.integrationTest.get()
+    )
+
     reports {
         xml.isEnabled = false
         csv.isEnabled = false
@@ -62,11 +73,16 @@ tasks.jacocoTestReport {
 }
 
 tasks.jacocoTestCoverageVerification {
+    executionData(
+        tasks.run.get(),
+        tasks.integrationTest.get()
+    )
+
     violationRules {
         rule {
             limit {
                 counter = "BRANCH"
-                minimum = "0.8".toBigDecimal()
+                minimum = "0.7".toBigDecimal()
             }
 
             limit {
