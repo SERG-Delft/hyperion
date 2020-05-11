@@ -6,6 +6,7 @@ import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import io.mockk.verify
 import nl.tudelft.hyperion.aggregator.Configuration
+import nl.tudelft.hyperion.aggregator.utils.TestWithoutLogging
 import nl.tudelft.hyperion.aggregator.utils.withDisabledTransactions
 import nl.tudelft.hyperion.aggregator.utils.withSpecificTransaction
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -15,7 +16,7 @@ import org.junit.jupiter.api.assertThrows
 import java.sql.SQLException
 import org.jetbrains.exposed.sql.Database as ExposedDatabase
 
-class DatabaseTest {
+class DatabaseTest : TestWithoutLogging() {
     @Test
     fun `Database create connects with the configuration path`() {
         // Mock Database.connect

@@ -12,6 +12,7 @@ import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
 import nl.tudelft.hyperion.aggregator.Configuration
 import nl.tudelft.hyperion.aggregator.api.computeMetrics
+import nl.tudelft.hyperion.aggregator.utils.TestWithoutLogging
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
@@ -22,7 +23,7 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 
-class APITest {
+class APITest : TestWithoutLogging() {
     @TestFactory
     fun `Metrics handler should error on missing query params`() = listOf(
         "project",

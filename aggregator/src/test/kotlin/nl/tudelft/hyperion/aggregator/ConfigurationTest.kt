@@ -1,6 +1,7 @@
 package nl.tudelft.hyperion.aggregator
 
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException
+import nl.tudelft.hyperion.aggregator.utils.TestWithoutLogging
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
@@ -13,7 +14,7 @@ import java.nio.file.Files
  * Unit tests the Configuration class.
  * @see Configuration
  */
-class ConfigurationTest {
+class ConfigurationTest : TestWithoutLogging() {
     @Test
     fun `Configuration should be able to parse from a file`() {
         val temporaryFile = File.createTempFile("hyperion-aggregator-config", "yaml")

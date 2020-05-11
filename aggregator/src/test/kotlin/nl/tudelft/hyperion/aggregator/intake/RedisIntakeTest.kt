@@ -15,6 +15,7 @@ import io.mockk.spyk
 import io.mockk.unmockkAll
 import kotlinx.coroutines.runBlocking
 import nl.tudelft.hyperion.aggregator.RedisConfiguration
+import nl.tudelft.hyperion.aggregator.utils.TestWithoutLogging
 import nl.tudelft.hyperion.aggregator.workers.AggregationManager
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -31,7 +32,7 @@ class CompletedRedisFuture<T>(val value: T?) : CompletableFuture<T>(), RedisFutu
     override fun await(timeout: Long, unit: TimeUnit?) = true
 }
 
-class RedisIntakeTest {
+class RedisIntakeTest : TestWithoutLogging() {
     // Note: ideally I would split this into testing both setup and
     // setupPubSubListener individually, but for some reason mockk
     // does not like a spy stubbing out the setupPubSubListener

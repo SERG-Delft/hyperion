@@ -7,11 +7,12 @@ import io.mockk.verify
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import nl.tudelft.hyperion.aggregator.Configuration
+import nl.tudelft.hyperion.aggregator.utils.TestWithoutLogging
 import nl.tudelft.hyperion.aggregator.utils.withSpecificTransaction
 import org.jetbrains.exposed.sql.Transaction
 import org.junit.jupiter.api.Test
 
-class ExpiryTest {
+class ExpiryTest : TestWithoutLogging() {
     @Test
     fun `Expiry handler should run with the granularity interval`() {
         // Mock Transaction.exec

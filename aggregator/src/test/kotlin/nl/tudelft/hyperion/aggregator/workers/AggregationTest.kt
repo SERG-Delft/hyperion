@@ -13,6 +13,7 @@ import nl.tudelft.hyperion.aggregator.Configuration
 import nl.tudelft.hyperion.aggregator.api.LogEntry
 import nl.tudelft.hyperion.aggregator.api.LogLocation
 import nl.tudelft.hyperion.aggregator.database.AggregationEntries
+import nl.tudelft.hyperion.aggregator.utils.TestWithoutLogging
 import nl.tudelft.hyperion.aggregator.utils.withDisabledTransactions
 import nl.tudelft.hyperion.aggregator.utils.withSpecificTransaction
 import org.jetbrains.exposed.sql.batchInsert
@@ -21,7 +22,7 @@ import org.joda.time.DateTime
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-class AggregationTest {
+class AggregationTest : TestWithoutLogging() {
     @Test
     fun `Aggregation commit worker should run at the granularity interval`() {
         val config = Configuration("a", 1, 1, 1)

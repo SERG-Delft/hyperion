@@ -2,6 +2,7 @@ package nl.tudelft.hyperion.aggregator.api
 
 import nl.tudelft.hyperion.aggregator.Configuration
 import nl.tudelft.hyperion.aggregator.database.AggregationEntries
+import nl.tudelft.hyperion.aggregator.utils.TestWithoutLogging
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Transaction
@@ -16,7 +17,7 @@ import org.junit.jupiter.api.Test
 import java.nio.charset.Charset
 import java.sql.Connection
 
-class MetricsTest {
+class MetricsTest : TestWithoutLogging() {
     lateinit var transaction: Transaction
 
     @BeforeEach

@@ -1,6 +1,7 @@
 package nl.tudelft.hyperion.aggregator.api
 
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
+import nl.tudelft.hyperion.aggregator.utils.TestWithoutLogging
 import org.joda.time.DateTime
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DynamicTest
@@ -9,7 +10,7 @@ import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 
-class LogEntryTest {
+class LogEntryTest : TestWithoutLogging() {
     @Test
     fun `LogEntry should be able to parse from a string`() {
         val content = """
