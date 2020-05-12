@@ -114,8 +114,8 @@ class FileOpenedListener : FileEditorManagerListener {
         // TODO: Obtain all metrics for intervals for correct version
         val metricsResults = ApiRequestor.getMetricForFile(filePath)
         val logInfos: MutableSet<LogInfo> = mutableSetOf()
-        for (metric in metricsResults.first().versions.first().value) {
-            logInfos.add(LogInfo(document, metric.metric.line - 1))
+        for (metric in metricsResults.versions.first().value) {
+            logInfos.add(LogInfo(document, metric.getLine() - 1))
         }
 
         return logInfos

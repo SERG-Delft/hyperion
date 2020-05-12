@@ -6,8 +6,17 @@ import org.joda.time.format.PeriodFormatterBuilder
 /**
  * Represents all metrics for a given line.
  */
-class LineMetrics(val metrics: List<IntervalMetric>) {
+class LineMetrics(private val metrics: List<IntervalMetric>) {
 
+    fun getLine(): Int {
+        if (metrics.isEmpty()) return -1
+
+        return metrics.first().metric.line
+    }
+
+    override fun toString(): String {
+        return metrics.toString()
+    }
     data class IntervalMetric(
             val interval: Int,
             val metric: Metric
@@ -21,8 +30,12 @@ class LineMetrics(val metrics: List<IntervalMetric>) {
                 .appendSeconds().appendSuffix("s")
                 .toFormatter()
 
-        fun getIntervalFormat(): String {
+        fun getFormattedInterval(): String {
             return formatter.print(Period(interval * 1000L).normalizedStandard())
+        }
+
+        fun getText(): String {
+            return "${metric.count} last ${getFormattedInterval()}"
         }
     }
 }

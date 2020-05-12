@@ -8,7 +8,7 @@ import nl.tudelft.hyperion.plugin.metric.LineMetrics
 import nl.tudelft.hyperion.plugin.metric.Metric
 import nl.tudelft.hyperion.plugin.metric.MetricsResult
 
-class MetricDeserializer : JsonDeserializer<List<MetricsResult<LineMetrics.IntervalMetric>>>() {
+class MetricDeserializer : JsonDeserializer<MetricsResult>() {
     private val mapper = ObjectMapper(JsonFactory())
     init {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false) // ignore weird properties
@@ -16,28 +16,31 @@ class MetricDeserializer : JsonDeserializer<List<MetricsResult<LineMetrics.Inter
     }
 
     override fun deserialize(p: JsonParser?,
-                             ctxt: DeserializationContext?): List<MetricsResult<LineMetrics.IntervalMetric>> {
-        val result: MutableList<MetricsResult<LineMetrics.IntervalMetric>> = mutableListOf()
+                             ctxt: DeserializationContext?): MetricsResult {
+        val versions: Map<String, List<LineMetrics>>
 
+        val tempVersions: MutableMap<String, MutableList<LineMetrics.IntervalMetric>> = mutableMapOf()
         val node: JsonNode = p!!.codec.readTree(p)
         for (intervals in node) {
             val interval = intervals["interval"].asInt()
-            val versions: MutableMap<String, List<LineMetrics.IntervalMetric>> = mutableMapOf()
             for (version in intervals["versions"].fields()) {
 
-                versions[version.key] =
-                        version.value.map {
-                            v: JsonNode ->
-                            LineMetrics.IntervalMetric(interval, mapper.readValue(v.traverse(), Metric::class.java))
-                        }
-            }
-            result.add(MetricsResult(
-                    interval,
-                    versions
-            ))
-        }
+                val valuesToAdd = version.value.map {
+                    v: JsonNode ->
+                    LineMetrics.IntervalMetric(interval, mapper.readValue(v.traverse(), Metric::class.java))
+                }
+                if (tempVersions[version.key] != null) tempVersions[version.key]!!.addAll(valuesToAdd)
+                else tempVersions[version.key] = valuesToAdd.toMutableList()
 
-        return result
+            }
+        }
+        versions = tempVersions
+                .mapValues {
+                    entry -> entry.value.groupBy { metric -> metric.metric.line }
+                        .map { groupedEntry -> LineMetrics(groupedEntry.value) }
+                }
+
+        return MetricsResult(versions)
     }
 
 }
