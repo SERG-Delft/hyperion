@@ -18,8 +18,12 @@ dependencies {
 
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.3.70")
 
+    // Redis clients
     implementation("redis.clients", "jedis", "3.2.0")
     implementation("io.lettuce", "lettuce-core", "5.3.0.RELEASE")
+
+    // Testing
+    testImplementation("io.mockk", "mockk", "1.10.0")
 
     compile(project(":pluginmanager"))
 }
