@@ -108,7 +108,7 @@ class FileOpenedListener : FileEditorManagerListener {
 
     private suspend fun getMetrics(project: Project, file: VirtualFile, document: Document): MutableSet<LogInfo> {
         val root = ProjectFileIndex.SERVICE.getInstance(project).getContentRootForFile(file) ?: return mutableSetOf()
-        var filePath = VfsUtilCore.getRelativePath(file, root) ?: return mutableSetOf()
+        val filePath = VfsUtilCore.getRelativePath(file, root) ?: return mutableSetOf()
 
 
         // TODO: Obtain all metrics for intervals for correct version
