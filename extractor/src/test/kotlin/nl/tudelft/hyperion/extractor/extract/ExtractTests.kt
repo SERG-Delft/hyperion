@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import nl.tudelft.hyperion.pluginmanager.RedisConfig
 import org.junit.jupiter.api.Assertions
 
-class ExtractTests() {
+class ExtractTests {
     @Test
     fun testSimpleMessage() {
         val config = Configuration("message",

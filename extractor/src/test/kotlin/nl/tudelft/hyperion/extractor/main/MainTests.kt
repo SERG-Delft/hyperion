@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 import java.nio.file.NoSuchFileException
 
-class MainTests() {
+class MainTests {
     @Test
     fun testSimpleMessage() {
         assertFailsWith<NoSuchFileException> { main("./noJSON.txt") }
