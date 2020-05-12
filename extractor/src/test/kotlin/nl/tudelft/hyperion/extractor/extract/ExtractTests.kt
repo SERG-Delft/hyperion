@@ -130,6 +130,21 @@ class ExtractTests() {
     }
 
     @Test
+    fun testStringType() {
+        val config = Configuration("message", "\\[.+?\\] INFO [^:]+:(\\d+.\\d+) .+", listOf(Extract("location.line", "string")), RedisConfig("host", 6379), null, "plugin")
+
+        val input = "{\"message\":\"[Mar 20 11:11:11] INFO some/file/name:34.567 Test\"}"
+        val expected = "{\"message\":\"[Mar 20 11:11:11] INFO some/file/name:34.567 Test\", \"location\": { \"line\" : \"34.567\"}}"
+
+        val mapper = jacksonObjectMapper()
+
+        val treeExpected = mapper.readTree(expected)
+        val treeActual = mapper.readTree(extract(input, config))
+
+        Assertions.assertEquals(treeExpected, treeActual)
+    }
+
+    @Test
     fun testDeepHierarchy() {
         val config = Configuration("message", "\\[.+?\\] INFO [^:]+:(\\d+) - .+", listOf(Extract("location.line.numeric", "number")), RedisConfig("host", 6379), null, "plugin")
 

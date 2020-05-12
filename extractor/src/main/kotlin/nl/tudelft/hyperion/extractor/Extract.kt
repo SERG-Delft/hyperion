@@ -44,6 +44,7 @@ fun ObjectNode.put(type : String, value : String, name : String) : ObjectNode {
         when (type) {
             "number" -> this.put(parts[0], value.toInt())
             "double" -> this.put(parts[0], value.toDouble())
+            "string" -> this.put(parts[0], value)
             else -> this.put(parts[0], value)
         }
     } else {
@@ -51,10 +52,12 @@ fun ObjectNode.put(type : String, value : String, name : String) : ObjectNode {
             p, c -> p.findOrCreateChild(c)
         })
 
+        val leafName = parts.last()
         when (type) {
-            "number" -> target.put(parts.last(), value.toInt())
-            "double" -> target.put(parts.last(), value.toDouble())
-            else -> target.put(parts.last(), value)
+            "number" -> target.put(leafName, value.toInt())
+            "double" -> target.put(leafName, value.toDouble())
+            "string" -> target.put(leafName, value)
+            else -> target.put(leafName, value)
         }
     }
 
