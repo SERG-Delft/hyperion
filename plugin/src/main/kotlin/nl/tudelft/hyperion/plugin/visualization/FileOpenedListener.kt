@@ -1,11 +1,19 @@
 package nl.tudelft.hyperion.plugin.visualization
 
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.Inlay
 import com.intellij.openapi.fileEditor.*
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ProjectFileIndex
+import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
+import com.jetbrains.rd.util.first
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import nl.tudelft.hyperion.plugin.connection.ApiRequestor
 
 class FileOpenedListener : FileEditorManagerListener {
 
@@ -25,30 +33,42 @@ class FileOpenedListener : FileEditorManagerListener {
                 if (listeners[editor.editor] == null) listeners[editor.editor] = mutableMapOf()
 
                 if (!listeners[editor.editor]!!.contains(document)) {
-                    var logInfos: MutableSet<LogInfo>
-                    if (documentLogInfos.contains(document)) {
-                        logInfos = documentLogInfos[document]!!
-                    } else {
-                        // TODO: Obtain all logs for related file here and add to `logInfos`
-                        logInfos = mutableSetOf(LogInfo(document, 0), LogInfo(document, 1))
-                        documentLogInfos[document] = logInfos
+                    GlobalScope.launch {
+                        val logInfos: MutableSet<LogInfo> = getLogInfos(document, source, file)
+                        ApplicationManager.getApplication().invokeAndWait({
+                            placeMetrics(logInfos, editor, document)
+                        }, ModalityState.NON_MODAL)
+
                     }
-
-
-
-                    val tooltips: MutableSet<Pair<LogInfo, Inlay<TooltipRenderer>>> = mutableSetOf()
-
-                    for (logInfo in logInfos) {
-                        tooltips.add(Pair(logInfo, TooltipInlayManager.addLogTooltip(editor.editor, logInfo)!!))
-                    }
-                    val listener = DocumentTooltipListener(tooltips)
-                    document.addDocumentListener(listener)
-                    listeners[editor.editor]?.set(document, listener)
                 }
             }
         }
 
 
+    }
+
+    private suspend fun getLogInfos(document: Document, source: FileEditorManager, file: VirtualFile): MutableSet<LogInfo> {
+        val logInfos: MutableSet<LogInfo>
+        if (documentLogInfos.contains(document)) {
+            logInfos = documentLogInfos[document]!!
+        } else {
+            // TODO: Obtain all logs for related file here and add to `logInfos`
+            logInfos = getMetrics(source.project, file, document)
+
+            documentLogInfos[document] = logInfos
+        }
+        return logInfos
+    }
+
+    private fun placeMetrics(logInfos: MutableSet<LogInfo>, editor: TextEditor, document: Document) {
+        val tooltips: MutableSet<Pair<LogInfo, Inlay<TooltipRenderer>>> = mutableSetOf()
+
+        for (logInfo in logInfos) {
+            tooltips.add(Pair(logInfo, TooltipInlayManager.addLogTooltip(editor.editor, logInfo)!!))
+        }
+        val listener = DocumentTooltipListener(tooltips)
+        document.addDocumentListener(listener)
+        listeners[editor.editor]?.set(document, listener)
     }
 
     override fun fileClosed(source: FileEditorManager, file: VirtualFile) {
@@ -84,5 +104,21 @@ class FileOpenedListener : FileEditorManagerListener {
             }
         }
         return false
+    }
+
+    private suspend fun getMetrics(project: Project, file: VirtualFile, document: Document): MutableSet<LogInfo> {
+        val root = ProjectFileIndex.SERVICE.getInstance(project).getContentRootForFile(file) ?: return mutableSetOf()
+        var filePath = VfsUtilCore.getRelativePath(file, root) ?: return mutableSetOf()
+
+
+        // TODO: Obtain all metrics for intervals for correct version
+        filePath = "com.sap.enterprises.server.impl.TransportationService"
+        val metricsResults = ApiRequestor.getMetricForFile(filePath)
+        val logInfos: MutableSet<LogInfo> = mutableSetOf()
+        for (metric in metricsResults.first().versions.first().value) {
+            logInfos.add(LogInfo(document, metric.metric.line - 1))
+        }
+
+        return logInfos
     }
 }

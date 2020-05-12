@@ -11,6 +11,13 @@ application {
     mainClassName = "nl.tudelft.hyperion.plugin.Main"
 }
 
+dependencies {
+    implementation("io.ktor:ktor-client-core:1.3.2")
+    implementation("io.ktor:ktor-client-cio:1.3.2")
+    implementation("com.fasterxml.jackson.core", "jackson-databind", "2.10.2")
+    implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.10.2")
+}
+
 jacoco {
     toolVersion = "0.8.5"
     reportsDir = file("$buildDir/jacoco")
