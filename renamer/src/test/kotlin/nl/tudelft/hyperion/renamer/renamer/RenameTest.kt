@@ -1,17 +1,17 @@
-package nl.tudelft.hyperion.renamer
+package nl.tudelft.hyperion.renamer.rename
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import io.mockk.every
-import io.mockk.mockk
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import java.nio.file.Path
 import nl.tudelft.hyperion.pluginmanager.RedisConfig
+import nl.tudelft.hyperion.renamer.Configuration
+import nl.tudelft.hyperion.renamer.Rename
+import nl.tudelft.hyperion.renamer.rename
 
-class MainTest() {
+class RenameTest {
     @Test
     fun testRenameLogLine() {
-        val config = Configuration(listOf(Rename("log_line", "location.line")), RedisConfig("host", 6379), null,"extractor")
+        val config = Configuration(listOf(Rename("log_line", "location.line")), RedisConfig("host", 6379), null, "extractor")
 
         val expected = "{\n" +
                 "  \"project\" : \"some unique identifier for project, such as the repo name or package\",\n" +
@@ -39,7 +39,7 @@ class MainTest() {
 
     @Test
     fun testRenameNotFound() {
-        val config = Configuration(listOf(Rename("log_line", "location.line")), RedisConfig("host", 6379), null,"extractor")
+        val config = Configuration(listOf(Rename("log_line", "location.line")), RedisConfig("host", 6379), null, "extractor")
 
         val input = "{\n" +
                 "  \"project\" : \"some unique identifier for project, such as the repo name or package\",\n" +
