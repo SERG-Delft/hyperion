@@ -1,5 +1,7 @@
 package nl.tudelft.hyperion.datasource.plugins.elasticsearch
 
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
 import mu.KotlinLogging
 import nl.tudelft.hyperion.datasource.common.DataSourcePlugin
 import nl.tudelft.hyperion.pluginmanager.hyperionplugin.HyperionPlugin
@@ -18,6 +20,7 @@ import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.search.SearchHit
 import org.elasticsearch.search.builder.SearchSourceBuilder
 import java.util.*
+import java.util.concurrent.Executors
 import kotlin.concurrent.fixedRateTimer
 
 /**
@@ -37,6 +40,12 @@ class Elasticsearch(pluginConfig: PluginConfiguration) : HyperionPlugin(pluginCo
     lateinit var client: RestHighLevelClient
     private var finished = false
     private var timer: Timer? = null
+    private val channel = Channel<SearchHit>(10_000)
+    private val pluginThreadPool = CoroutineScope(
+            Executors
+                .newFixedThreadPool(4)
+                .asCoroutineDispatcher()
+    )
 
     constructor(
             config: Configuration,
@@ -55,11 +64,22 @@ class Elasticsearch(pluginConfig: PluginConfiguration) : HyperionPlugin(pluginCo
          * @param index the name of the ES index to query from
          * @return the created search request
          */
+
+        /**
+         * Creates a search request that queries all logs between a certain timestamp.
+         *
+         * @param index the name of the ES index to query from
+         * @param timeStampField the name of the time field in the ES index
+         * @param currentTime the current epoch time in millis
+         * @param range the time range in millis
+         * @param responseHitCount the maximum amount of hits to return
+         * @return the created search request
+         */
         fun createSearchRequest(
                 index: String,
                 timeStampField: String,
                 currentTime: Long,
-                range: Int,
+                range: Long,
                 responseHitCount: Int): SearchRequest {
 
             val searchRequest = SearchRequest()
@@ -69,7 +89,9 @@ class Elasticsearch(pluginConfig: PluginConfiguration) : HyperionPlugin(pluginCo
                     .rangeQuery(timeStampField)
                     .gt(currentTime - range)
                     .to(currentTime)
-                    .format("epoch_second")
+                    .format("epoch_millis")
+
+            logger.debug { "Sending query: $query" }
 
             val searchBuilder = SearchSourceBuilder()
             searchBuilder.query(query)
@@ -88,7 +110,7 @@ class Elasticsearch(pluginConfig: PluginConfiguration) : HyperionPlugin(pluginCo
             if (config.es.responseHitCount >= 10_000) {
                 logger.warn {
                     """
-                response_hit_max=$config.responseHitMax, by default this value is capped at 10.000.
+                response_hit_max=${config.es.responseHitCount}, by default this value is capped at 10.000.
                 Elasticsearch will deny requests if index.max_result_window is not configured.
                 """.trimIndent()
                 }
@@ -137,8 +159,7 @@ class Elasticsearch(pluginConfig: PluginConfiguration) : HyperionPlugin(pluginCo
      * @param searchHit the searchHit to send in JSON
      */
     private fun sendHit(searchHit: SearchHit) {
-        val sync = this.pub.sync()
-        sync.publish(pubChannel, searchHit.sourceAsString)
+        pub.async().publish(pubChannel, searchHit.sourceAsString)
     }
 
     override fun start() {
@@ -151,10 +172,10 @@ class Elasticsearch(pluginConfig: PluginConfiguration) : HyperionPlugin(pluginCo
 
         logger.info { "Starting retrieval of logs" }
 
-        timer = fixedRateTimer("requestScheduler", period = config.pollInterval * 1000.toLong(), daemon = true) {
+        timer = fixedRateTimer("requestScheduler", period = config.pollInterval, daemon = true) {
             val searchRequest = createSearchRequest(config.es.index,
                     config.es.timestampField,
-                    System.currentTimeMillis() / 1000,
+                    System.currentTimeMillis(),
                     config.pollInterval,
                     config.es.responseHitCount)
 

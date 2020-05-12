@@ -77,7 +77,7 @@ data class ElasticsearchConfig(
  * Contains the necessary arguments to communicate and pull data from
  * Elasticsearch.
  *
- * @property pollInterval time between sending queries in seconds
+ * @property pollInterval time between sending queries in milliseconds
  * @property redis Redis configuration
  * @property es Elasticsearch configuration
  * @property registrationChannelPostfix postfix to add after the name for the redis hash
@@ -85,7 +85,7 @@ data class ElasticsearchConfig(
  */
 data class Configuration(
         @JsonProperty("poll_interval")
-        var pollInterval: Int,
+        var pollInterval: Long,
         val redis: RedisConfig,
         @JsonProperty("elasticsearch")
         val es: ElasticsearchConfig,

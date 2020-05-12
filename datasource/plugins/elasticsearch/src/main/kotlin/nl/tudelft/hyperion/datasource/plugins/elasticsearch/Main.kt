@@ -10,7 +10,7 @@ import com.github.ajalt.clikt.parameters.arguments.default
 import java.nio.file.Path
 import kotlin.system.exitProcess
 
-const val DEFAULT_CONFIG_FILE = "config.yml"
+const val DEFAULT_CONFIG_FILE = "datasource-es.yml"
 
 val HELP_TEXT = """
     Periodically pull data from an Elasticsearch instance and send it to the

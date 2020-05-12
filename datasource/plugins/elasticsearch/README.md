@@ -21,17 +21,17 @@ Commands:
   verify  Verify if the config file is in the correct format
   run     Run with the the given config file
 
-$ java -jar elasticsearch-all.jar run config.yml
+$ java -jar elasticsearch-all.jar run datasource-es.yml
 [main] INFO nl.tudelft.hyperion.datasource.plugins.elasticsearch.Elasticsearch - Elasticsearch client created successfully
 [main] INFO nl.tudelft.hyperion.datasource.plugins.elasticsearch.Elasticsearch - Starting Redis client
 [main] INFO nl.tudelft.hyperion.datasource.plugins.elasticsearch.Elasticsearch - Starting retrieval of logs
 ...
 ```
 
-### Example `config.yml`
+### Example `datasource-es.yml`
 
 ```yaml
-poll_interval: 5
+poll_interval: 5000
 name: elasticsearch
 
 elasticsearch:

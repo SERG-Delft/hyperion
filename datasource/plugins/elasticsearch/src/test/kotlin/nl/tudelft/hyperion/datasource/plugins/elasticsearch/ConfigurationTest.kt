@@ -68,7 +68,7 @@ class ConfigurationTest {
                         9200,
                         "http",
                         false,
-                        "time",
+                        "@timestamp",
                         10,
                         null,
                         null
@@ -80,7 +80,28 @@ class ConfigurationTest {
 
     @Test
     fun `test valid config`() {
-        assertDoesNotThrow { Configuration.parse(rawConfig) }
+        val expected = Configuration(
+                5,
+                RedisConfig(
+                        "localhost",
+                        6379
+                ),
+                ElasticsearchConfig(
+                        "foo",
+                        "logs",
+                        9200,
+                        "http",
+                        false,
+                        "@timestamp",
+                        10,
+                        null,
+                        null
+                ),
+                null,
+                "elastic"
+        )
+
+        assertEquals(expected, Configuration.parse(rawConfig))
     }
 
     @ParameterizedTest
@@ -88,7 +109,7 @@ class ConfigurationTest {
             "port, 9200",
             "scheme, http"
     )
-    fun `test optional elasticsearch fields`(param: String, value: Any) {
+    fun `test optional elasticsearch fields`(param: String, expected: Any) {
         val config = Configuration.parse(
                 """
                 name: elastic
@@ -104,7 +125,7 @@ class ConfigurationTest {
                 """.trimIndent())
 
         val result = ElasticsearchConfig::class.getProp(param, config.es)
-        assertEquals(value, result.toString())
+        assertEquals(expected, result.toString())
     }
 
     @Test
