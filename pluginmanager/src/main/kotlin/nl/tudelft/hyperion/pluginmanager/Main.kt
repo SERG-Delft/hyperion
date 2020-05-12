@@ -21,20 +21,21 @@ fun main(vararg args: String) {
         config
     } catch (ex: FileSystemException) {
         logger.error(ex) {"Failed to retrieve configuration file at ${args[0]}"}
-        null
+        throw ex
     } catch (ex: IllegalArgumentException) {
         logger.error(ex) {"Failed to parse config file"}
-        null
+        throw ex
     }
 
     logger.info {"Starting Plugin Manager"}
     try {
         if (config != null) {
-            PluginManager(config)
+            val pluginManager = PluginManager(config)
+            pluginManager.pushConfig()
         }
     } catch (ex: Exception) {
         logger.error(ex) {"Failed to execute Plugin Manager"}
-        return
+        throw ex
     }
     logger.info {"Started Plugin Manager"}
 }

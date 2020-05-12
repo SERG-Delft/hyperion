@@ -17,12 +17,14 @@ class PluginManager(config: Configuration) {
 
     private val logger = mu.KotlinLogging.logger {}
 
-    init {
+
+    fun pushConfig() {
         logger.info {"Write plugin config to redis"}
         try {
             configPlugins()
         } catch (ex: Exception) {
             logger.error(ex) {"Failed to push config to redis"}
+            throw ex
         } finally {
             closeConnection()
             logger.debug {"Closed redis connection"}
@@ -58,11 +60,11 @@ class PluginManager(config: Configuration) {
         }
     }
 
-    private fun registerPublish(plugin: String, channel: String) {
+    fun registerPublish(plugin: String, channel: String) {
         hset("$plugin$channelConfig", mapOf("publisher" to "true", "pubChannel" to channel))
     }
 
-    private fun registerSubscribe(plugin: String, channel: String) {
+    fun registerSubscribe(plugin: String, channel: String) {
         hset("$plugin$channelConfig", mapOf("subscriber" to "true", "subChannel" to channel))
     }
 
