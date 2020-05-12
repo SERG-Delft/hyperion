@@ -31,7 +31,7 @@ $ java -jar elasticsearch-all.jar run datasource-es.yml
 ### Example `datasource-es.yml`
 
 ```yaml
-poll_interval: 5000
+poll_interval: 5
 name: elasticsearch
 
 elasticsearch:

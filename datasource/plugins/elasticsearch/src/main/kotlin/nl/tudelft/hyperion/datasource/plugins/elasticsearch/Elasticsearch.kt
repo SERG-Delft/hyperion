@@ -1,7 +1,5 @@
 package nl.tudelft.hyperion.datasource.plugins.elasticsearch
 
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
 import mu.KotlinLogging
 import nl.tudelft.hyperion.datasource.common.DataSourcePlugin
 import nl.tudelft.hyperion.pluginmanager.hyperionplugin.HyperionPlugin
@@ -20,7 +18,6 @@ import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.search.SearchHit
 import org.elasticsearch.search.builder.SearchSourceBuilder
 import java.util.*
-import java.util.concurrent.Executors
 import kotlin.concurrent.fixedRateTimer
 
 /**
@@ -40,12 +37,6 @@ class Elasticsearch(pluginConfig: PluginConfiguration) : HyperionPlugin(pluginCo
     lateinit var client: RestHighLevelClient
     private var finished = false
     private var timer: Timer? = null
-    private val channel = Channel<SearchHit>(10_000)
-    private val pluginThreadPool = CoroutineScope(
-            Executors
-                .newFixedThreadPool(4)
-                .asCoroutineDispatcher()
-    )
 
     constructor(
             config: Configuration,
@@ -70,16 +61,16 @@ class Elasticsearch(pluginConfig: PluginConfiguration) : HyperionPlugin(pluginCo
          *
          * @param index the name of the ES index to query from
          * @param timeStampField the name of the time field in the ES index
-         * @param currentTime the current epoch time in millis
-         * @param range the time range in millis
+         * @param currentTime the current epoch time in seconds
+         * @param range the time range in seconds
          * @param responseHitCount the maximum amount of hits to return
          * @return the created search request
          */
         fun createSearchRequest(
                 index: String,
                 timeStampField: String,
-                currentTime: Long,
-                range: Long,
+                currentTime: Int,
+                range: Int,
                 responseHitCount: Int): SearchRequest {
 
             val searchRequest = SearchRequest()
@@ -89,7 +80,7 @@ class Elasticsearch(pluginConfig: PluginConfiguration) : HyperionPlugin(pluginCo
                     .rangeQuery(timeStampField)
                     .gt(currentTime - range)
                     .to(currentTime)
-                    .format("epoch_millis")
+                    .format("epoch_second")
 
             logger.debug { "Sending query: $query" }
 
@@ -172,10 +163,10 @@ class Elasticsearch(pluginConfig: PluginConfiguration) : HyperionPlugin(pluginCo
 
         logger.info { "Starting retrieval of logs" }
 
-        timer = fixedRateTimer("requestScheduler", period = config.pollInterval, daemon = true) {
+        timer = fixedRateTimer("requestScheduler", period = config.pollInterval * 1000.toLong(), daemon = true) {
             val searchRequest = createSearchRequest(config.es.index,
                     config.es.timestampField,
-                    System.currentTimeMillis(),
+                    (System.currentTimeMillis() / 1000).toInt(),
                     config.pollInterval,
                     config.es.responseHitCount)
 
