@@ -13,7 +13,7 @@ class ConfigurationTests() {
             redis:
               host: "192.168.2.168"
               port: 6379
-            
+
             field : "message"
             match : "\\[.+?\\] INFO [^:]+:(\\d+) (-) .+"
             extract :
