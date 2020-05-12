@@ -1,7 +1,6 @@
 package nl.tudelft.hyperion.pluginmanager
 
 import io.lettuce.core.RedisClient
-import io.lettuce.core.RedisConnectionException
 import io.lettuce.core.RedisURI
 import io.lettuce.core.api.StatefulRedisConnection
 
