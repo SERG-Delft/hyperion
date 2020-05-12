@@ -112,7 +112,6 @@ class FileOpenedListener : FileEditorManagerListener {
 
 
         // TODO: Obtain all metrics for intervals for correct version
-        filePath = "com.sap.enterprises.server.impl.TransportationService"
         val metricsResults = ApiRequestor.getMetricForFile(filePath)
         val logInfos: MutableSet<LogInfo> = mutableSetOf()
         for (metric in metricsResults.first().versions.first().value) {
