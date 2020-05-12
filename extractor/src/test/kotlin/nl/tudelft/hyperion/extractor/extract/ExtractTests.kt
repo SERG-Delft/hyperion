@@ -1,11 +1,14 @@
-package nl.tudelft.hyperion.extractor
+package nl.tudelft.hyperion.extractor.extract
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import nl.tudelft.hyperion.extractor.Configuration
+import nl.tudelft.hyperion.extractor.Extract
+import nl.tudelft.hyperion.extractor.extract
 import org.junit.jupiter.api.Test
 import nl.tudelft.hyperion.pluginmanager.RedisConfig
 import org.junit.jupiter.api.Assertions
 
-class MainTest() {
+class ExtractTests() {
     @Test
     fun testSimpleMessage() {
         val config = Configuration("message", "\\[.+?\\] INFO [^:]+:(\\d+) (-) .+", listOf(Extract("location.line", "number"), Extract("dash", "string")), RedisConfig("host", 6379), null, "plugin")
