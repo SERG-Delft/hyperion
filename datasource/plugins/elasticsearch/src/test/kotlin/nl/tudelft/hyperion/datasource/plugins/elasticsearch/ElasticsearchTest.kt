@@ -1,12 +1,11 @@
 package nl.tudelft.hyperion.datasource.plugins.elasticsearch
 
 import io.lettuce.core.RedisClient
-import io.lettuce.core.RedisURI
-import io.mockk.mockk
-import io.mockk.spyk
-import io.mockk.verify
-import nl.tudelft.hyperion.pluginmanager.RedisConfig
+import io.lettuce.core.api.async.RedisAsyncCommands
+import io.lettuce.core.pubsub.StatefulRedisPubSubConnection
+import io.mockk.*
 import org.elasticsearch.client.RestHighLevelClient
+import org.elasticsearch.search.SearchHit
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -19,16 +18,14 @@ class ElasticsearchTest {
     class KGenericContainer(imageName: String) : GenericContainer<KGenericContainer>(imageName)
 
     lateinit var testConfig: Configuration
-    lateinit var redis: KGenericContainer
+    lateinit var mockClient: RestHighLevelClient
+    lateinit var mockRedis: RedisClient
 
     @BeforeAll
     fun init() {
-        redis = KGenericContainer("redis:6.0-alpine").withExposedPorts(6379)
-        redis.start()
-
         testConfig = Configuration(
                 5,
-                RedisConfig(redis.containerIpAddress, redis.firstMappedPort),
+                RedisConfig("localhost", 6379),
                 ElasticsearchConfig(
                         "host",
                         "index",
@@ -43,19 +40,15 @@ class ElasticsearchTest {
                 null,
                 "elastic"
         )
-
-        val redisClient = RedisClient.create(RedisURI.create("localhost", testConfig.redis.port!!))
-        // The redis client is not injectable so this workaround is used
-        val sync = redisClient.connect().sync()
-        sync.hset("elastic-config", "publisher", "true")
-        sync.hset("elastic-config", "subscriber", "false")
-        sync.hset("elastic-config", "pubChannel", "output")
-        redisClient.shutdown()
     }
 
-    @AfterAll
-    fun cleanup() {
-        redis.stop()
+    @BeforeEach
+    fun setUp() {
+        mockClient = mockk(relaxed = true)
+        mockRedis = mockk(relaxed = true)
+
+        // to ensure that the plugin has an output channel
+        every { mockRedis.connect().sync().hget(any(), any()) } returns "output"
     }
 
     @Test
@@ -70,8 +63,7 @@ class ElasticsearchTest {
 
     @Test
     fun `test starting a closed instance`() {
-        val mockClient = mockk<RestHighLevelClient>(relaxed = true)
-        val es = Elasticsearch(testConfig, mockClient)
+        val es = spyk(Elasticsearch(testConfig, mockClient, mockRedis))
 
         es.start()
         es.stop()
@@ -82,15 +74,13 @@ class ElasticsearchTest {
 
     @Test
     fun `test that stop does not trigger exception on uninitialized instance`() {
-        val mockClient = mockk<RestHighLevelClient>(relaxed = true)
-        val es = Elasticsearch(testConfig, mockClient)
+        val es = spyk(Elasticsearch(testConfig, mockClient, mockRedis))
         assertDoesNotThrow { es.stop() }
     }
 
     @Test
     fun `test sendAsyncCalled after starting`() {
-        val mockClient = mockk<RestHighLevelClient>(relaxed = true)
-        val es = Elasticsearch(testConfig, mockClient)
+        val es = spyk(Elasticsearch(testConfig, mockClient, mockRedis))
 
         es.start()
 
@@ -104,7 +94,7 @@ class ElasticsearchTest {
     fun `test Elasticsearch builder`() {
         val config = Configuration(
                 5,
-                RedisConfig(redis.containerIpAddress, redis.firstMappedPort),
+                RedisConfig("localhost", 6379),
                 ElasticsearchConfig(
                         "host",
                         "index",
@@ -131,7 +121,7 @@ class ElasticsearchTest {
     fun `test missing authentication arguments in builder`() {
         val config = Configuration(
                 5,
-                RedisConfig(redis.containerIpAddress, redis.firstMappedPort),
+                RedisConfig("localhost", 6379),
                 ElasticsearchConfig(
                         "host",
                         "index",
@@ -154,7 +144,7 @@ class ElasticsearchTest {
     fun `test correct authentication in builder`() {
         val config = Configuration(
                 5,
-                RedisConfig(redis.containerIpAddress, redis.firstMappedPort),
+                RedisConfig("localhost", 6379),
                 ElasticsearchConfig(
                         "host",
                         "index",
@@ -172,13 +162,32 @@ class ElasticsearchTest {
         assertDoesNotThrow { Elasticsearch.build(config) }
     }
 
-    /**
-     * Test work function to comply with Jacoco
-     */
     @Test
-    fun `test work function not used`() {
-        val mockClient = mockk<RestHighLevelClient>(relaxed = true)
-        val es = spyk(Elasticsearch(testConfig, mockClient))
-        assertThrows<java.lang.IllegalStateException> { es.work("test") }
+    fun `test sendHit calls publisher`() {
+        val searchHit = SearchHit(1)
+
+        val es = spyk(Elasticsearch(testConfig, mockClient, mockRedis))
+
+        val publisher = mockk<RedisAsyncCommands<String, String>>(relaxed = true)
+        es.publisher = publisher
+
+        es.sendHit(searchHit)
+
+        verify(exactly = 1) { publisher.publish(any(), any()) }
+    }
+
+    @Test
+    fun `test cleanup removes channels if initialized`() {
+        val es = spyk(Elasticsearch(testConfig, mockClient, mockRedis))
+        val publisherConn = mockk<StatefulRedisPubSubConnection<String, String>>(relaxed = true)
+        es.publisherConn = publisherConn
+
+        es.cleanup()
+
+        verify {
+            publisherConn.flushCommands()
+            publisherConn.close()
+            mockRedis.shutdown()
+        }
     }
 }

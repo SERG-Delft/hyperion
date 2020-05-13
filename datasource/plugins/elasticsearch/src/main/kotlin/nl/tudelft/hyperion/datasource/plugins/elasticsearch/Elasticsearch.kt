@@ -1,5 +1,10 @@
 package nl.tudelft.hyperion.datasource.plugins.elasticsearch
 
+import io.lettuce.core.RedisClient
+import io.lettuce.core.RedisURI
+import io.lettuce.core.api.StatefulRedisConnection
+import io.lettuce.core.api.async.RedisAsyncCommands
+import io.lettuce.core.pubsub.StatefulRedisPubSubConnection
 import mu.KotlinLogging
 import nl.tudelft.hyperion.datasource.common.DataSourcePlugin
 import nl.tudelft.hyperion.pluginmanager.hyperionplugin.HyperionPlugin
@@ -18,6 +23,7 @@ import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.search.SearchHit
 import org.elasticsearch.search.builder.SearchSourceBuilder
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.concurrent.fixedRateTimer
 
 /**
@@ -31,20 +37,18 @@ import kotlin.concurrent.fixedRateTimer
  * @property config the configuration to use
  *  it is assumed to be correct, otherwise exceptions can be thrown
  */
-class Elasticsearch(pluginConfig: PluginConfiguration) : HyperionPlugin(pluginConfig), DataSourcePlugin {
+class Elasticsearch(
+        private var config: Configuration,
+        val client: RestHighLevelClient,
+        private val redis: RedisClient
+) : DataSourcePlugin {
 
-    lateinit var config: Configuration
-    lateinit var client: RestHighLevelClient
     private var finished = false
+    private val channelConfig = "${config.name}${config.registrationChannelPostfix}"
     private var timer: Timer? = null
-
-    constructor(
-            config: Configuration,
-            client: RestHighLevelClient
-    ) : this(PluginConfiguration(config.redis, config.registrationChannelPostfix, config.name)) {
-        this.config = config
-        this.client = client
-    }
+    private var pubChannel: String? = null
+    var publisherConn: StatefulRedisPubSubConnection<String, String>? = null
+    var publisher: RedisAsyncCommands<String, String>? = null
 
     companion object {
         private val logger = KotlinLogging.logger {}
@@ -107,6 +111,10 @@ class Elasticsearch(pluginConfig: PluginConfiguration) : HyperionPlugin(pluginCo
                 }
             }
 
+            // create Redis client
+            val redis = RedisClient.create(RedisURI.create(config.redis.host, config.redis.port!!))
+
+            // create Elasticsearch client
             val clientBuilder = RestClient.builder(HttpHost(
                     config.es.hostname,
                     config.es.port!!,
@@ -123,7 +131,7 @@ class Elasticsearch(pluginConfig: PluginConfiguration) : HyperionPlugin(pluginCo
 
             logger.info { "Elasticsearch client created successfully" }
 
-            return Elasticsearch(config, client)
+            return Elasticsearch(config, client, redis)
         }
 
         /**
@@ -149,8 +157,8 @@ class Elasticsearch(pluginConfig: PluginConfiguration) : HyperionPlugin(pluginCo
      *
      * @param searchHit the searchHit to send in JSON
      */
-    private fun sendHit(searchHit: SearchHit) {
-        pub.async().publish(pubChannel, searchHit.sourceAsString)
+    fun sendHit(searchHit: SearchHit) {
+        publisher?.publish(pubChannel, searchHit.sourceAsString)
     }
 
     override fun start() {
@@ -158,6 +166,10 @@ class Elasticsearch(pluginConfig: PluginConfiguration) : HyperionPlugin(pluginCo
             throw IllegalStateException("Elasticsearch client is already closed")
 
         logger.info { "Starting Redis client" }
+
+        pubChannel = redis.connect().sync().hget(channelConfig, "pubChannel")
+        publisherConn = redis.connectPubSub()
+        publisher = publisherConn!!.async()
 
         val requestHandler = RequestHandler(::sendHit)
 
@@ -183,13 +195,10 @@ class Elasticsearch(pluginConfig: PluginConfiguration) : HyperionPlugin(pluginCo
         client.close()
 
         logger.info { "Closing Redis pub/sub connection" }
-        pub.flushCommands()
-        pub.close()
+        publisherConn?.flushCommands()
+        publisherConn?.close()
+        redis.shutdown()
 
         finished = true
-    }
-
-    override fun work(message: String): String {
-        throw IllegalStateException("work should not be called on Elasticsearch plugin")
     }
 }

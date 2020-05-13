@@ -2,7 +2,6 @@ package nl.tudelft.hyperion.datasource.plugins.elasticsearch
 
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.exc.InvalidFormatException
-import nl.tudelft.hyperion.pluginmanager.RedisConfig
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

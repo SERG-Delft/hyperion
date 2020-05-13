@@ -4,10 +4,26 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import nl.tudelft.hyperion.pluginmanager.RedisConfig
 import java.lang.IllegalArgumentException
 import java.nio.file.Files
 import java.nio.file.Path
+
+/**
+ * Configuration for Redis communication
+ *
+ * @property host hostname of Redis instance
+ * @property port port of Redis instance
+ */
+data class RedisConfig(
+        var host: String,
+        var port: Int?
+) {
+    init {
+        if (port == null) {
+            port = 6739
+        }
+    }
+}
 
 /**
  * Configuration for Elasticsearch communication.
