@@ -43,7 +43,6 @@ dependencies {
     implementation("org.postgresql", "postgresql", "42.2.12")
 
     // Intake
-    implementation("io.lettuce", "lettuce-core", "5.3.0.RELEASE")
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-jdk8", "1.3.5")
     implementation("org.zeromq", "jeromq", "0.5.2")
 

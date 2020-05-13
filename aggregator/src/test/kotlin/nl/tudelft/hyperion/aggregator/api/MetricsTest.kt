@@ -42,7 +42,7 @@ class MetricsTest : TestWithoutLogging() {
         }
 
         // Hardcode timestamp
-        DateTimeUtils.setCurrentMillisFixed(1588844616804);
+        DateTimeUtils.setCurrentMillisFixed(1588844616804)
     }
 
     @AfterEach

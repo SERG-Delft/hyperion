@@ -1,10 +1,14 @@
 package nl.tudelft.hyperion.aggregator
 
-import io.lettuce.core.RedisClient
-import io.lettuce.core.RedisURI
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.joda.time.DateTime
 import org.junit.jupiter.api.Assertions
@@ -12,19 +16,18 @@ import org.junit.jupiter.api.Test
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
+import org.zeromq.SocketType
+import org.zeromq.ZContext
 import java.io.File
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.file.Files
+import java.util.concurrent.Executors
 
 @Testcontainers
 class AggregatorIntegrationTest {
-    @Container
-    private val redisContainer = KGenericContainer("redis:6.0-alpine")
-        .withExposedPorts(6379)
-
     @Container
     private val postgresContainer = KGenericContainer("postgres:12.0-alpine")
         .withExposedPorts(5432)
@@ -42,19 +45,21 @@ class AggregatorIntegrationTest {
                 port: 38173
                 granularity: 1 # 1 second
                 aggregationTtl: 604800 # 7 days
-                redis:
-                    host: ${redisContainer.containerIpAddress}
-                    port: ${redisContainer.getMappedPort(6379)}
+                zmq:
+                    pluginManager: localhost:39181
+                    id: Aggregator
             """.trimIndent()
         )
 
-        // Step 2: Create a redis client so we can interface with the pipeline
-        val redis = RedisClient.create(
-            RedisURI.create(redisContainer.containerIpAddress, redisContainer.getMappedPort(6379))
-        ).connect().sync()
+        // Step 2: Create a "plugin manager" that will respond with a static channel.
+        val pluginManager = runDummyZMQPluginServer(
+            39181, """
+            {"host":"tcp://localhost:39182","isBind":false}
+        """.trimIndent()
+        )
 
-        // Step 3: Prepare redis environment.
-        redis.hset("Aggregator-config", "subChannel", "incoming")
+        // Step 3: Create a ZMQ pusher that will send messages to the aggregator.
+        val (pusher, channel) = runDummyZMQPublisher(39182);
 
         // Step 4: Start the aggregator and issue some commands.
         val aggregator = coMain(temporaryFile.absolutePath)
@@ -62,8 +67,7 @@ class AggregatorIntegrationTest {
 
         // Step 5: submit a couple of aggregation log entries
         for (i in 0..5) {
-            redis.publish(
-                "incoming",
+            channel.send(
                 """
                     {
                         "project": "TestProject",
@@ -80,23 +84,22 @@ class AggregatorIntegrationTest {
         }
 
         // Submit an invalid one, should be ignored.
-        redis.publish(
-            "incoming", """
-            {
-                "version": "v1.0.0",
-                "severity": "INFO",
-                "location": {
-                    "file": "com.test.file",
-                    "line": 10
-                },
-                "timestamp": "${DateTime.now()}"
-            }
-        """.trimIndent()
+        channel.send(
+            """
+                {
+                    "version": "v1.0.0",
+                    "severity": "INFO",
+                    "location": {
+                        "file": "com.test.file",
+                        "line": 10
+                    },
+                    "timestamp": "${DateTime.now()}"
+                }
+            """.trimIndent()
         )
 
         // One with a wrong severity. Should still be counted.
-        redis.publish(
-            "incoming",
+        channel.send(
             """
                 {
                     "project": "TestProject",
@@ -112,8 +115,7 @@ class AggregatorIntegrationTest {
         )
 
         // One on a different line.
-        redis.publish(
-            "incoming",
+        channel.send(
             """
                 {
                     "project": "TestProject",
@@ -163,6 +165,51 @@ class AggregatorIntegrationTest {
 
         // Step 8: cleanup
         aggregator.cancelAndJoin()
+        pusher.cancelAndJoin()
+    }
+
+    /**
+     * Helper function that creates a new ZMQ pusher. Returns the job (for
+     * cancelling) and a channel that can be used to publish messages.
+     */
+    private fun runDummyZMQPublisher(port: Int): Pair<Job, Channel<String>> {
+        val channel = Channel<String>()
+
+        return Pair(CoroutineScope(
+            Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+        ).launch {
+            val ctx = ZContext()
+            val sock = ctx.createSocket(SocketType.PUSH)
+            sock.bind("tcp://*:$port")
+
+            while (isActive) {
+                sock.send(channel.receive())
+            }
+
+            sock.close()
+            ctx.destroy()
+        }, channel
+        )
+    }
+
+    /**
+     * Helper function that starts a new ZMQ plugin server that always returns the
+     * same content for every request.
+     */
+    private fun runDummyZMQPluginServer(port: Int, respondWith: String) = CoroutineScope(
+        Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+    ).launch {
+        val ctx = ZContext()
+        val sock = ctx.createSocket(SocketType.REP)
+        sock.bind("tcp://*:$port")
+
+        while (isActive) {
+            sock.recvStr()
+            sock.send(respondWith)
+        }
+
+        sock.close()
+        ctx.destroy()
     }
 
     /**
@@ -187,3 +234,4 @@ class AggregatorIntegrationTest {
 
 // Fix for TestContainers doing some weird java stuff that Kotlin doesn't like.
 class KGenericContainer(imageName: String) : GenericContainer<KGenericContainer>(imageName)
+

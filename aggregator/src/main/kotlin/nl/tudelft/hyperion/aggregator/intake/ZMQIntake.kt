@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -52,8 +53,10 @@ class ZMQIntake(
                 val socket = it.createSocket(SocketType.REQ)
                 socket.connect("tcp://${configuration.pluginManager}")
 
-                socket.send("""{"id":"${configuration.id}","type":"in"}""")
+                socket.send("""{"id":"${configuration.id}","type":"pull"}""")
                 subInformation = PeerConnectionInformation.parse(socket.recvStr())
+
+                socket.close()
 
                 logger.debug { "subInformation: $subInformation" }
             }
@@ -69,30 +72,32 @@ class ZMQIntake(
      * for any new messages that need to be aggregated. Returns a job that,
      * when cancelled, will clean up after itself.
      */
-    fun listen() = receiverScope.launch {
+    fun listen(): Job {
         val subInfo = subInformation ?: throw ZMQIntakeInitializationException("Must call ZMQIntake.setup first")
         logger.info { "Will listen to log entries sent in '$subInfo'." }
 
-        val ctx = ZContext()
-        val sock = ctx.createSocket(SocketType.PULL)
+        return receiverScope.launch {
+            val ctx = ZContext()
+            val sock = ctx.createSocket(SocketType.PULL)
 
-        if (subInfo.isBind) {
-            sock.bind(subInfo.host)
-        } else {
-            sock.connect(subInfo.host)
-        }
-
-        while (isActive) {
-            val msg = sock.recvStr()
-
-            // Handle this message in the threadpool.
-            processThreadPool.launch {
-                handleMessage(msg)
+            if (subInfo.isBind) {
+                sock.bind(subInfo.host)
+            } else {
+                sock.connect(subInfo.host)
             }
-        }
 
-        sock.close()
-        ctx.destroy()
+            while (isActive) {
+                val msg = sock.recvStr()
+
+                // Handle this message in the threadpool.
+                processThreadPool.launch {
+                    handleMessage(msg)
+                }
+            }
+
+            sock.close()
+            ctx.destroy()
+        }
     }
 
     /**
@@ -116,13 +121,26 @@ class ZMQIntake(
 
         aggregationManager.aggregate(entry)
     }
+
+    /**
+     * Helper function for when you already know which connection information
+     * you will use to connect. Will throw if the connection information was already
+     * set.
+     */
+    fun setConnectionInformation(info: PeerConnectionInformation) {
+        if (subInformation != null) {
+            throw ZMQIntakeInitializationException("ZMQIntake is already setup")
+        }
+
+        subInformation = info
+    }
 }
 
 /**
  * Represents the information needed for this aggregator to connect to
  * all the incoming data sources. Sent by the plugin manager.
  */
-private data class PeerConnectionInformation(
+data class PeerConnectionInformation(
     val host: String,
     val isBind: Boolean
 ) {
