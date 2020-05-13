@@ -16,22 +16,8 @@ data class PipelinePluginConfiguration(
     val id: String,
 
     /**
-     * The connection details for connecting to redis.
+     * The host and port that contains the plugin manager this plugin needs
+     * to connect to.
      */
-    val redis: PipelineRedisConfiguration
-)
-
-/**
- * Represents the redis settings needed for the plugin to connect to the
- * main redis pub/sub server.
- */
-data class PipelineRedisConfiguration(
-    /**
-     * The hostname of the redis instance.
-     */
-    val host: String,
-    /**
-     * The port of the redis instance. Defaults to 6379
-     */
-    val port: Int = 6379
+    val pluginManager: String
 )

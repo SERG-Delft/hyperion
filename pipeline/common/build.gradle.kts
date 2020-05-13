@@ -20,8 +20,8 @@ dependencies {
     implementation("io.github.microutils", "kotlin-logging", "1.7.9")
     implementation("org.slf4j", "slf4j-simple", "1.7.28")
 
-    // Redis
-    implementation("io.lettuce", "lettuce-core", "5.3.0.RELEASE")
+    // ZeroMQ
+    implementation("org.zeromq", "jeromq", "0.5.2")
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-jdk8", "1.3.5")
 }
 
