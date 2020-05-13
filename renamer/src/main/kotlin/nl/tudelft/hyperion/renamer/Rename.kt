@@ -18,6 +18,14 @@ fun renameFromPath(jsonPath : Path, config : Configuration) : String {
     return rename(json, config)
 }
 
+fun ObjectNode.findOrCreateChild(name: String): ObjectNode {
+    if (this.get(name) != null) {
+        return this.get(name) as ObjectNode
+    }
+
+    return this.putObject(name)
+}
+
 /**
  * Renames fields of a JSON string according to a configuration
  *
@@ -27,17 +35,25 @@ fun renameFromPath(jsonPath : Path, config : Configuration) : String {
  */
 fun rename(json : String, config: Configuration) : String {
     val mapper = jacksonObjectMapper()
-    val tree = mapper.readTree(json)
+    val tree = mapper.readTree(json) as ObjectNode
 
-    for(i in config.rename.indices) {
+    for (i in config.rename.indices) {
         val parent = tree.findParent(config.rename[i].from)
-        if(parent != null) {
+        if (parent != null) {
             val value = tree.findPath(config.rename[i].from)
+            val parts = config.rename[i].to.split(".")
 
-            (parent as ObjectNode).put(config.rename[i].to, value)
-            (parent as ObjectNode).remove(config.rename[i].from)
+            if (parts.size == 1) {
+                tree.put(parts[0], value)
+            } else {
+                val target = parts.subList(1, parts.size - 1).fold(tree.findOrCreateChild(parts[0]), {
+                    p, c -> p.findOrCreateChild(c)
+                })
+
+                target.put(parts.last(), value)
+            }
         }
     }
 
-    return tree.toPrettyString()
+    return tree.toString()
 }

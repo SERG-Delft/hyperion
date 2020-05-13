@@ -1,4 +1,4 @@
-name: "Renamer"
+name: "Renamer-config"
 
 redis:
   host: "redis"

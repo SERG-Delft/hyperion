@@ -22,7 +22,8 @@ object ApiRequestor {
         val intervals = "60,3600,86400"
         val project = "TestProject"
 
-        val json: String = client.get("/api/v1/metrics?project=$project&file=$filePath&intervals=$intervals")
+        val json: String = client.get("http://localhost:8081/api/v1/metrics?project=$project&file=$filePath&intervals" +
+                                          "=$intervals")
         return mapper.readValue(json, object : TypeReference<MetricsResult>() {})
     }
 

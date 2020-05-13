@@ -5,5 +5,6 @@ enum class Severity {
     DEBUG,
     TRACE,
     WARNING,
-    ERROR
+    ERROR,
+    WARN
 }

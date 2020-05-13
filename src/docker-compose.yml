@@ -16,6 +16,8 @@ services:
       - POSTGRES_PASSWORD=mysecretpassword
     networks:
       - hyperion
+    ports:
+      - "5432:5432"
 
   pluginmanager:
     build:

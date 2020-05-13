@@ -70,6 +70,6 @@ fun coMain(configPath: String) = GlobalScope.launch {
  */
 fun main() {
     runBlocking {
-        coMain(System.getenv("HYPERION_AGGREGATOR_CONFIG") ?: "./aggregator.yaml")
+        coMain(System.getenv("HYPERION_AGGREGATOR_CONFIG") ?: "./aggregator.yaml").join()
     }
 }

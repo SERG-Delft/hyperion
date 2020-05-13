@@ -11,7 +11,7 @@ class LineMetrics(val metrics: List<IntervalMetric>) {
     fun getLine(): Int {
         if (metrics.isEmpty()) return -1
 
-        return metrics.first().metric.line
+        return metrics.first().metric.line - 1
     }
 
     fun setLine(line: Int) {
