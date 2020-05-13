@@ -1,9 +1,8 @@
-redis:
-  host: "redis"
-  port: 6379
-
+host: "localhost:5560"
 plugins:
-  - "Plugin1"
-  - "Plugin2"
-  - "Plugin3"
-  - "Aggregator"
+  - name: "Datasource"
+    host: "localhost:1200"
+  - name: "Renamer"
+    host: "localhost:1201"
+  - name: "Aggregator"
+    host: "localhost:1202"

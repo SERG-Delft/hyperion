@@ -12,8 +12,9 @@ application {
 }
 
 dependencies {
-    // redis client
-    implementation("io.lettuce", "lettuce-core", "5.3.0.RELEASE")
+    // ZeroMQ
+    implementation("org.zeromq", "jeromq", "0.5.2")
+    implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-jdk8", "1.3.5")
 
     // yaml parsing
     implementation("com.fasterxml.jackson.core", "jackson-databind", "2.9.4")

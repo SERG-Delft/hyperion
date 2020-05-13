@@ -1,80 +1,92 @@
 package nl.tudelft.hyperion.pluginmanager
 
-import io.lettuce.core.RedisClient
-import io.lettuce.core.RedisURI
-import io.lettuce.core.api.StatefulRedisConnection
+import com.fasterxml.jackson.databind.ObjectMapper
+import org.zeromq.SocketType
+import org.zeromq.ZMQ
 
 @Suppress("TooGenericExceptionCaught")
 class PluginManager(config: Configuration) {
-    private val channelConfig = config.registrationChannelPostfix
 
-    private val redisURI = RedisURI.create(config.redis.host, config.redis.port!!)
-    private val redisClient = RedisClient.create(redisURI)
-    private val conn: StatefulRedisConnection<String, String> = redisClient.connect()
-
+    private val host = config.host
     private val plugins = config.plugins
 
     private val logger = mu.KotlinLogging.logger {}
 
-
-    fun pushConfig() {
-        logger.info {"Write plugin config to redis"}
-        try {
-            configPlugins()
-        } catch (ex: Exception) {
-            logger.error(ex) {"Failed to push config to redis"}
-            throw ex
-        } finally {
-            closeConnection()
-            logger.debug {"Closed redis connection"}
-        }
-        logger.info {"Written config to redis"}
+    init {
+        logger.info {"Started PluginManager"}
+        logger.info {"Launching REQ/REP loop"}
+        launchListener()
     }
 
-    private fun configPlugins() {
-        /* write plugin info to redis
-        * hget $plugin-config subscriber
-        * hget $plugin-config publisher
-        * hget $plugin-config subChannel
-        * hget $plugin-config pubChannel */
-        val pluginIterator = plugins.iterator()
-        var subChannel = "${plugins[1]}-output"
-        for ((index, plugin) in pluginIterator.withIndex()) {
-            var pubChannel = "$plugin-output"
-            when (index) {
-                0 -> {
-                    hset("$plugin$channelConfig", mapOf("subscriber" to "false"))
-                    registerPublish(plugin, pubChannel)
-                }
-                plugins.size - 1 -> {
-                    registerSubscribe(plugin, subChannel)
-                    hset("$plugin$channelConfig", mapOf("publisher" to "false"))
-                }
-                else -> {
-                    registerSubscribe(plugin, subChannel)
-                    registerPublish(plugin, pubChannel)
-                }
+    private fun launchListener() {
+        val context = ZMQ.context(1)
+        val responder = context.socket(SocketType.REP)
+        val addr = "tcp://$host"
+
+        responder.connect(addr)
+        logger.info("Connected ZMQ reply to $addr")
+
+        while (!Thread.currentThread().isInterrupted) {
+            //  Wait for next request from client
+            val request = responder.recv(0)
+            val string = String(request)
+
+            logger.info("Received request: [$string]")
+            handleRegister(string, responder)
+
+            //  Send reply back to client
+            responder.send("World".toByteArray(), 0)
+        }
+
+        // cleanup
+        responder.close()
+        context.term()
+    }
+
+    private fun handleRegister(request: String, res: ZMQ.Socket) {
+        val mapper = ObjectMapper()
+        val map = mapper.readValue(
+            request,
+            MutableMap::class.java
+        )
+
+        val plugin = map["id"].toString()
+        when (val type = map["type"].toString()) {
+            "push" -> res.send(registerPush(plugin).toByteArray(), 0)
+            "pull" -> res.send(registerPull(plugin).toByteArray(), 0)
+            else -> {
+                res.send("Invalid Request".toByteArray())
+                logger.error("Received request from $plugin with invalid type $type")
             }
-            subChannel = pubChannel
         }
     }
 
-    fun registerPublish(plugin: String, channel: String) {
-        hset("$plugin$channelConfig", mapOf("publisher" to "true", "pubChannel" to channel))
+    private fun registerPush(pluginName: String): String {
+        return "\"isBind\":\"true\",\"host\":\"${nextPlugin(pluginName)["host"]!!}\""
     }
 
-    fun registerSubscribe(plugin: String, channel: String) {
-        hset("$plugin$channelConfig", mapOf("subscriber" to "true", "subChannel" to channel))
+    private fun registerPull(pluginName: String): String {
+        return "\"isBind\":\"false\",\"host\":\"${previousPlugin(pluginName)["host"]!!}\""
     }
 
-    private fun hset(key: String, value: Map<String, String>) {
-        val sync = conn.sync()
-
-        sync.hset(key, value)
+    private fun previousPlugin(pluginName: String): Map<String, String> {
+        val it = plugins.iterator()
+        for ((index, plugin) in it.withIndex()) {
+            if (plugin["name"] == pluginName) {
+                return plugins[index - 1]
+            }
+        }
+        throw IllegalArgumentException("Plugin $pluginName does not exist in current pipeline")
     }
 
-    private fun closeConnection() {
-        conn.close()
-        redisClient.shutdown()
+    private fun nextPlugin(pluginName: String): Map<String, String> {
+        val it = plugins.iterator()
+        for ((index, plugin) in it.withIndex()) {
+            if (plugin["name"] == pluginName) {
+                return plugins[index + 1]
+            }
+        }
+        throw IllegalArgumentException("Plugin $pluginName does not exist in current pipeline")
     }
+
 }
