@@ -4,7 +4,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.Inlay
 
 
-class TooltipInlayManager {
+class TooltipInlayManager private constructor() {
     companion object {
         fun addLogTooltip(editor: Editor, logInfo: LogInfo): Inlay<TooltipRenderer>? {
             return editor.inlayModel.addBlockElement(logInfo.calculateLineOffset(),

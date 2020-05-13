@@ -5,7 +5,11 @@ import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.Inlay
-import com.intellij.openapi.fileEditor.*
+import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.fileEditor.FileEditor
+import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.FileEditorManagerListener
+import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.vfs.VfsUtilCore
@@ -47,7 +51,8 @@ class FileOpenedListener : FileEditorManagerListener {
 
     }
 
-    private suspend fun getLogInfos(document: Document, source: FileEditorManager, file: VirtualFile): MutableSet<LogInfo> {
+    private suspend fun getLogInfos(document: Document,
+                                    source: FileEditorManager, file: VirtualFile): MutableSet<LogInfo> {
         val logInfos: MutableSet<LogInfo>
         if (documentLogInfos.contains(document)) {
             logInfos = documentLogInfos[document]!!
@@ -107,8 +112,8 @@ class FileOpenedListener : FileEditorManagerListener {
     }
 
     private suspend fun getMetrics(project: Project, file: VirtualFile, document: Document): MutableSet<LogInfo> {
-        val root = ProjectFileIndex.SERVICE.getInstance(project).getContentRootForFile(file) ?: return mutableSetOf()
-        val filePath = VfsUtilCore.getRelativePath(file, root) ?: return mutableSetOf()
+        val root = ProjectFileIndex.SERVICE.getInstance(project).getContentRootForFile(file)
+        val filePath = root?.let { VfsUtilCore.getRelativePath(file, it) } ?: return mutableSetOf()
 
 
         // TODO: Obtain all metrics for intervals for correct version
