@@ -2,13 +2,10 @@ package nl.tudelft.hyperion.datasource.plugins.elasticsearch
 
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
-import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection
 import mu.KotlinLogging
 import nl.tudelft.hyperion.datasource.common.DataSourcePlugin
-import nl.tudelft.hyperion.pluginmanager.hyperionplugin.HyperionPlugin
-import nl.tudelft.hyperion.pluginmanager.hyperionplugin.PluginConfiguration
 import org.apache.http.HttpHost
 import org.apache.http.auth.AuthScope
 import org.apache.http.auth.UsernamePasswordCredentials
@@ -23,7 +20,6 @@ import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.search.SearchHit
 import org.elasticsearch.search.builder.SearchSourceBuilder
 import java.util.*
-import java.util.concurrent.TimeUnit
 import kotlin.concurrent.fixedRateTimer
 
 /**
