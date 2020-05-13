@@ -58,5 +58,9 @@ tasks.build {
 }
 
 tasks.shadowJar {
-    destinationDir = File("./");
+    destinationDir = File("./")
+}
+
+detekt {
+    config = files("detekt-config.yml")
 }
