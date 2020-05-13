@@ -1,17 +1,23 @@
 package nl.tudelft.hyperion.renamer
 
-import nl.tudelft.hyperion.pluginmanager.hyperionplugin.HyperionPlugin
-import nl.tudelft.hyperion.pluginmanager.hyperionplugin.PluginConfiguration
+import kotlinx.coroutines.delay
+import nl.tudelft.hyperion.pipeline.AbstractPipelinePlugin
+import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
 import java.nio.file.Path
 
-class RenamePlugin(_pluginConfig: PluginConfiguration): HyperionPlugin(_pluginConfig) {
-    private lateinit var config: Configuration
+/**
+ * Class that extends the AbstractPipelinePlugin class and represents the renamer plugin
+ */
+class RenamePlugin : AbstractPipelinePlugin {
+    private var config : Configuration
 
-    constructor(
-            config: Configuration
-    ) : this(PluginConfiguration(config.redis, config.registrationChannelPostfix, config.name)) { this.config = config }
+    constructor(config: Configuration) : super(PipelinePluginConfiguration(config.name, config.redis)) {
+        this.config = config
+    }
 
-    override fun work(message: String): String {
-        return rename(message, config)
+    override suspend fun process(input: String): String? {
+        println("From ${Thread.currentThread().name}: $input")
+        delay(1000)
+        return rename(input, config)
     }
 }
