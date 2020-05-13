@@ -1,0 +1,71 @@
+# Sets up redis, plugin manager and 3 sample plugins
+# run this from top level
+
+version: '3.3'
+services:
+  redis:
+    image: "redis:latest"
+    networks:
+      - hyperion
+
+  pluginmanager:
+    build:
+      context: ../../../../../../../pluginmanager
+    volumes:
+      - type: bind
+        source: ${PWD}/pluginmanager.yaml
+        target: /usr/config.yml
+    environment:
+      - CONFIGPATH=/usr/config.yml
+    networks:
+      - hyperion
+    depends_on:
+      - redis
+
+  datasource:
+    build:
+      context: ../../../../../../../sampleplugin
+    volumes:
+      - type: bind
+        source: ${PWD}/datasource.yml
+        target: /usr/config.yml
+    environment:
+      - CONFIGPATH=/usr/config.yml
+    networks:
+      - hyperion
+    depends_on:
+      - redis
+      - pluginmanager
+
+  renamer:
+    build:
+      context: ../../../../../../../sampleplugin
+    volumes:
+      - type: bind
+        source: ${PWD}/renamer.yml
+        target: /usr/config.yml
+    environment:
+      - CONFIGPATH=/usr/config.yml
+    networks:
+      - hyperion
+    depends_on:
+      - redis
+      - pluginmanager
+
+  aggregator:
+    build:
+      context: ../../../../../../../sampleplugin
+    volumes:
+      - type: bind
+        source: ${PWD}/aggregator.yml
+        target: /usr/config.yml
+    environment:
+      - CONFIGPATH=/usr/config.yml
+    networks:
+      - hyperion
+    depends_on:
+      - redis
+      - pluginmanager
+
+networks:
+  hyperion:
