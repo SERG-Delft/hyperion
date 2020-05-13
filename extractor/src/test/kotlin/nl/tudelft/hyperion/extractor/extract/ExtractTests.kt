@@ -4,8 +4,8 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import nl.tudelft.hyperion.extractor.Configuration
 import nl.tudelft.hyperion.extractor.Extract
 import nl.tudelft.hyperion.extractor.extract
+import nl.tudelft.hyperion.pipeline.PipelineRedisConfiguration
 import org.junit.jupiter.api.Test
-import nl.tudelft.hyperion.pluginmanager.RedisConfig
 import org.junit.jupiter.api.Assertions
 
 class ExtractTests {
@@ -14,7 +14,7 @@ class ExtractTests {
         val config = Configuration("message",
                 "\\[.+?\\] INFO [^:]+:(\\d+) (-) .+",
                 listOf(Extract("location.line", "number"), Extract("dash", "string")),
-                RedisConfig("host", 6379),
+                PipelineRedisConfiguration("host", 6379),
                 null,
                 "plugin")
 
@@ -36,7 +36,7 @@ class ExtractTests {
                 "message",
                 "\\[.+?\\] INFO [^:]+:(\\d+) (3) .+",
                 listOf(Extract("location.line", "number"), Extract("dash", "number")),
-                RedisConfig("host", 6379),
+                PipelineRedisConfiguration("host", 6379),
                 null,
                 "plugin")
 
@@ -57,7 +57,7 @@ class ExtractTests {
         val config = Configuration("message",
                 "\\[.+?\\] INFO [^:]+:(\\d+) (-) .+",
                 listOf(Extract("location.line", "number"), Extract("dash", "somethingElse")),
-                RedisConfig("host", 6379),
+                PipelineRedisConfiguration("host", 6379),
                 null,
                 "plugin")
 
@@ -79,7 +79,7 @@ class ExtractTests {
         val config = Configuration("message",
                 "\\[.+?\\] INFO [^:]+:(-) .+",
                 listOf(Extract("location.line", "somethingElse")),
-                RedisConfig("host", 6379),
+                PipelineRedisConfiguration("host", 6379),
                 null,
                 "plugin")
 
@@ -100,7 +100,7 @@ class ExtractTests {
         val config = Configuration("message",
                 "\\[.+?\\] INFO [^:]+:(2.5) .+",
                 listOf(Extract("location.line", "double")),
-                RedisConfig("host", 6379),
+                PipelineRedisConfiguration("host", 6379),
                 null,
                 "plugin")
 
@@ -121,7 +121,7 @@ class ExtractTests {
         val config = Configuration("message",
                 "\\[.+?\\] INFO [^:]+:(-) .+",
                 listOf(Extract("location", "string")),
-                RedisConfig("host", 6379),
+                PipelineRedisConfiguration("host", 6379),
                 null,
                 "plugin")
 
@@ -141,7 +141,7 @@ class ExtractTests {
         val config = Configuration("message",
                 "\\[.+?\\] INFO [^:]+:(\\d+) .+",
                 listOf(Extract("location", "number")),
-                RedisConfig("host", 6379),
+                PipelineRedisConfiguration("host", 6379),
                 null,
                 "plugin")
 
@@ -161,7 +161,7 @@ class ExtractTests {
         val config = Configuration("message",
                 "\\[.+?\\] INFO [^:]+:(\\d+.\\d+) .+",
                 listOf(Extract("location", "double")),
-                RedisConfig("host", 6379),
+                PipelineRedisConfiguration("host", 6379),
                 null,
                 "plugin")
 
@@ -181,7 +181,7 @@ class ExtractTests {
         val config = Configuration("message",
                 "\\[.+?\\] INFO [^:]+:(\\d+.\\d+) .+",
                 listOf(Extract("location.line", "string")),
-                RedisConfig("host", 6379),
+                PipelineRedisConfiguration("host", 6379),
                 null,
                 "plugin")
 
@@ -202,7 +202,7 @@ class ExtractTests {
         val config = Configuration("message",
                 "\\[.+?\\] INFO [^:]+:(\\d+) - .+",
                 listOf(Extract("location.line.numeric", "number")),
-                RedisConfig("host", 6379),
+                PipelineRedisConfiguration("host", 6379),
                 null,
                 "plugin")
 
