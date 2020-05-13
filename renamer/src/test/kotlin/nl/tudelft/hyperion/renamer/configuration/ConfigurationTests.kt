@@ -1,7 +1,7 @@
 package nl.tudelft.hyperion.renamer.configuration
 
+import nl.tudelft.hyperion.pipeline.PipelineRedisConfiguration
 import nl.tudelft.hyperion.renamer.Configuration
-import nl.tudelft.hyperion.renamer.RedisConfig
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
@@ -49,7 +49,7 @@ class ConfigurationTest {
 
     @Test
     fun testRedisConfig() {
-        val config = RedisConfig("localhost", 6379)
+        val config = PipelineRedisConfiguration("localhost", 6379)
 
         Assertions.assertEquals("localhost", config.host)
         Assertions.assertEquals(6379, config.port)
