@@ -45,6 +45,7 @@ dependencies {
     // Intake
     implementation("io.lettuce", "lettuce-core", "5.3.0.RELEASE")
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-jdk8", "1.3.5")
+    implementation("org.zeromq", "jeromq", "0.5.2")
 
     // Logging
     implementation("io.github.microutils", "kotlin-logging", "1.7.9")

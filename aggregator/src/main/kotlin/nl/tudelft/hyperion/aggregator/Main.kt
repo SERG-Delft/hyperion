@@ -7,7 +7,7 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import nl.tudelft.hyperion.aggregator.database.Database
-import nl.tudelft.hyperion.aggregator.intake.RedisIntake
+import nl.tudelft.hyperion.aggregator.intake.ZMQIntake
 import nl.tudelft.hyperion.aggregator.workers.AggregationManager
 import nl.tudelft.hyperion.aggregator.workers.startAPIWorker
 import nl.tudelft.hyperion.aggregator.workers.startExpiryWorker
@@ -55,12 +55,13 @@ fun coMain(configPath: String) = GlobalScope.launch {
             " granularity of ${config.granularity} seconds. ^C to exit."
     }
 
-    val intake = RedisIntake(config.redis, aggregationManager)
+    val intake = ZMQIntake(config.zmq, aggregationManager)
     intake.setup()
 
     joinAll(
         startExpiryWorker(config),
         startAPIWorker(config),
+        intake.listen(),
         aggregationManager.startCommitWorker()
     )
 }
@@ -70,6 +71,6 @@ fun coMain(configPath: String) = GlobalScope.launch {
  */
 fun main() {
     runBlocking {
-        coMain(System.getenv("HYPERION_AGGREGATOR_CONFIG") ?: "./aggregator.yaml")
+        coMain(System.getenv("HYPERION_AGGREGATOR_CONFIG") ?: "./aggregator.yaml").join()
     }
 }

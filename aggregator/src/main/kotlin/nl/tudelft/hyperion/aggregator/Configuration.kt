@@ -32,7 +32,11 @@ data class Configuration(
     /**
      * The connection information for the redis server.
      */
-    val redis: RedisConfiguration = RedisConfiguration("localhost")
+    val redis: RedisConfiguration = RedisConfiguration("localhost"),
+    /**
+     * The connection information for the ZMQ plugin manager.
+     */
+    val zmq: ZMQConfiguration = ZMQConfiguration("tcp://localhost:50101", "Aggregator")
 ) {
     /**
      * Ensures that this is a valid configuration, i.e. that all properties
@@ -128,3 +132,17 @@ data class RedisConfiguration(
         return this
     }
 }
+
+/**
+ * Represents the connection information for the ZMQ plugin manager.
+ */
+data class ZMQConfiguration(
+    /**
+     * The path to the plugin manager, without tcp://.
+     */
+    val pluginManager: String,
+    /**
+     * The ID of this component, within the pipeline.
+     */
+    val id: String
+)
