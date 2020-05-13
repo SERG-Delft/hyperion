@@ -72,7 +72,7 @@ class ConfigurationTest {
                         null,
                         null
                 ),
-                null,
+                "-config",
                 "elastic"
         )
     }
@@ -96,7 +96,7 @@ class ConfigurationTest {
                         null,
                         null
                 ),
-                null,
+                "-config",
                 "elastic"
         )
 

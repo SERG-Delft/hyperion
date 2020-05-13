@@ -26,16 +26,14 @@ import kotlin.concurrent.fixedRateTimer
  * Plugin that periodically queries an Elasticsearch instance.
  * Starts a daemon that sends a search query every [Configuration.pollInterval].
  *
- * @constructor
- * Takes the fields from the configuration format defined in this plugin
- * and creates a [nl.tudelft.hyperion.pluginmanager.hyperionplugin.PluginConfiguration]
- *
  * @property config the configuration to use
+ * @property esClient Elasticsearch client for requests
+ * @property redis Redis client for publishing to
  *  it is assumed to be correct, otherwise exceptions can be thrown
  */
 class Elasticsearch(
         private var config: Configuration,
-        val client: RestHighLevelClient,
+        val esClient: RestHighLevelClient,
         private val redis: RedisClient
 ) : DataSourcePlugin {
 
@@ -48,13 +46,6 @@ class Elasticsearch(
 
     companion object {
         private val logger = KotlinLogging.logger {}
-
-        /**
-         * Creates a search request that queries all logs between a certain timestamp.
-         *
-         * @param index the name of the ES index to query from
-         * @return the created search request
-         */
 
         /**
          * Creates a search request that queries all logs between a certain timestamp.
@@ -164,6 +155,10 @@ class Elasticsearch(
         logger.info { "Starting Redis client" }
 
         pubChannel = redis.connect().sync().hget(channelConfig, "pubChannel")
+                ?: throw IllegalStateException("pubChannel not set in $channelConfig")
+
+        logger.info { "Publishing to channel: $pubChannel" }
+
         publisherConn = redis.connectPubSub()
         publisher = publisherConn!!.async()
 
@@ -178,7 +173,7 @@ class Elasticsearch(
                     config.pollInterval,
                     config.es.responseHitCount)
 
-            client.searchAsync(searchRequest, RequestOptions.DEFAULT, requestHandler)
+            esClient.searchAsync(searchRequest, RequestOptions.DEFAULT, requestHandler)
         }
     }
 
@@ -188,7 +183,7 @@ class Elasticsearch(
 
     override fun cleanup() {
         logger.info { "Elasticsearch plugin closed" }
-        client.close()
+        esClient.close()
 
         logger.info { "Closing Redis pub/sub connection" }
         publisherConn?.flushCommands()

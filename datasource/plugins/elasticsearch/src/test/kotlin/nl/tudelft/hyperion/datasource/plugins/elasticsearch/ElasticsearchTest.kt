@@ -37,7 +37,7 @@ class ElasticsearchTest {
                         null,
                         null
                 ),
-                null,
+                "-config",
                 "elastic"
         )
     }
@@ -106,15 +106,15 @@ class ElasticsearchTest {
                         null,
                         null
                 ),
-                null,
+                "-config",
                 "elastic"
         )
 
         val es = Elasticsearch.build(config)
 
-        assertEquals("host", es.client.lowLevelClient.nodes.first().host.hostName)
-        assertEquals(9200, es.client.lowLevelClient.nodes.first().host.port)
-        assertEquals("http", es.client.lowLevelClient.nodes.first().host.schemeName)
+        assertEquals("host", es.esClient.lowLevelClient.nodes.first().host.hostName)
+        assertEquals(9200, es.esClient.lowLevelClient.nodes.first().host.port)
+        assertEquals("http", es.esClient.lowLevelClient.nodes.first().host.schemeName)
     }
 
     @Test
@@ -133,7 +133,7 @@ class ElasticsearchTest {
                         null,
                         "password"
                 ),
-                null,
+                "-config",
                 "elastic"
         )
 
@@ -156,7 +156,7 @@ class ElasticsearchTest {
                         "user",
                         "password"
                 ),
-                null,
+                "-config",
                 "elastic"
         )
         assertDoesNotThrow { Elasticsearch.build(config) }
@@ -189,5 +189,13 @@ class ElasticsearchTest {
             publisherConn.close()
             mockRedis.shutdown()
         }
+    }
+
+    @Test
+    fun `test pubChannel not set during start`() {
+        every { mockRedis.connect().sync().hget(any(), any()) } returns null
+        val es = spyk(Elasticsearch(testConfig, mockClient, mockRedis))
+
+        assertThrows<java.lang.IllegalStateException> { es.start() }
     }
 }

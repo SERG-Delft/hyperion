@@ -54,6 +54,12 @@ class Run : CliktCommand(help = "Run with the the given config file") {
     override fun run() {
         var plugin: Elasticsearch? = null
 
+        // add shutdown hook to cleanup
+        Runtime.getRuntime().addShutdownHook(Thread {
+            plugin?.stop()
+            plugin?.cleanup()
+        })
+
         try {
             val config = Configuration.load(Path.of(path))
             plugin = Elasticsearch.build(config)

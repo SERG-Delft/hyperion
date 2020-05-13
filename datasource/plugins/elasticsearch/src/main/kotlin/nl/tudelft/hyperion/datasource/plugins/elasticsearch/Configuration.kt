@@ -106,7 +106,7 @@ data class Configuration(
         @JsonProperty("elasticsearch")
         val es: ElasticsearchConfig,
         @JsonProperty("registration_channel_postfix")
-        var registrationChannelPostfix: String?,
+        var registrationChannelPostfix: String = "-config",
         val name: String
 ) {
 
