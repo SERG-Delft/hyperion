@@ -1,9 +1,0 @@
-redis:
-  host: "redis"
-  port: 6379
-
-plugins:
-  - "Plugin1"
-  - "Plugin2"
-  - "Plugin3"
-  - "Aggregator"
