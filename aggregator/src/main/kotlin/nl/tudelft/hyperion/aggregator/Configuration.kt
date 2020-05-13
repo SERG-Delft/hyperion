@@ -30,13 +30,9 @@ data class Configuration(
      */
     val aggregationTtl: Int,
     /**
-     * The connection information for the redis server.
-     */
-    val redis: RedisConfiguration = RedisConfiguration("localhost"),
-    /**
      * The connection information for the ZMQ plugin manager.
      */
-    val zmq: ZMQConfiguration = ZMQConfiguration("tcp://localhost:50101", "Aggregator")
+    val zmq: ZMQConfiguration = ZMQConfiguration("localhost:30101", "Aggregator")
 ) {
     /**
      * Ensures that this is a valid configuration, i.e. that all properties
@@ -70,9 +66,6 @@ data class Configuration(
                     "the database would always be empty!"
             )
         }
-
-        // Ensure nested configs are valid.
-        redis.validate()
 
         return this
     }
@@ -108,28 +101,6 @@ data class Configuration(
 
             return mapper.readValue(content, Configuration::class.java)
         }
-    }
-}
-
-/**
- * Represents the connection information for the redis pub/sub server.
- */
-data class RedisConfiguration(
-    val host: String,
-    val port: Int = 6379
-) {
-    /**
-     * Ensures that this is a valid configuration, i.e. that all properties
-     * have sensible values. Will throw an exception for values that are
-     * incorrect.
-     */
-    fun validate(): RedisConfiguration {
-        // Ensure that our port is valid.
-        if (port <= 1 || port >= 65535) {
-            throw IllegalArgumentException("configuration.redis.port must be a valid port number <= 65535")
-        }
-
-        return this
     }
 }
 
