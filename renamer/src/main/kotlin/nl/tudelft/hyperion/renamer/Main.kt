@@ -6,6 +6,6 @@ import nl.tudelft.hyperion.pipeline.runPipelinePlugin
 
 
 fun main(vararg args: String) = runPipelinePlugin(
-        args.firstOrNull() ?: "./renamer/config.yaml",
+        args.get(0),
         ::RenamePlugin
 )
