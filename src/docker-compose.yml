@@ -1,0 +1,83 @@
+# Sets up redis, plugin manager and 3 sample plugins
+# run this from top level
+
+version: '3.3'
+services:
+  redis:
+    image: "redis:latest"
+    networks:
+      - hyperion
+    ports:
+      - "6379:6379"
+
+  postgres:
+    image: "postgres:latest"
+    environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+    networks:
+      - hyperion
+
+  pluginmanager:
+    build:
+      context: ${HYPERION_ROOT_DIR}/pluginmanager
+    volumes:
+      - type: bind
+        source: ./pluginmanager.yaml
+        target: /usr/config.yml
+    environment:
+      - CONFIGPATH=/usr/config.yml
+    networks:
+      - hyperion
+    depends_on:
+      - redis
+
+  datasource:
+    build:
+      context: ${HYPERION_ROOT_DIR}/datasource/plugins/elasticsearch
+    volumes:
+      - type: bind
+        source: ./datasource.yml
+        target: /usr/config.yml
+    environment:
+      - CONFIGPATH=/usr/config.yml
+    networks:
+      - hyperion
+    depends_on:
+      - redis
+      - pluginmanager
+
+  renamer:
+    build:
+      context: ${HYPERION_ROOT_DIR}/renamer
+    volumes:
+      - type: bind
+        source: ./renamer.yml
+        target: /usr/config.yml
+    environment:
+      - CONFIGPATH=/usr/config.yml
+    networks:
+      - hyperion
+    depends_on:
+      - redis
+      - pluginmanager
+
+  aggregator:
+    build:
+      context: ${HYPERION_ROOT_DIR}/aggregator
+    volumes:
+      - type: bind
+        source: ./aggregator.yml
+        target: /usr/config.yml
+    environment:
+      - HYPERION_AGGREGATOR_CONFIG=/usr/config.yml
+    networks:
+      - hyperion
+    depends_on:
+      - redis
+      - pluginmanager
+      - postgres
+    ports:
+      - "8081:8081"
+
+networks:
+  hyperion:

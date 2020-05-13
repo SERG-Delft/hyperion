@@ -1,0 +1,13 @@
+version: '3.3'
+services:
+  gradle:
+    build:
+      context: ${HYPERION_ROOT_DIR}/
+      dockerfile: src/systemTest/kotlin/nl/tudelft/hyperion/systemtest/Dockerfile
+    environment:
+      - GRADLE_HOME_DIR=/home/gradle/cache
+    volumes:
+      - gradle_cache:/home/gradle/cache
+
+volumes:
+  gradle_cache:

@@ -1,0 +1,7 @@
+databaseUrl: "postgresql://postgres/postgres?user=postgres&password=mysecretpassword"
+port: 8081
+granularity: 10 # 10 seconds
+aggregationTtl: 604800 # 7 days
+redis:
+  host: "redis"
+  port: 6379
