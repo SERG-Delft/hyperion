@@ -12,10 +12,13 @@ jacoco {
 }
 
 dependencies {
-    implementation("org.elasticsearch.client", "elasticsearch-rest-high-level-client", "7.6.2")
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.3.5")
     implementation("com.github.ajalt", "clikt", "2.6.0")
     implementation("io.lettuce", "lettuce-core", "5.3.0.RELEASE")
+
+    // ZeroMQ
+    implementation("org.zeromq", "jeromq", "0.5.2")
+    implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-jdk8", "1.3.5")
 
     // Used for testing
     testImplementation("org.junit.jupiter", "junit-jupiter-params", "5.6.2")
@@ -28,7 +31,8 @@ dependencies {
     implementation("io.github.microutils", "kotlin-logging", "1.7.9")
     implementation("org.slf4j", "slf4j-simple", "1.7.28")
 
-    // Necessary for the elasticsearch rest client
+    // Elasticsearch rest client
+    implementation("org.elasticsearch.client", "elasticsearch-rest-high-level-client", "7.6.2")
     implementation("org.apache.logging.log4j", "log4j-core", "2.13.2")
 
     // Used for YAML deserialization
@@ -38,7 +42,6 @@ dependencies {
 
     // Add datasource commons
     implementation(project(":datasource:common"))
-    implementation(project(":pluginmanager"))
 }
 
 application {

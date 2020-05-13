@@ -1,10 +1,9 @@
 package nl.tudelft.hyperion.datasource.plugins.elasticsearch
 
-import io.lettuce.core.RedisClient
-import io.lettuce.core.RedisURI
-import io.lettuce.core.api.async.RedisAsyncCommands
-import io.lettuce.core.pubsub.StatefulRedisPubSubConnection
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
 import mu.KotlinLogging
+import nl.tudelft.hyperion.datasource.common.DataPluginInitializationException
 import nl.tudelft.hyperion.datasource.common.DataSourcePlugin
 import org.apache.http.HttpHost
 import org.apache.http.auth.AuthScope
@@ -17,9 +16,11 @@ import org.elasticsearch.client.RestClient
 import org.elasticsearch.client.RestClientBuilder
 import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.index.query.QueryBuilders
-import org.elasticsearch.search.SearchHit
 import org.elasticsearch.search.builder.SearchSourceBuilder
+import org.zeromq.SocketType
+import org.zeromq.ZContext
 import java.util.*
+import java.util.concurrent.Executors
 import kotlin.concurrent.fixedRateTimer
 
 /**
@@ -28,21 +29,19 @@ import kotlin.concurrent.fixedRateTimer
  *
  * @property config the configuration to use
  * @property esClient Elasticsearch client for requests
- * @property redis Redis client for publishing to
- *  it is assumed to be correct, otherwise exceptions can be thrown
  */
 class Elasticsearch(
         private var config: Configuration,
-        val esClient: RestHighLevelClient,
-        private val redis: RedisClient
+        val esClient: RestHighLevelClient
 ) : DataSourcePlugin {
 
     private var finished = false
-    private val channelConfig = "${config.name}${config.registrationChannelPostfix}"
-    private var timer: Timer? = null
-    private var pubChannel: String? = null
-    var publisherConn: StatefulRedisPubSubConnection<String, String>? = null
-    var publisher: RedisAsyncCommands<String, String>? = null
+    private var hasConnectionInformation = false
+    private lateinit var timer: Timer
+    private lateinit var pubConnectionInformation: PeerConnectionInformation
+
+    private val senderScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
+    private val queue = Channel<String>(20_000)
 
     companion object {
         private val logger = KotlinLogging.logger {}
@@ -98,9 +97,6 @@ class Elasticsearch(
                 }
             }
 
-            // create Redis client
-            val redis = RedisClient.create(RedisURI.create(config.redis.host, config.redis.port!!))
-
             // create Elasticsearch client
             val clientBuilder = RestClient.builder(HttpHost(
                     config.es.hostname,
@@ -118,7 +114,7 @@ class Elasticsearch(
 
             logger.info { "Elasticsearch client created successfully" }
 
-            return Elasticsearch(config, client, redis)
+            return Elasticsearch(config, client)
         }
 
         /**
@@ -140,29 +136,67 @@ class Elasticsearch(
     }
 
     /**
-     * Passes a searchHit to the assigned Redis pub channel.
-     *
-     * @param searchHit the searchHit to send in JSON
+     * Synchronously attempts to query the connection information from the plugin
+     * manager. This will block the calling thread until a response is received
+     * from the plugin manager, which may take an arbitrary amount of time depending
+     * on whether the service is online.
      */
-    fun sendHit(searchHit: SearchHit) {
-        publisher?.publish(pubChannel, searchHit.sourceAsString)
+    fun queryConnectionInformation() {
+        ZContext().use {
+            val socket = it.createSocket(SocketType.REQ)
+            socket.connect("tcp://${config.pluginManager.address}")
+
+            socket.send("""{"id":"${config.id}","type":"out"}""")
+            pubConnectionInformation = Utils.readJSONContent(socket.recvStr())
+
+            logger.debug { "pubConnectionInformation: $pubConnectionInformation" }
+        }
+
+        logger.debug { "Successfully retrieved connection information" }
+
+        hasConnectionInformation = true
     }
 
-    override fun start() {
-        if (finished)
+    /**
+     * Helper function that will create a new subroutine that is used to send the
+     * results of computation to the next stage in the pipeline.
+     */
+    private fun runSender(channel: Channel<String>) = senderScope.launch {
+        val ctx = ZContext()
+        val sock = ctx.createSocket(SocketType.PUSH)
+
+        if (pubConnectionInformation.isBind) {
+            logger.debug { "Binding socket to ${pubConnectionInformation.host}" }
+            sock.bind(pubConnectionInformation.host)
+        } else {
+            logger.debug { "Connecting socket to ${pubConnectionInformation.host}" }
+            sock.connect(pubConnectionInformation.host)
+        }
+
+        while (isActive) {
+            sock.send(channel.receive(), zmq.ZMQ.ZMQ_DONTWAIT)
+        }
+
+        sock.close()
+        ctx.destroy()
+    }
+
+    override fun start() = GlobalScope.launch {
+        if (finished) {
             throw IllegalStateException("Elasticsearch client is already closed")
+        }
 
-        logger.info { "Starting Redis client" }
+        if (!hasConnectionInformation) {
+            throw DataPluginInitializationException("Connection information is not set")
+        }
 
-        pubChannel = redis.connect().sync().hget(channelConfig, "pubChannel")
-                ?: throw IllegalStateException("pubChannel not set in $channelConfig")
+        val requestHandler = RequestHandler {
+            runBlocking {
+                queue.send(it.sourceAsString)
+            }
+        }
 
-        logger.info { "Publishing to channel: $pubChannel" }
-
-        publisherConn = redis.connectPubSub()
-        publisher = publisherConn!!.async()
-
-        val requestHandler = RequestHandler(::sendHit)
+        val sender = runSender(queue)
 
         logger.info { "Starting retrieval of logs" }
 
@@ -175,21 +209,40 @@ class Elasticsearch(
 
             esClient.searchAsync(searchRequest, RequestOptions.DEFAULT, requestHandler)
         }
+
+        try {
+            while (isActive) {
+                delay(Long.MAX_VALUE)
+            }
+        } finally {
+            this@Elasticsearch.stop()
+            this@Elasticsearch.cleanup()
+            sender.cancelAndJoin()
+        }
     }
 
     override fun stop() {
-        timer?.cancel() ?: logger.warn { "Stop called on Elasticsearch plugin before initialization" }
+        if (this::timer.isInitialized) {
+            timer.cancel()
+        } else {
+            logger.warn { "Stop called on Elasticsearch plugin before initialization" }
+        }
     }
 
     override fun cleanup() {
-        logger.info { "Elasticsearch plugin closed" }
+        logger.info { "Closing Elasticsearch client" }
         esClient.close()
-
-        logger.info { "Closing Redis pub/sub connection" }
-        publisherConn?.flushCommands()
-        publisherConn?.close()
-        redis.shutdown()
 
         finished = true
     }
 }
+
+/**
+ * Represents the information needed for this plugin to connect to any
+ * future elements in the pipeline. Contains the host, port and whether
+ * it needs to bind or connect to that specific element.
+ */
+private data class PeerConnectionInformation(
+        val host: String,
+        val isBind: Boolean
+)

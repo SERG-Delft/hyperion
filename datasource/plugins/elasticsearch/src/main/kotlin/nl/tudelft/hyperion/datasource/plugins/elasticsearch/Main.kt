@@ -7,6 +7,8 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.default
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.runBlocking
 import java.nio.file.Path
 import kotlin.system.exitProcess
 
@@ -52,25 +54,21 @@ class Run : CliktCommand(help = "Run with the the given config file") {
     private val path by argument(help = "Path to the config file").default(DEFAULT_CONFIG_FILE)
 
     override fun run() {
-        var plugin: Elasticsearch? = null
-
-        // add shutdown hook to cleanup
-        Runtime.getRuntime().addShutdownHook(Thread {
-            plugin?.stop()
-            plugin?.cleanup()
-        })
-
-        try {
+        runBlocking {
             val config = Configuration.load(Path.of(path))
-            plugin = Elasticsearch.build(config)
-            plugin.start()
+            val plugin = Elasticsearch.build(config)
 
-            while (true) {
-                Thread.sleep(Long.MAX_VALUE)
-            }
-        } finally {
-            plugin?.stop()
-            plugin?.cleanup()
+            plugin.queryConnectionInformation()
+            val job = plugin.start()
+
+            // add shutdown hook to cleanup
+            Runtime.getRuntime().addShutdownHook(Thread {
+                runBlocking {
+                    job.cancelAndJoin()
+                }
+            })
+
+            job.join()
         }
     }
 }

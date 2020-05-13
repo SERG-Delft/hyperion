@@ -5,6 +5,10 @@ plugins {
     id("com.github.johnrengelman.shadow").version("5.2.0")
 }
 
+dependencies {
+    implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.3.5")
+}
+
 jacoco {
     toolVersion = "0.8.5"
     reportsDir = file("$buildDir/jacoco")

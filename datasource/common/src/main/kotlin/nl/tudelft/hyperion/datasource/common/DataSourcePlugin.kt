@@ -1,5 +1,7 @@
 package nl.tudelft.hyperion.datasource.common
 
+import kotlinx.coroutines.Job
+
 /**
  * Acts as an adapter for any data source to the push-based data pipeline.
  */
@@ -8,7 +10,7 @@ interface DataSourcePlugin {
     /**
      * Starts sending logs to the message queue.
      */
-    fun start()
+    fun start(): Job
 
     /**
      * Stops sending logs to the message queue, but remains active.
@@ -22,3 +24,11 @@ interface DataSourcePlugin {
      */
     fun cleanup()
 }
+
+/**
+ * Exception thrown during initialization of a data source plugin.
+ */
+class DataPluginInitializationException(
+        msg: String,
+        cause: Throwable? = null
+) : RuntimeException(msg, cause)

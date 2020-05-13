@@ -9,20 +9,16 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 /**
- * Configuration for Redis communication
+ * Configuration for communication with the manager.
  *
- * @property host hostname of Redis instance
- * @property port port of Redis instance
+ * @property host hostname of PluginManager
+ * @property port port of PluginManager
  */
-data class RedisConfig(
-        var host: String,
-        var port: Int?
+data class ManagerConfig(
+        val host: String,
+        val port: Int
 ) {
-    init {
-        if (port == null) {
-            port = 6739
-        }
-    }
+    val address = "$host:$port"
 }
 
 /**
@@ -94,20 +90,16 @@ data class ElasticsearchConfig(
  * Elasticsearch.
  *
  * @property pollInterval time between sending queries in seconds
- * @property redis Redis configuration
  * @property es Elasticsearch configuration
- * @property registrationChannelPostfix postfix to add after the name for the redis hash
- * @property name name of the plugin
  */
 data class Configuration(
         @JsonProperty("poll_interval")
         var pollInterval: Int,
-        val redis: RedisConfig,
+        @JsonProperty("manager")
+        val pluginManager: ManagerConfig,
         @JsonProperty("elasticsearch")
         val es: ElasticsearchConfig,
-        @JsonProperty("registration_channel_postfix")
-        var registrationChannelPostfix: String = "-config",
-        val name: String
+        val id: String
 ) {
 
     /**
