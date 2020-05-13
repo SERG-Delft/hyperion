@@ -1,24 +1,26 @@
 package nl.tudelft.hyperion.pluginmanager
 
 import io.lettuce.core.*
+import io.lettuce.core.api.StatefulRedisConnection
 
-class PluginManager(config: Configuration) {
-    private val channelConfig = config.registrationChannelPostfix
-    private val cm = ConnectionManager(RedisURI.create(config.redis.host, config.redis.port!!))
-    private val plugins = config.plugins
+class PluginManager(redisURI: RedisURI) {
+    val channelConfig = "-config"
+    val cm = ConnectionManager(redisURI)
+    lateinit var plugins: MutableList<String>
 
     // TODO: use logging instead of printing
     init {
+        readPlugins()
         configPlugins()
         println("Written config to redis")
     }
 
     private fun configPlugins() {
         /* write plugin info to redis
-        * hget $plugin-config subscriber
-        * hget $plugin-config publisher
-        * hget $plugin-config subChannel
-        * hget $plugin-config pubChannel */
+        * hget plugin-config subscriber
+        * hget plugin-config publisher
+        * hget plugin-config subChannel
+        * hget plugin-config pubChannel */
         val pluginIterator = plugins.iterator()
         var subChannel = "${plugins[1]}-output"
         for ((index, plugin) in pluginIterator.withIndex()) {
@@ -47,5 +49,12 @@ class PluginManager(config: Configuration) {
 
     private fun registerSubscribe(plugin: String, channel: String) {
         cm.hset("$plugin$channelConfig", mapOf("subscriber" to "true", "subChannel" to channel))
+    }
+
+    private fun readPlugins() {
+        // determine order of plugins in pipeline
+        // TODO: Make this read a yaml file
+        // ?TODO: Make pipeline DAG
+        plugins = mutableListOf("Plugin1", "Plugin2", "Plugin3", "Aggregator")
     }
 }

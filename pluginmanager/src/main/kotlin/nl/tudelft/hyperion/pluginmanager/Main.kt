@@ -2,9 +2,7 @@
 
 package nl.tudelft.hyperion.pluginmanager
 
-import nl.tudelft.hyperion.pluginmanager.hyperionplugin.PluginConfiguration
-import nl.tudelft.hyperion.pluginmanager.hyperionplugin.SamplePlugin
-import java.nio.file.Path
+import io.lettuce.core.RedisURI
 import java.time.LocalDateTime
 
 
@@ -13,15 +11,14 @@ fun main(vararg args: String) {
     // use the onMessage function in the first plugin to put a message in the pipeline
     // tested with a fresh redis docker image
 
-    // load config for Plugin Manager
-    val config = Configuration.load(Path.of("pluginmanager.yaml").toAbsolutePath())
-    val configp1 = PluginConfiguration.load(Path.of("sampleplugin1.yaml").toAbsolutePath())
-
     println("Starting Plugin Manager")
-    val pm = PluginManager(config)
+    val pm = PluginManager(RedisURI.create("192.168.2.168", 6379))
 
     // PluginManager does not have refs to plugins in practice
-    val p1 = SamplePlugin(configp1)
+    val p1 = SamplePlugin("Plugin1")
+    val p2 = SamplePlugin("Plugin2")
+    val p3 = SamplePlugin("Plugin3")
+    val p4 = SamplePlugin("Aggregator")
 
     // write message to pl
     val currentDateTime = LocalDateTime.now()
