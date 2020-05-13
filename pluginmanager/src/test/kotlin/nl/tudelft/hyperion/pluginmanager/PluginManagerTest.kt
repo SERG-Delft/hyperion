@@ -28,6 +28,7 @@ class PluginManagerTest() {
         val expectedMessage = "Unable to connect to redis/<unresolved>:6969"
         val actualMessage = exception.message
 
+        println(actualMessage)
         assertTrue(actualMessage!!.contains(expectedMessage))
     }
 
