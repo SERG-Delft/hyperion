@@ -3,7 +3,7 @@ package nl.tudelft.hyperion.extractor
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import nl.tudelft.hyperion.pluginmanager.RedisConfig
+import nl.tudelft.hyperion.pipeline.PipelineRedisConfiguration
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -13,8 +13,6 @@ import java.nio.file.Path
  * @param type : type of the extracted value
  */
 data class Extract(val to : String, val type : String)
-
-data class RedisConfig(val host : String, val port : Int)
 
 /**
  * Data class for the configuration of the plugin
@@ -26,7 +24,7 @@ data class Configuration(
         val field : String,
         val match : String,
         val extract : List<Extract>,
-        val redis: RedisConfig,
+        val redis: PipelineRedisConfiguration,
         var registrationChannelPostfix: String?,
         val name: String
 ) {

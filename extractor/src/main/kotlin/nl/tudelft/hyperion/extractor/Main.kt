@@ -2,9 +2,11 @@
 
 package nl.tudelft.hyperion.extractor
 
-import java.nio.file.Path
+import nl.tudelft.hyperion.pipeline.runPipelinePlugin
 
 fun main(vararg args: String) {
-    ExtractPlugin(Configuration.load(Path.of(args.get(0)).toAbsolutePath()))
-    Thread.sleep(Long.MAX_VALUE)
+    runPipelinePlugin(
+            args.get(0),
+            ::ExtractPlugin
+    )
 }

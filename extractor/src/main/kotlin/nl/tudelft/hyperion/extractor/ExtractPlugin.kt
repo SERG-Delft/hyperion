@@ -1,24 +1,22 @@
 package nl.tudelft.hyperion.extractor
 
-import nl.tudelft.hyperion.pluginmanager.hyperionplugin.HyperionPlugin
-import nl.tudelft.hyperion.pluginmanager.hyperionplugin.PluginConfiguration
+import kotlinx.coroutines.delay
+import nl.tudelft.hyperion.pipeline.AbstractPipelinePlugin
+import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
 
 /**
- * Class that extends the HyperionPlugin class and represents the extraction plugin
+ * Class that represents the extractor plugin and extends the abstract pipeline plugin
  */
-class ExtractPlugin(pluginConfig: PluginConfiguration): HyperionPlugin(pluginConfig) {
-    private lateinit var config: Configuration
+class ExtractPlugin : AbstractPipelinePlugin {
+    private var config : Configuration
 
-    constructor(
-            config: Configuration
-    ) : this(PluginConfiguration(config.redis, config.registrationChannelPostfix, config.name)) { this.config = config }
+    constructor(config: Configuration) : super(PipelinePluginConfiguration(config.name, config.redis)) {
+        this.config = config
+    }
 
-    /**
-     * Function that takes a message string and extracts information from it
-     * @param message The message string
-     * @return A message containing the additional extracted information
-     */
-    override fun work(message: String): String {
-        return extract(message, config)
+    override suspend fun process(input: String): String? {
+        println("From ${Thread.currentThread().name}: $input")
+        delay(1000)
+        return extract(input, config)
     }
 }

@@ -12,10 +12,6 @@ application {
 }
 
 dependencies {
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.7.1-1")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.10.2")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.7.1")
-
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.3.70")
 
     // Redis clients
@@ -25,7 +21,7 @@ dependencies {
     // Testing
     testImplementation("io.mockk", "mockk", "1.10.0")
 
-    compile(project(":pluginmanager"))
+    compile(project(":pipeline:common"))
 }
 
 jacoco {
