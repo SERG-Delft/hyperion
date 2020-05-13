@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.*
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import nl.tudelft.hyperion.plugin.metric.IntervalMetric
 import nl.tudelft.hyperion.plugin.metric.LineMetrics
 import nl.tudelft.hyperion.plugin.metric.Metric
 import nl.tudelft.hyperion.plugin.metric.MetricsResult
@@ -19,7 +20,7 @@ class MetricDeserializer : JsonDeserializer<MetricsResult>() {
                              ctxt: DeserializationContext?): MetricsResult {
         val versions: Map<String, List<LineMetrics>>
 
-        val tempVersions: MutableMap<String, MutableList<LineMetrics.IntervalMetric>> = mutableMapOf()
+        val tempVersions: MutableMap<String, MutableList<IntervalMetric>> = mutableMapOf()
         val node: JsonNode = p!!.codec.readTree(p)
         for (intervals in node) {
             val interval = intervals["interval"].asInt()
@@ -27,7 +28,7 @@ class MetricDeserializer : JsonDeserializer<MetricsResult>() {
 
                 val valuesToAdd = version.value.map {
                     v: JsonNode ->
-                    LineMetrics.IntervalMetric(interval, mapper.readValue(v.traverse(), Metric::class.java))
+                    IntervalMetric(interval, mapper.readValue(v.traverse(), Metric::class.java))
                 }
                 if (tempVersions[version.key] != null) tempVersions[version.key]!!.addAll(valuesToAdd)
                 else tempVersions[version.key] = valuesToAdd.toMutableList()
