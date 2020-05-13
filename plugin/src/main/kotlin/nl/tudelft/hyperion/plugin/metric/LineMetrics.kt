@@ -35,8 +35,8 @@ class LineMetrics(private val metrics: List<IntervalMetric>) {
             val interval: Int,
             val metric: Metric
     ) {
+
         private val formatter = PeriodFormatterBuilder()
-                .appendMonths().appendSuffix(" M")
                 .appendWeeks().appendSuffix(" w")
                 .appendDays().appendSuffix(" d")
                 .appendHours().appendSuffix(" h")
