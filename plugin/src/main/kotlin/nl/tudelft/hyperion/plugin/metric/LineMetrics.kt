@@ -14,6 +14,20 @@ class LineMetrics(private val metrics: List<IntervalMetric>) {
         return metrics.first().metric.line
     }
 
+    fun setLine(line: Int) {
+        for (lineMetric in metrics) {
+            lineMetric.metric.line = line
+        }
+    }
+    fun getText(): String {
+        var result = ""
+
+        for (metric in metrics) {
+            result += "[${metric.getText()}]  "
+        }
+
+        return result.trimEnd(';', ' ')
+    }
     override fun toString(): String {
         return metrics.toString()
     }
@@ -22,12 +36,12 @@ class LineMetrics(private val metrics: List<IntervalMetric>) {
             val metric: Metric
     ) {
         private val formatter = PeriodFormatterBuilder()
-                .appendMonths().appendSuffix("M")
-                .appendWeeks().appendSuffix("w")
-                .appendDays().appendSuffix("d")
-                .appendHours().appendSuffix("h")
-                .appendMinutes().appendSuffix("min")
-                .appendSeconds().appendSuffix("s")
+                .appendMonths().appendSuffix(" M")
+                .appendWeeks().appendSuffix(" w")
+                .appendDays().appendSuffix(" d")
+                .appendHours().appendSuffix(" h")
+                .appendMinutes().appendSuffix(" min")
+                .appendSeconds().appendSuffix(" s")
                 .toFormatter()
 
         fun getFormattedInterval(): String {
@@ -35,7 +49,7 @@ class LineMetrics(private val metrics: List<IntervalMetric>) {
         }
 
         fun getText(): String {
-            return "${metric.count} last ${getFormattedInterval()}"
+            return "${metric.count} last ${getFormattedInterval()}".replace(" 1 ", " ")
         }
     }
 }
