@@ -20,18 +20,6 @@ class PluginManagerTest() {
     private val plugins = listOf("Datasource", "Renamer", "Aggregator")
     private val config = Configuration(redisConfig, "-config", plugins)
 
-
-    @Test
-    fun `Redis exception thrown when no connection available`() {
-        val exception: Exception = assertThrows("Unable to connect to redis/<unresolved>:6969") { PluginManager(config) }
-
-        val expectedMessage = "Unable to connect to redis/<unresolved>:6969"
-        val actualMessage = exception.message
-
-        println(actualMessage)
-        assertTrue(actualMessage!!.contains(expectedMessage))
-    }
-
     @Test
     fun `Fail pushConfig when sync fails`() {
         mockkStatic("io.lettuce.core.RedisClient")
