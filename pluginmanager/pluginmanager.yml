@@ -1,8 +1,8 @@
 host: "localhost:5560"
 plugins:
   - name: "Datasource"
-    host: "localhost:1200"
+    host: "tcp://localhost:1200"
   - name: "Renamer"
-    host: "localhost:1201"
+    host: "tcp://localhost:1201"
   - name: "Aggregator"
-    host: "localhost:1202"
+    host: "tcp://localhost:1202"
