@@ -26,7 +26,7 @@ fun extractPath(input : String, config : Configuration) : String {
         path += ".java"
 
         (parent as ObjectNode).remove(config.field)
-        (parent as ObjectNode).put(config.field, path)
+        parent.put(config.field, path)
     }
 
     return tree.toString()
