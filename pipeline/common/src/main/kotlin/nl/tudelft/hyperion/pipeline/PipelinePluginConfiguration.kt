@@ -16,22 +16,18 @@ data class PipelinePluginConfiguration(
     val id: String,
 
     /**
-     * The connection details for connecting to redis.
+     * The host and port that contains the plugin manager this plugin needs
+     * to connect to.
      */
-    val redis: PipelineRedisConfiguration
-)
+    val pluginManager: String,
 
-/**
- * Represents the redis settings needed for the plugin to connect to the
- * main redis pub/sub server.
- */
-data class PipelineRedisConfiguration(
     /**
-     * The hostname of the redis instance.
+     * The amount of messages that may be in the buffer of this abstract
+     * plugin at once. This is counted by the amount of messages that have
+     * been received minus the amount of messages that have been sent.
+     *
+     * Any messages received while the buffer is full will be discarded. If
+     * this happens, consider load balancing this plugin.
      */
-    val host: String,
-    /**
-     * The port of the redis instance. Defaults to 6379
-     */
-    val port: Int = 6379
+    val bufferSize: Int = 20_000
 )
