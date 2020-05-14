@@ -1,4 +1,4 @@
-package nl.tudelft.hyperion.renamer
+package nl.tudelft.hyperion.pipeline.renamer
 
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper

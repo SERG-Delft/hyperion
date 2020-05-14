@@ -1,9 +1,8 @@
-package nl.tudelft.hyperion.renamer
+package nl.tudelft.hyperion.pipeline.renamer
 
 import kotlinx.coroutines.delay
 import nl.tudelft.hyperion.pipeline.AbstractPipelinePlugin
 import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
-import java.nio.file.Path
 
 /**
  * Class that extends the AbstractPipelinePlugin class and represents the renamer plugin

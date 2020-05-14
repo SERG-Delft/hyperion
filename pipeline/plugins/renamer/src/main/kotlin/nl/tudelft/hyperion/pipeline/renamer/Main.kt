@@ -1,6 +1,6 @@
 @file:JvmName("Main")
 
-package nl.tudelft.hyperion.renamer
+package nl.tudelft.hyperion.pipeline.renamer
 
 import nl.tudelft.hyperion.pipeline.runPipelinePlugin
 

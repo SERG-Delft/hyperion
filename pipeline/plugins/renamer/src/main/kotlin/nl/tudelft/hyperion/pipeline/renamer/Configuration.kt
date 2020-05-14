@@ -1,4 +1,4 @@
-package nl.tudelft.hyperion.renamer
+package nl.tudelft.hyperion.pipeline.renamer
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
@@ -15,10 +15,10 @@ class Rename(val from : String, val to : String)
  * @param rename the list of renaming schemes
  */
 data class Configuration(
-        val rename : List<Rename>,
-        val redis: PipelineRedisConfiguration,
-        var registrationChannelPostfix: String?,
-        val name: String
+    val rename : List<Rename>,
+    val redis: PipelineRedisConfiguration,
+    var registrationChannelPostfix: String?,
+    val name: String
 ) {
     companion object {
         /**

@@ -15,7 +15,7 @@ dependencies {
 
     testImplementation("io.mockk", "mockk", "1.10.0")
 
-    compile(project(":pipeline:common"))
+    implementation(project(":pipeline:common"))
 }
 
 application {

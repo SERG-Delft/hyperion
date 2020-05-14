@@ -1,7 +1,7 @@
-package nl.tudelft.hyperion.renamer.configuration
+package nl.tudelft.hyperion.pipeline.renamer.configuration
 
 import nl.tudelft.hyperion.pipeline.PipelineRedisConfiguration
-import nl.tudelft.hyperion.renamer.Configuration
+import nl.tudelft.hyperion.pipeline.renamer.Configuration
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
