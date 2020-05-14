@@ -14,7 +14,8 @@ class ExtractTests {
                 PipelineRedisConfiguration("host", 6379),
                 null,
                 "plugin",
-                "log4j_file")
+                "log4j_file",
+                "src/main/java")
 
         val input = "{ \"log4j_file\" :  \"com.sap.enterprises.server.impl.TransportationService\" }"
         val expected = "{\"log4j_file\":\"src/main/java/com/sap/enterprises/server/impl/TransportationService.java\"}"
@@ -33,7 +34,8 @@ class ExtractTests {
                 PipelineRedisConfiguration("host", 6379),
                 null,
                 "plugin",
-                "log4j_nonExisting")
+                "log4j_nonExisting",
+                "src/main/java")
 
         val input = "{ \"log4j_file\" :  \"com.sap.enterprises.server.impl.TransportationService\" }"
 

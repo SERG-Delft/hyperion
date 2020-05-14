@@ -9,5 +9,6 @@ data class Configuration(
         val redis: PipelineRedisConfiguration,
         var registrationChannelPostfix: String?,
         val name: String,
-        val field : String
+        val field : String,
+        val relative_path_from_source : String
 )
