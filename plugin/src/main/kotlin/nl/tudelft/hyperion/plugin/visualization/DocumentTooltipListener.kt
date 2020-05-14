@@ -18,6 +18,9 @@ class DocumentTooltipListener(private var tooltips : MutableSet<Pair<LogInfo, In
 
     override fun dispose() {
         this.document?.removeDocumentListener(this)
+        for (tooltip in tooltips) {
+            tooltip.second.dispose()
+        }
     }
 
     override fun documentChanged(event: DocumentEvent) {

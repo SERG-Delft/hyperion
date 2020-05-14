@@ -55,7 +55,15 @@
             <listener class="nl.tudelft.hyperion.plugin.visualization.FileOpenedListener"
                       topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>
     </projectListeners>
-
+    <actions>
+        <action id="nl.tudelft.hyperion.plugin.visualization.RefreshTooltipAction"
+                class="nl.tudelft.hyperion.plugin.visualization.RefreshTooltipAction"
+                text="Hyperion: Refresh Metrics" description="Refresh/Gather all Metrics">
+            <override-text place="MainMenu" text="Refresh Metrics"/>
+            <keyboard-shortcut first-keystroke="control alt H" second-keystroke="F" keymap="$default"/>
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+    </actions>
     <extensions defaultExtensionNs="com.intellij">
 
     </extensions>
