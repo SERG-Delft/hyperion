@@ -18,7 +18,6 @@ dependencies {
 
     // ZeroMQ
     implementation("org.zeromq", "jeromq", "0.5.2")
-    implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-jdk8", "1.3.5")
 
     // Used for testing
     testImplementation("org.junit.jupiter", "junit-jupiter-params", "5.6.2")

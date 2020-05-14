@@ -211,9 +211,7 @@ class Elasticsearch(
         }
 
         try {
-            while (isActive) {
-                delay(Long.MAX_VALUE)
-            }
+            sender.join()
         } finally {
             this@Elasticsearch.stop()
             this@Elasticsearch.cleanup()
