@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 import org.zeromq.SocketType
 import org.zeromq.ZContext
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * Represents an abstract pipeline plugin that receives some JSON
@@ -35,6 +36,8 @@ abstract class AbstractPipelinePlugin(
     private lateinit var subConnectionInformation: PeerConnectionInformation
     private lateinit var pubConnectionInformation: PeerConnectionInformation
 
+    private val packetBufferCount = AtomicInteger()
+
     /**
      * Synchronously attempts to query the connection information from the plugin
      * manager. This will block the calling thread until a response is received
@@ -52,10 +55,10 @@ abstract class AbstractPipelinePlugin(
             val socket = it.createSocket(SocketType.REQ)
             socket.connect("tcp://${config.pluginManager}")
 
-            socket.send("""{"id":"${config.id}","type":"in"}""")
+            socket.send("""{"id":"${config.id}","type":"pull"}""")
             subConnectionInformation = readJSONContent(socket.recvStr())
 
-            socket.send("""{"id":"${config.id}","type":"out"}""")
+            socket.send("""{"id":"${config.id}","type":"push"}""")
             pubConnectionInformation = readJSONContent(socket.recvStr())
 
             logger.debug { "subConnectionInformation: $subConnectionInformation" }
@@ -106,7 +109,9 @@ abstract class AbstractPipelinePlugin(
         }
 
         while (isActive) {
-            sock.send(channel.receive(), zmq.ZMQ.ZMQ_DONTWAIT)
+            val msg = channel.receive()
+            packetBufferCount.decrementAndGet()
+            sock.send(msg, zmq.ZMQ.ZMQ_DONTWAIT)
         }
 
         sock.close()
@@ -121,14 +126,21 @@ abstract class AbstractPipelinePlugin(
         val ctx = ZContext()
         val sock = ctx.createSocket(SocketType.PULL)
 
-        if (pubConnectionInformation.isBind) {
-            sock.bind(pubConnectionInformation.host)
+        if (subConnectionInformation.isBind) {
+            sock.bind(subConnectionInformation.host)
         } else {
-            sock.connect(pubConnectionInformation.host)
+            sock.connect(subConnectionInformation.host)
         }
 
         while (isActive) {
             val msg = sock.recvStr()
+
+            // Drop this message if our internal buffer is full
+            val inQueue = packetBufferCount.incrementAndGet()
+            if (inQueue > config.bufferSize) {
+                packetBufferCount.decrementAndGet()
+                continue
+            }
 
             processThreadPool.launch processLaunch@ {
                 val result = try {
@@ -136,7 +148,11 @@ abstract class AbstractPipelinePlugin(
                 } catch (ex: Exception) {
                     logger.warn(ex) { "Error processing message: '$msg'" }
                     null
-                } ?: return@processLaunch
+                } ?: run {
+                    // We're done here, decrement.
+                    packetBufferCount.decrementAndGet()
+                    return@processLaunch
+                }
 
                 channel.send(result)
             }
