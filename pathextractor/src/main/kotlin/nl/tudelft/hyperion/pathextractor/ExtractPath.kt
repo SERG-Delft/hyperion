@@ -13,7 +13,7 @@ fun extractPath(input : String, config : Configuration) : String {
     val mapper = jacksonObjectMapper()
     val tree = mapper.readTree(input)
 
-    val parent = tree.findParent(config.field) as ObjectNode
+    val parent = tree.findParent(config.field)
 
     if(parent != null) {
         val packageName = tree.findValue(config.field).toString().drop(1).dropLast(1).split(".")
@@ -25,8 +25,8 @@ fun extractPath(input : String, config : Configuration) : String {
         }
         path += ".java"
 
-        parent.remove(config.field)
-        parent.put(config.field, path)
+        (parent as ObjectNode).remove(config.field)
+        (parent as ObjectNode).put(config.field, path)
     }
 
     return tree.toString()
