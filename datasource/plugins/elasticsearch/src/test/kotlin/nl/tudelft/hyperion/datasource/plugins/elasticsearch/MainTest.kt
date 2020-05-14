@@ -7,18 +7,18 @@ import java.io.File
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class MainTest {
-
-    @Test
-    fun `test Verify command parsing`() {
-        var file: File? = null
-
-        try {
-            file = createTempFile(suffix = ".yml")
-            file.writeText(ConfigurationTest.rawConfig)
-
-            assertDoesNotThrow { Verify().parse(listOf(file.absolutePath)) }
-        } finally {
-            file?.delete()
-        }
-    }
+//
+//    @Test
+//    fun `test Verify command parsing`() {
+//        var file: File? = null
+//
+//        try {
+//            file = createTempFile(suffix = ".yml")
+//            file.writeText(ConfigurationTest.rawConfig)
+//
+//            assertDoesNotThrow { Verify().parse(listOf(file.absolutePath)) }
+//        } finally {
+//            file?.delete()
+//        }
+//    }
 }

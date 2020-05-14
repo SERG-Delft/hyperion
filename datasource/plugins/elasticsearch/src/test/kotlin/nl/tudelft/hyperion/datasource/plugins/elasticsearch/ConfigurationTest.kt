@@ -1,17 +1,21 @@
 package nl.tudelft.hyperion.datasource.plugins.elasticsearch
 
 import com.fasterxml.jackson.databind.JsonMappingException
-import com.fasterxml.jackson.databind.exc.InvalidFormatException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.converter.ArgumentConversionException
+import org.junit.jupiter.params.converter.ConvertWith
+import org.junit.jupiter.params.converter.DefaultArgumentConverter
+import org.junit.jupiter.params.converter.SimpleArgumentConverter
 import org.junit.jupiter.params.provider.CsvSource
 import java.io.File
 import kotlin.reflect.KClass
 import kotlin.reflect.full.memberProperties
+
 
 /**
  * Tests the parsing of configuration files.
@@ -33,10 +37,66 @@ class ConfigurationTest {
         fun <T : Any> KClass<T>.getProp(name: String, receiver: T): Any {
             return memberProperties.first { it.name == name }.get(receiver)!!
         }
+    }
 
-        val rawConfig =
-            """
-            name: elastic
+    class NullableConverter : SimpleArgumentConverter() {
+        @Throws(ArgumentConversionException::class)
+        override fun convert(source: Any, targetType: Class<*>?): Any? {
+            return if ("null" == source) {
+                null
+            } else DefaultArgumentConverter.INSTANCE.convert(source, targetType)
+        }
+    }
+
+    @BeforeEach
+    fun init() {
+
+        testConfig = Configuration(
+                5,
+                ManagerConfig(
+                        "localhost",
+                        5555
+                ),
+                ElasticsearchConfig(
+                        "foo",
+                        "logs",
+                        9200,
+                        "http",
+                        false,
+                        "@timestamp",
+                        10,
+                        null,
+                        null
+                ),
+                "Elasticsearch"
+        )
+    }
+
+    @Test
+    fun `Valid config should parse`() {
+        val expected = Configuration(
+                5,
+                ManagerConfig(
+                        "localhost",
+                        5555
+                ),
+                ElasticsearchConfig(
+                        "foo",
+                        "logs",
+                        9200,
+                        "http",
+                        false,
+                        "@timestamp",
+                        10,
+                        null,
+                        null
+                ),
+                "Elasticsearch"
+        )
+
+        val actual = Configuration.parse(
+                """
+            id: Elasticsearch
             poll_interval: 5
             elasticsearch:
               hostname: foo
@@ -46,61 +106,12 @@ class ConfigurationTest {
               timestamp_field: "@timestamp"
               authentication: no
               response_hit_count: 10
-            redis:
+            zmq:
               host: localhost
-              port: 6379
-            """.trimIndent()
-    }
+              port: 5555
+            """.trimIndent())
 
-    @BeforeEach
-    fun init() {
-
-        testConfig = Configuration(
-                5,
-                RedisConfig(
-                        "localhost",
-                        6379
-                ),
-                ElasticsearchConfig(
-                        "foo",
-                        "logs",
-                        9200,
-                        "http",
-                        false,
-                        "@timestamp",
-                        10,
-                        null,
-                        null
-                ),
-                "-config",
-                "elastic"
-        )
-    }
-
-    @Test
-    fun `test valid config`() {
-        val expected = Configuration(
-                5,
-                RedisConfig(
-                        "localhost",
-                        6379
-                ),
-                ElasticsearchConfig(
-                        "foo",
-                        "logs",
-                        9200,
-                        "http",
-                        false,
-                        "@timestamp",
-                        10,
-                        null,
-                        null
-                ),
-                "-config",
-                "elastic"
-        )
-
-        assertEquals(expected, Configuration.parse(rawConfig))
+        assertEquals(expected, actual)
     }
 
     @ParameterizedTest
@@ -108,10 +119,10 @@ class ConfigurationTest {
             "port, 9200",
             "scheme, http"
     )
-    fun `test optional elasticsearch fields`(param: String, expected: Any) {
+    fun `Optional fields should be set to default if missing`(param: String, expected: Any) {
         val config = Configuration.parse(
                 """
-                name: elastic
+                id: Elasticsearch
                 poll_interval: 5
                 elasticsearch:
                   hostname: foo
@@ -119,8 +130,9 @@ class ConfigurationTest {
                   timestamp_field: "@timestamp"
                   authentication: no
                   response_hit_count: 10
-                redis:
-                  host: localhost
+                zmq:
+                    host: localhost
+                    port: 5555
                 """.trimIndent())
 
         val result = ElasticsearchConfig::class.getProp(param, config.es)
@@ -128,42 +140,44 @@ class ConfigurationTest {
     }
 
     @Test
-    fun `test invalid field type`() {
+    fun `Illegal pollInterval should throw exception during parse`() {
         val config =
                 """
-                name: elastic
-                poll_interval: foo
+                id: Elasticsearch
+                poll_interval: -1
                 elasticsearch:
                   hostname: foo
                   index: logs
                   timestamp_field: "@timestamp"
                   authentication: no
                   response_hit_count: 10
-                redis:
-                  host: localhost
+                zmq:
+                    host: localhost
+                    port: 5555
                 """.trimIndent()
 
-        assertThrows<InvalidFormatException> { Configuration.parse(config) }
+        assertThrows<IllegalArgumentException> { Configuration.parse(config) }
     }
 
     @Test
-    fun `test missing elasticsearch field`() {
+    fun `Missing elasticsearch field should throw exception during parse()`() {
         val config =
                 """
-                name: elastic
+                id: elastic
                 poll_interval: 42
-                redis:
+                zmq:
                   host: localhost
+                  port: 5555
                 """.trimIndent()
 
         assertThrows<JsonMappingException> { Configuration.parse(config) }
     }
 
     @Test
-    fun `test missing username for authentication`() {
+    fun `Missing username should throw exception during parse()`() {
         val config =
                 """
-                name: elastic
+                id: elastic
                 poll_interval: 10
                 elasticsearch:
                   hostname: foo
@@ -172,47 +186,115 @@ class ConfigurationTest {
                   authentication: yes
                   response_hit_count: 10
                   password: correcthorsebatterystaple
-                redis:
+                zmq:
                   host: localhost
+                  port: 5555
                 """.trimIndent()
 
         assertThrows<IllegalArgumentException> { Configuration.parse(config) }
     }
 
-    @Test
-    fun `test illegal port Elasticsearch`() {
-        testConfig.es.port = -1
-        assertThrows<IllegalArgumentException> { testConfig.es.verify() }
+    @ParameterizedTest
+    @CsvSource(
+            "false, foo, bar, true",
+            "false, null, null, true",
+            "true, foo, bar, true",
+            "true, foo, null, false",
+            "true, null, bar, false",
+            "true, null, null, false"
+    )
+    fun `Check legal authentication combos`(
+            authentication: Boolean,
+            @ConvertWith(NullableConverter::class)
+            username: String?,
+            @ConvertWith(NullableConverter::class)
+            password: String?,
+            shouldSucceed: Boolean
+    ) {
+        testConfig.es.authentication = authentication
+        testConfig.es.username = username
+        testConfig.es.password = password
+
+        if (shouldSucceed) {
+            assertDoesNotThrow { testConfig.es.verify() }
+        } else {
+            assertThrows<IllegalArgumentException> { testConfig.es.verify() }
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource(
+            "-1, false",
+            "80, true",
+            "80000, false"
+    )
+    fun `Check legal ports during verify`(port: Int, shouldSucceed: Boolean) {
+        testConfig.es.port = port
+
+        if (shouldSucceed) {
+            assertDoesNotThrow { testConfig.es.verify() }
+        } else {
+            assertThrows<IllegalArgumentException> { testConfig.es.verify() }
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource(
+            "foo, false",
+            "http, true",
+            "https, true"
+    )
+    fun `Check legal schemes during verify`(scheme: String, shouldSucceed: Boolean) {
+        testConfig.es.scheme = scheme
+
+        if (shouldSucceed) {
+            assertDoesNotThrow { testConfig.es.verify() }
+        } else {
+            assertThrows<IllegalArgumentException> { testConfig.es.verify() }
+        }
     }
 
     @Test
-    fun `test illegal scheme Elasticsearch`() {
-        testConfig.es.scheme = "foo"
-        assertThrows<IllegalArgumentException> { testConfig.es.verify() }
-    }
-
-    @Test
-    fun `test illegal responseCount Elasticsearch()`() {
+    fun `Illegal responseHitCount should throw exception`() {
         testConfig.es.responseHitCount = -1
         assertThrows<IllegalArgumentException> { testConfig.es.verify() }
     }
 
     @Test
-    fun `test illegal arguments Configuration`() {
+    fun `Illegal poll_interval should throw exception`() {
         testConfig.pollInterval = -1
         assertThrows<IllegalArgumentException> { testConfig.verify() }
     }
 
     @Test
-    fun `test configuration loading from file`() {
+    fun `Loading configuration from file should succeed`() {
         var file: File? = null
 
         try {
             file = createTempFile(suffix = ".yml")
-            file.writeText(rawConfig)
-            assertDoesNotThrow { Configuration.load(file.toPath()) }
+            file.writeText("""
+                id: Elasticsearch
+                poll_interval: 5
+                elasticsearch:
+                  hostname: foo
+                  index: logs
+                  timestamp_field: "@timestamp"
+                  authentication: no
+                  response_hit_count: 10
+                zmq:
+                    host: localhost
+                    port: 5555
+                """.trimIndent())
+
+            assertEquals(testConfig, Configuration.load(file.toPath()))
         } finally {
             file?.delete()
         }
+    }
+
+    @Test
+    fun `address field in ManagerConfig should be correct`() {
+        val config = ManagerConfig("foo", 123)
+        assertEquals("foo:123", config.address)
     }
 }

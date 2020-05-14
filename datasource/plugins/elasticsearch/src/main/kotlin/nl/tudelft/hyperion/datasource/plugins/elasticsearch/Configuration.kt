@@ -16,7 +16,9 @@ import java.nio.file.Path
  */
 data class ManagerConfig(
         val host: String,
-        val port: Int
+        val port: Int,
+        @JsonProperty("buffer_size")
+        val bufferSize: Int = 20_000
 ) {
     val address = "$host:$port"
 }
@@ -37,28 +39,16 @@ data class ManagerConfig(
 data class ElasticsearchConfig(
         val hostname: String,
         val index: String,
-        var port: Int?,
-        var scheme: String?,
-        val authentication: Boolean,
+        var port: Int = 9200,
+        var scheme: String = "http",
+        var authentication: Boolean,
         @JsonProperty("timestamp_field")
         val timestampField: String,
         @JsonProperty("response_hit_count")
         var responseHitCount: Int,
-        val username: String?,
-        val password: String?
+        var username: String?,
+        var password: String?
 ) {
-    init {
-        // set default values if field is missing
-        // jackson does not support default value setting as of 2.7.1
-        if (port == null) {
-            port = 9200
-        }
-
-        if (scheme == null) {
-            scheme = "http"
-        }
-    }
-
     /**
      * Verifies that the configuration is correct.
      *
@@ -69,7 +59,7 @@ data class ElasticsearchConfig(
             throw IllegalArgumentException("port must be between 0 and 65535 but was port=$port")
         }
 
-        val schemeLower = scheme!!.toLowerCase()
+        val schemeLower = scheme.toLowerCase()
         if (schemeLower != "http" && schemeLower != "https") {
             throw IllegalArgumentException("scheme must be 'http' or 'https' but not scheme=$schemeLower")
         }
@@ -95,8 +85,7 @@ data class ElasticsearchConfig(
 data class Configuration(
         @JsonProperty("poll_interval")
         var pollInterval: Int,
-        @JsonProperty("manager")
-        val pluginManager: ManagerConfig,
+        val zmq: ManagerConfig,
         @JsonProperty("elasticsearch")
         val es: ElasticsearchConfig,
         val id: String

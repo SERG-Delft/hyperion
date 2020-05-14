@@ -22,6 +22,7 @@ import org.zeromq.ZContext
 import java.util.*
 import java.util.concurrent.Executors
 import kotlin.concurrent.fixedRateTimer
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Plugin that periodically queries an Elasticsearch instance.
@@ -36,12 +37,12 @@ class Elasticsearch(
 ) : DataSourcePlugin {
 
     private var finished = false
-    private var hasConnectionInformation = false
+    var hasConnectionInformation = false
     private lateinit var timer: Timer
-    private lateinit var pubConnectionInformation: PeerConnectionInformation
+    lateinit var pubConnectionInformation: PeerConnectionInformation
 
     private val senderScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
-    private val queue = Channel<String>(20_000)
+    private val queue = Channel<String>(config.zmq.bufferSize)
 
     companion object {
         private val logger = KotlinLogging.logger {}
@@ -100,8 +101,8 @@ class Elasticsearch(
             // create Elasticsearch client
             val clientBuilder = RestClient.builder(HttpHost(
                     config.es.hostname,
-                    config.es.port!!,
-                    config.es.scheme!!))
+                    config.es.port,
+                    config.es.scheme))
 
             // add credentials to httpClient if authentication is enabled
             if (config.es.authentication) {
@@ -144,7 +145,7 @@ class Elasticsearch(
     fun queryConnectionInformation() {
         ZContext().use {
             val socket = it.createSocket(SocketType.REQ)
-            socket.connect("tcp://${config.pluginManager.address}")
+            socket.connect("tcp://${config.zmq.address}")
 
             socket.send("""{"id":"${config.id}","type":"out"}""")
             pubConnectionInformation = Utils.readJSONContent(socket.recvStr())
@@ -181,7 +182,15 @@ class Elasticsearch(
         ctx.destroy()
     }
 
-    override fun start() = GlobalScope.launch {
+    /**
+     * Starts a coroutine in the global scope which in turn starts
+     * a [java.util.Timer] that periodically schedules a request to
+     * Elasticsearch and a worker that sends the documents to a ZMQ
+     * Socket.
+     *
+     * @param context additional coroutine context to add
+     */
+    fun run(context: CoroutineContext) = GlobalScope.launch(context) {
         if (finished) {
             throw IllegalStateException("Elasticsearch client is already closed")
         }
@@ -219,6 +228,8 @@ class Elasticsearch(
         }
     }
 
+    override fun start(): Job = run(Dispatchers.Default)
+
     override fun stop() {
         if (this::timer.isInitialized) {
             timer.cancel()
@@ -240,7 +251,7 @@ class Elasticsearch(
  * future elements in the pipeline. Contains the host, port and whether
  * it needs to bind or connect to that specific element.
  */
-private data class PeerConnectionInformation(
+data class PeerConnectionInformation(
         val host: String,
         val isBind: Boolean
 )
