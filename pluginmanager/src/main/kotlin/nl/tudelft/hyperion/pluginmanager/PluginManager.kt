@@ -21,10 +21,9 @@ class PluginManager(config: Configuration) {
     private fun launchListener() {
         val context = ZMQ.context(1)
         val responder = context.socket(SocketType.REP)
-        val addr = "tcp://$host"
 
-        responder.connect(addr)
-        logger.info("Connected ZMQ reply to $addr")
+        responder.connect(host)
+        logger.info("Connected ZMQ reply to $host")
 
         while (!Thread.currentThread().isInterrupted) {
             //  Wait for next request from client

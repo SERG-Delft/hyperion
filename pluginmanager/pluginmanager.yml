@@ -1,4 +1,4 @@
-host: "localhost:5560"
+host: "tcp://localhost:5560"
 plugins:
   - name: "Datasource"
     host: "tcp://localhost:1200"
