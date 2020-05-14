@@ -27,14 +27,10 @@ class PluginManager(config: Configuration) {
 
         while (!Thread.currentThread().isInterrupted) {
             //  Wait for next request from client
-            val request = responder.recv(0)
-            val string = String(request)
+            val request = responder.recvStr(0)
 
-            logger.info("Received request: [$string]")
-            handleRegister(string, responder)
-
-            //  Send reply back to client
-            responder.send("World".toByteArray(), 0)
+            logger.info("Received request: [$request]")
+            handleRegister(request, responder)
         }
 
         // cleanup
@@ -61,11 +57,11 @@ class PluginManager(config: Configuration) {
     }
 
     private fun registerPush(pluginName: String): String {
-        return "\"isBind\":\"true\",\"host\":\"${nextPlugin(pluginName)["host"]!!}\""
+        return "{\"isBind\":\"true\",\"host\":\"${nextPlugin(pluginName)["host"]!!}\"}"
     }
 
     private fun registerPull(pluginName: String): String {
-        return "\"isBind\":\"false\",\"host\":\"${previousPlugin(pluginName)["host"]!!}\""
+        return "{\"isBind\":\"false\",\"host\":\"${previousPlugin(pluginName)["host"]!!}\"}"
     }
 
     private fun previousPlugin(pluginName: String): Map<String, String> {
