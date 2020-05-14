@@ -34,6 +34,7 @@ object TooltipInlayManager {
             handleFileClosed(document, emptyArray())
             handleFileOpened(editor, document, file, project)
         }, ModalityState.NON_MODAL)
+        documentLogInfos.remove(document)
     }
 
     fun handleFileOpened(editor: Editor, document: Document, file: VirtualFile, project: Project) {
@@ -83,6 +84,7 @@ object TooltipInlayManager {
         val tooltips: MutableSet<Pair<LogInfo, Inlay<TooltipRenderer>>> = mutableSetOf()
 
         for (logInfo in logInfos) {
+            if (logInfo.lineMetrics.getLine() >= document.lineCount) continue
             tooltips.add(Pair(logInfo, addLogTooltip(editor, logInfo)!!))
         }
         val listener = DocumentTooltipListener(tooltips)
