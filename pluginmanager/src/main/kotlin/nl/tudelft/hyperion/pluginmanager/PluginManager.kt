@@ -20,7 +20,7 @@ class PluginManager(config: Configuration) {
         val context = ZMQ.context(1)
         val responder = context.socket(SocketType.REP)
 
-        responder.connect(host)
+        responder.bind(host)
         logger.info("Connected ZMQ reply to $host")
         logger.info {"Launching REQ/REP loop"}
         while (!Thread.currentThread().isInterrupted) {
