@@ -6,12 +6,22 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import java.nio.file.Files
 import java.nio.file.Path
 
-
-// TODO: add comments explaining config options
+/**
+ * @host The host address to which the :PluginManager: REP socket should bind
+ * @plugins List with each plugin instance, plugins will be loaded in pipeline in this order
+ * @plugins.name The Unique ID of the plugin
+ * @plugins.host The hosting address to which other plugins should bind
+ */
 data class Configuration(
     val host: String,
     val plugins: List<Map<String, String>>
 ) {
+    fun verify() {
+        if (plugins.size < 2) {
+            throw IllegalArgumentException("At least 2 plugins should be defined, got ${plugins.size}")
+        }
+    }
+
     companion object {
         /**
          * Parses the configuration file located at the specified path into

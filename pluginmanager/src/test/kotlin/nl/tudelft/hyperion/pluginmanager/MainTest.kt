@@ -1,13 +1,9 @@
 package nl.tudelft.hyperion.pluginmanager
 
-import io.lettuce.core.RedisClient
-import io.lettuce.core.RedisURI
 import io.mockk.clearAllMocks
 import io.mockk.every
-import io.mockk.mockk
 import io.mockk.mockkConstructor
 import io.mockk.mockkObject
-import io.mockk.mockkStatic
 import io.mockk.verify
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -15,27 +11,21 @@ import org.junit.jupiter.api.Test
 class MainTest() {
     @Test
     fun `Start PluginManager when right config`() {
-        val redisConfig = RedisConfig("redis", 6969)
-        val plugins = listOf("Source", "Sink")
-        val config = Configuration(redisConfig, "-config", plugins)
+        val host = "tcp://localhost:5560"
+        val plugins = listOf(mapOf("name" to "Datasource", "host" to "tcp://localhost:1200"),
+                             mapOf("name" to "Renamer", "host" to "tcp://localhost:1201"),
+                             mapOf("name" to "Aggregator", "host" to "tcp://localhost:1202"))
+        val config = Configuration(host, plugins)
 
         mockkObject(Configuration.Companion)
-
         every { Configuration.load(any())} returns config
 
         mockkConstructor(PluginManager::class)
-
-        mockkStatic("io.lettuce.core.RedisClient")
-
-        val client = mockk<RedisClient>(relaxed = true)
-
-        every {
-            RedisClient.create(any<RedisURI>())
-        } returns client
+        every { anyConstructed<PluginManager>().launchListener()} returns Unit
 
         main("chicken")
 
-        verify { anyConstructed<PluginManager>().pushConfig() }
+        verify { anyConstructed<PluginManager>().launchListener() }
     }
 
     @AfterEach

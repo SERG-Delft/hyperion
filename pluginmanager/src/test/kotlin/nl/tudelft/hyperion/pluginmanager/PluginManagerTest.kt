@@ -1,126 +1,156 @@
 package nl.tudelft.hyperion.pluginmanager
 
-import io.lettuce.core.RedisClient
-import io.lettuce.core.RedisURI
-import io.lettuce.core.api.StatefulRedisConnection
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkObject
 import io.mockk.mockkStatic
-import io.mockk.spyk
 import io.mockk.verify
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.zeromq.SocketType
+import org.zeromq.ZMQ
 
 class PluginManagerTest() {
 
-    private val redisConfig = RedisConfig("redis", 6969)
-    private val plugins = listOf("Datasource", "Renamer", "Aggregator")
-    private val config = Configuration(redisConfig, "-config", plugins)
+    private val host = "tcp://localhost:5560"
+    private val plugins = listOf(mapOf("name" to "Datasource", "host" to "tcp://localhost:1200"),
+                                 mapOf("name" to "Renamer", "host" to "tcp://localhost:1201"),
+                                 mapOf("name" to "Aggregator", "host" to "tcp://localhost:1202"))
+    private val config = Configuration(host, plugins)
 
     @Test
-    fun `Fail pushConfig when sync fails`() {
-        mockkStatic("io.lettuce.core.RedisClient")
-
-        val client = mockk<RedisClient>(relaxed = true)
-        every {
-            RedisClient.create(any<RedisURI>())
-        } returns client
-
-        val conn = mockk<StatefulRedisConnection<String, String>>(relaxed = true)
-        every {
-            client.connect()
-        } returns conn
+    fun `Register valid plugin pull`() {
+        val req = "{\"id\":\"Renamer\",\"type\":\"pull\"}"
+        val ctx = ZMQ.context(1)
+        val res = ctx.socket(SocketType.REP)
+        mockkObject(res)
 
         every {
-            conn.sync()
-        } throws Exception("Cannot sync with redis")
+            res.send(any<String>())
+        } returns true
 
         val pluginManager = PluginManager(config)
+        pluginManager.handleRegister(req, res)
 
-        val exception: Exception = assertThrows("Cannot sync with redis") { pluginManager
-            .pushConfig() }
+        verify {
+            res.send("{\"isBind\":\"false\",\"host\":\"tcp://localhost:1200\"}")
+        }
+    }
 
-        val expectedMessage = "Cannot sync with redis"
+    @Test
+    fun `Register valid plugin push`() {
+        val req = "{\"id\":\"Renamer\",\"type\":\"push\"}"
+        val ctx = ZMQ.context(1)
+        val res = ctx.socket(SocketType.REP)
+        mockkObject(res)
+
+        every {
+            res.send(any<String>())
+        } returns true
+
+        val pluginManager = PluginManager(config)
+        pluginManager.handleRegister(req, res)
+
+        verify {
+            res.send("{\"isBind\":\"true\",\"host\":\"tcp://localhost:1201\"}")
+        }
+    }
+
+    @Test
+    fun `Register invalid request type`() {
+        val req = "{\"id\":\"Renamer\",\"type\":\"chicken\"}"
+        val ctx = ZMQ.context(1)
+        val res = ctx.socket(SocketType.REP)
+        mockkObject(res)
+
+        every {
+            res.send(any<String>())
+        } returns true
+
+        val pluginManager = PluginManager(config)
+        pluginManager.handleRegister(req, res)
+
+        verify {
+            res.send("Invalid Request")
+        }
+    }
+
+    @Test
+    fun `Register invalid plugin push`() {
+        val req = "{\"id\":\"chicken\",\"type\":\"push\"}"
+        val ctx = ZMQ.context(1)
+        val res = ctx.socket(SocketType.REP)
+        mockkObject(res)
+
+        every {
+            res.send(any<String>())
+        } returns true
+
+        val pluginManager = PluginManager(config)
+        val exception: Exception = assertThrows("Plugin chicken does not exist in current pipeline") {
+            pluginManager.handleRegister(req, res) }
+
+        val expectedMessage = "Plugin chicken does not exist in current pipeline"
         val actualMessage = exception.message
 
         assertTrue(actualMessage!!.contains(expectedMessage))
     }
 
-
     @Test
-    fun `Redis connection established in init`() {
-        mockkStatic("io.lettuce.core.RedisClient")
-
-        val client = mockk<RedisClient>(relaxed = true)
+    fun `Register invalid plugin pull`() {
+        val req = "{\"id\":\"chicken\",\"type\":\"pull\"}"
+        val ctx = ZMQ.context(1)
+        val res = ctx.socket(SocketType.REP)
+        mockkObject(res)
 
         every {
-            RedisClient.create(any<RedisURI>())
-        } returns client
+            res.send(any<String>())
+        } returns true
 
-        PluginManager(config)
+        val pluginManager = PluginManager(config)
+        val exception: Exception = assertThrows("Plugin chicken does not exist in current pipeline") {
+            pluginManager.handleRegister(req, res) }
+
+        val expectedMessage = "Plugin chicken does not exist in current pipeline"
+        val actualMessage = exception.message
+
+        assertTrue(actualMessage!!.contains(expectedMessage))
+    }
+
+    @Test
+    fun `Cleanup ZMQ connection after Interrupt`() {
+        mockkStatic("org.zeromq.ZMQ")
+
+        val ctx = ZMQ.context(1)
+        mockkObject(ctx)
+        every {
+            ZMQ.context(any())
+        } returns ctx
+
+        every {
+            ctx.term()
+        } returns Unit
+
+        val res = ctx.socket(SocketType.REP)
+        mockkObject(res)
+        every {
+            ctx.socket(any<SocketType>())
+        } returns res
+
+        Thread.currentThread().interrupt()
+
+        val pluginManager = PluginManager(config)
+        pluginManager.launchListener()
 
         verify {
-            client.connect()
-        }
-    }
-
-    @Test
-    fun `Register calls with two plugins`() {
-        mockkStatic("io.lettuce.core.RedisClient")
-
-        val client = mockk<RedisClient>(relaxed = true)
-
-        every {
-            RedisClient.create(any<RedisURI>())
-        } returns client
-
-        val plugins = listOf("Datasource", "Aggregator")
-        val config = Configuration(redisConfig, null, plugins)
-        val mock = spyk(PluginManager(config))
-
-        mock.pushConfig()
-
-        // verify that the right pub/sub calls were made
-        verify(exactly = 1) {
-            mock.registerPublish("Datasource", "Datasource-output")
-            mock.registerSubscribe("Aggregator", "Datasource-output")
+            res.close()
+            ctx.term()
         }
 
-        // verify that no more pub/sub calls were made
-        verify(atMost = 1) {
-            mock.registerPublish(any(), any())
-            mock.registerSubscribe(any(), any())
-        }
-    }
 
-    @Test
-    fun `Register calls with three plugins`() {
-        mockkStatic("io.lettuce.core.RedisClient")
-
-        val client = mockk<RedisClient>(relaxed = true)
-
-        every {
-            RedisClient.create(any<RedisURI>())
-        } returns client
-
-        val mock = spyk(PluginManager(config))
-
-        mock.pushConfig()
-
-        verify(exactly = 1) {
-            mock.registerPublish("Datasource", "Datasource-output")
-            mock.registerSubscribe("Renamer", "Datasource-output")
-            mock.registerPublish("Renamer", "Renamer-output")
-            mock.registerSubscribe("Aggregator", "Renamer-output")
-        }
-
-        verify(atMost = 2) {
-            mock.registerPublish(any(), any())
-            mock.registerSubscribe(any(), any())
-        }
     }
 
     @AfterEach
