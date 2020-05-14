@@ -51,13 +51,10 @@
     <idea-version since-build="201.4163"/>
 
 
-    <project-components>
-        <component>
-            <implementation-class>
-                nl.tudelft.hyperion.plugin.visualization.FileOpenedListener
-            </implementation-class>
-        </component>
-    </project-components>
+    <projectListeners>
+            <listener class="nl.tudelft.hyperion.plugin.visualization.FileOpenedListener"
+                      topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>
+    </projectListeners>
 
     <extensions defaultExtensionNs="com.intellij">
 
