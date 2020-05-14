@@ -19,7 +19,7 @@ dependencies {
 }
 
 application {
-    mainClassName = "nl.tudelft.hyperion.renamer.Main"
+    mainClassName = "nl.tudelft.hyperion.pipeline.renamer.Main"
 }
 
 jacoco {
