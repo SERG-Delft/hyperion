@@ -1,4 +1,4 @@
-package nl.tudelft.hyperion.extractor
+package nl.tudelft.hyperion.pathextractor
 
 import kotlinx.coroutines.delay
 import nl.tudelft.hyperion.pipeline.AbstractPipelinePlugin
@@ -7,7 +7,7 @@ import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
 /**
  * Class that represents the extractor plugin and extends the abstract pipeline plugin
  */
-class ExtractPlugin : AbstractPipelinePlugin {
+class ExtractPathPlugin : AbstractPipelinePlugin {
     private var config : Configuration
 
     constructor(config: Configuration) : super(PipelinePluginConfiguration(config.name, config.redis)) {
@@ -17,6 +17,6 @@ class ExtractPlugin : AbstractPipelinePlugin {
     override suspend fun process(input: String): String? {
         println("From ${Thread.currentThread().name}: $input")
         delay(1000)
-        return extract(input, config)
+        return extractPath(input, config)
     }
 }

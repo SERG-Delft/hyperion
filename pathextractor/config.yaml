@@ -2,3 +2,5 @@ name: "Plugin1"
 redis:
   host: "192.168.2.168"
   port: 6379
+
+field: "log4j_file"
