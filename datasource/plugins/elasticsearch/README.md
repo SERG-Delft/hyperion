@@ -2,10 +2,7 @@
 
 Plugin that acts as an adapter between an Elasticsearch instance and Hyperion.  
 
-Can either be ran standalone or automatically via the plugin manager.  
-Running in standalone requires the Redis channel to be specified in the configuration.
-
-### Example usage standalone
+### Example usage
 
 ```
 $ java -jar elasticsearch-all.jar                                                     
@@ -23,7 +20,6 @@ Commands:
 
 $ java -jar elasticsearch-all.jar run datasource-es.yml
 [main] INFO nl.tudelft.hyperion.datasource.plugins.elasticsearch.Elasticsearch - Elasticsearch client created successfully
-[main] INFO nl.tudelft.hyperion.datasource.plugins.elasticsearch.Elasticsearch - Starting Redis client
 [main] INFO nl.tudelft.hyperion.datasource.plugins.elasticsearch.Elasticsearch - Starting retrieval of logs
 ...
 ```
@@ -32,7 +28,7 @@ $ java -jar elasticsearch-all.jar run datasource-es.yml
 
 ```yaml
 poll_interval: 5
-name: elasticsearch
+id: Elasticsearch
 
 elasticsearch:
   hostname: elk.njkyu.com
@@ -43,7 +39,7 @@ elasticsearch:
   authentication: no
   response_hit_count: 10000
 
-redis:
+zmq:
   host: localhost
   port: 6379
 ``` 
@@ -52,8 +48,7 @@ The full spec is as follows:
 
 ```yaml
 poll_interval: <num>
-name: <string>
-registration_channel_postfix: <string?, default="-config">
+id: <string>
 
 elasticsearch:
   hostname: <string>
@@ -69,7 +64,8 @@ elasticsearch:
   username: <string?>
   password: <string?>
 
-redis:
+zmq:
   host: <string>
-  port: <num?, default=6379>
+  port: <num>
+  buffer_capacity: <num?, default=20000>
 ``` 
