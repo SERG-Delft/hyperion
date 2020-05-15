@@ -22,6 +22,7 @@ val HELP_TEXT = """
 /**
  * Base command for running the Elasticsearch plugin with a config file.
  */
+@lombok.Generated
 class Command : CliktCommand(help = HELP_TEXT) {
     override fun run() = Unit
 }
@@ -30,6 +31,7 @@ class Command : CliktCommand(help = HELP_TEXT) {
  * Command that verifies that the given config file is in the correct
  * format and that the fields are valid.
  */
+@lombok.Generated
 class Verify : CliktCommand(help = "Verify if the config file is in the correct format") {
     private val path by argument(help = "Path to the config file to verify").default(DEFAULT_CONFIG_FILE)
 
@@ -50,6 +52,7 @@ class Verify : CliktCommand(help = "Verify if the config file is in the correct 
 /**
  * Command that starts the service with the given config file.
  */
+@lombok.Generated
 class Run : CliktCommand(help = "Run with the the given config file") {
     private val path by argument(help = "Path to the config file").default(DEFAULT_CONFIG_FILE)
 
@@ -73,6 +76,7 @@ class Run : CliktCommand(help = "Run with the the given config file") {
     }
 }
 
+@lombok.Generated
 fun main(args: Array<String>) = Command()
         .subcommands(Verify(), Run())
         .main(args)

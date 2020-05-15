@@ -20,11 +20,12 @@ dependencies {
     implementation("org.zeromq", "jeromq", "0.5.2")
 
     // Used for testing
+    implementation("org.projectlombok", "lombok", "1.18.12")
+    annotationProcessor("org.projectlombok", "lombok", "1.18.12")
     testImplementation("org.junit.jupiter", "junit-jupiter-params", "5.6.2")
     testImplementation("io.mockk", "mockk", "1.9.3")
     testImplementation("net.bytebuddy", "byte-buddy", "1.10.10")
-    testImplementation("org.testcontainers", "testcontainers", "1.14.1")
-    testImplementation("org.testcontainers", "junit-jupiter", "1.14.1")
+    testImplementation("org.jetbrains.kotlinx", "kotlinx-coroutines-test", "1.3.5")
 
     // Used for logging
     implementation("io.github.microutils", "kotlin-logging", "1.7.9")
@@ -53,6 +54,12 @@ jacoco {
     reportsDir = file("$buildDir/jacoco")
 }
 
+tasks.integrationTest {
+    jacoco {
+        enabled = true
+    }
+}
+
 tasks.jacocoTestReport {
     reports {
         xml.isEnabled = false
@@ -62,11 +69,16 @@ tasks.jacocoTestReport {
 }
 
 tasks.jacocoTestCoverageVerification {
+    executionData(
+            tasks.run.get(),
+            tasks.integrationTest.get()
+    )
+
     violationRules {
         rule {
             limit {
                 counter = "BRANCH"
-                minimum = "0.65".toBigDecimal()
+                minimum = "0.7".toBigDecimal()
             }
 
             limit {

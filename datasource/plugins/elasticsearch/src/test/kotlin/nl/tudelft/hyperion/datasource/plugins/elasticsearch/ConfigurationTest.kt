@@ -49,7 +49,7 @@ class ConfigurationTest {
     }
 
     @BeforeEach
-    fun init() {
+    fun setUp() {
 
         testConfig = Configuration(
                 5,

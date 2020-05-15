@@ -38,10 +38,10 @@ class Elasticsearch(
 
     private var finished = false
     var hasConnectionInformation = false
-    private lateinit var timer: Timer
+    lateinit var timer: Timer
     lateinit var pubConnectionInformation: PeerConnectionInformation
 
-    private val senderScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
+    var senderScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
     private val queue = Channel<String>(config.zmq.bufferSize)
 
     companion object {
@@ -162,7 +162,7 @@ class Elasticsearch(
      * Helper function that will create a new subroutine that is used to send the
      * results of computation to the next stage in the pipeline.
      */
-    private fun runSender(channel: Channel<String>) = senderScope.launch {
+    fun runSender(channel: Channel<String>) = senderScope.launch {
         val ctx = ZContext()
         val sock = ctx.createSocket(SocketType.PUSH)
 
@@ -220,7 +220,9 @@ class Elasticsearch(
         }
 
         try {
-            sender.join()
+            while (isActive) {
+                delay(Long.MAX_VALUE)
+            }
         } finally {
             this@Elasticsearch.stop()
             this@Elasticsearch.cleanup()
