@@ -52,8 +52,8 @@
 
 
     <projectListeners>
-            <listener class="nl.tudelft.hyperion.plugin.visualization.FileOpenedListener"
-                      topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>
+<!--            <listener class="nl.tudelft.hyperion.plugin.visualization.FileOpenedListener"-->
+<!--                      topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>-->
     </projectListeners>
     <actions>
         <action id="nl.tudelft.hyperion.plugin.visualization.RefreshTooltipAction"
@@ -65,6 +65,6 @@
         </action>
     </actions>
     <extensions defaultExtensionNs="com.intellij">
-
+        <highlightingPassFactory implementation="nl.tudelft.hyperion.plugin.doc.MetricInlayRenderPassFactory" />
     </extensions>
 </idea-plugin>

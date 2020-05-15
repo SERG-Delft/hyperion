@@ -5,12 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
-import io.ktor.client.request.get
 import nl.tudelft.hyperion.plugin.metric.MetricsResult
 
 object ApiRequestor {
     private val client = HttpClient(CIO)
     private val mapper = ObjectMapper()
+
     init {
         val module = KotlinModule()
         module.addDeserializer(MetricsResult::class.java, MetricDeserializer())
@@ -22,9 +22,40 @@ object ApiRequestor {
         val intervals = "60,3600,86400"
         val project = "TestProject"
 
-        val json: String = client.get("/api/v1/metrics?project=$project&file=$filePath&intervals=$intervals")
+        // val json: String = client.get("/api/v1/metrics?project=$project&file=$filePath&intervals=$intervals")
+        val json = """
+            [{
+                "interval": 60,
+                "versions": {
+                    "abc": [{
+                        "line": 10,
+                        "count": 20,
+                        "severity": "INFO"
+                    }],
+                    "def": [{
+                        "line": 20,
+                        "count": 1,
+                        "severity": "DEBUG"
+                    }]
+                }
+            }, {
+                "interval": 120,
+                "versions": {
+                    "abc": [{
+                        "line": 10,
+                        "count": 20,
+                        "severity": "INFO"
+                    }],
+                    "def": [{
+                        "line": 20,
+                        "count": 1,
+                        "severity": "DEBUG"
+                    }]
+                }
+            }]
+        """.trimIndent()
+
         return mapper.readValue(json, object : TypeReference<MetricsResult>() {})
     }
-
 }
 
