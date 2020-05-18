@@ -12,7 +12,6 @@ import java.io.StringWriter
  *
  * @param action closure that handles the response
  */
-@Suppress("TooGenericExceptionCaught")
 class RequestHandler(private val action: (SearchHit) -> Unit) : ActionListener<SearchResponse> {
 
     companion object {
@@ -24,6 +23,7 @@ class RequestHandler(private val action: (SearchHit) -> Unit) : ActionListener<S
      *
      * @param response [SearchResponse] object to send
      */
+    @Suppress("TooGenericExceptionCaught")
     override fun onResponse(response: SearchResponse) {
         try {
             response.hits.forEach(action)

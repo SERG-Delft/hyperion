@@ -1,7 +1,16 @@
 package nl.tudelft.hyperion.datasource.plugins.elasticsearch
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import mu.KotlinLogging
 import nl.tudelft.hyperion.datasource.common.DataPluginInitializationException
 import nl.tudelft.hyperion.datasource.common.DataSourcePlugin
@@ -37,9 +46,8 @@ class Elasticsearch(
 ) : DataSourcePlugin {
 
     private var finished = false
-    var hasConnectionInformation = false
     lateinit var timer: Timer
-    lateinit var pubConnectionInformation: PeerConnectionInformation
+    var pubConnectionInformation: PeerConnectionInformation? = null
 
     var senderScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
     private val queue = Channel<String>(config.zmq.bufferSize)
@@ -154,8 +162,6 @@ class Elasticsearch(
         }
 
         logger.debug { "Successfully retrieved connection information" }
-
-        hasConnectionInformation = true
     }
 
     /**
@@ -166,12 +172,12 @@ class Elasticsearch(
         val ctx = ZContext()
         val sock = ctx.createSocket(SocketType.PUSH)
 
-        if (pubConnectionInformation.isBind) {
-            logger.debug { "Binding socket to ${pubConnectionInformation.host}" }
-            sock.bind(pubConnectionInformation.host)
+        if (pubConnectionInformation!!.isBind) {
+            logger.debug { "Binding socket to ${pubConnectionInformation!!.host}" }
+            sock.bind(pubConnectionInformation!!.host)
         } else {
-            logger.debug { "Connecting socket to ${pubConnectionInformation.host}" }
-            sock.connect(pubConnectionInformation.host)
+            logger.debug { "Connecting socket to ${pubConnectionInformation!!.host}" }
+            sock.connect(pubConnectionInformation!!.host)
         }
 
         while (isActive) {
@@ -195,7 +201,7 @@ class Elasticsearch(
             throw IllegalStateException("Elasticsearch client is already closed")
         }
 
-        if (!hasConnectionInformation) {
+        if (pubConnectionInformation == null) {
             throw DataPluginInitializationException("Connection information is not set")
         }
 

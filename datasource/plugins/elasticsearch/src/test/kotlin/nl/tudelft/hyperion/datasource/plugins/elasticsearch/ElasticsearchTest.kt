@@ -7,8 +7,7 @@ import kotlinx.coroutines.test.runBlockingTest
 import nl.tudelft.hyperion.datasource.common.DataPluginInitializationException
 import org.elasticsearch.client.RestHighLevelClient
 import org.junit.jupiter.api.*
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.*
 import org.zeromq.SocketType
 import org.zeromq.ZContext
 import org.zeromq.ZMQ
@@ -105,7 +104,6 @@ class ElasticsearchTest {
     @Test
     fun `Starting an instance without querying info should throw exception`() {
         val es = Elasticsearch(testConfig, mockClient)
-        es.hasConnectionInformation = false
 
         suspendingCoroutineThrows(DataPluginInitializationException::class, 100) {
             es.run(it)
@@ -203,7 +201,7 @@ class ElasticsearchTest {
             socket.send("""{"id":"Elasticsearch","type":"out"}""")
         }
 
-        assertTrue(es.hasConnectionInformation)
+        assertNotNull(es.pubConnectionInformation)
 
         unmockkAll()
     }
@@ -227,7 +225,7 @@ class ElasticsearchTest {
         val es = Elasticsearch(testConfig, mockClient)
 
         assertThrows<Exception> { es.queryConnectionInformation() }
-        assertTrue(!es.hasConnectionInformation)
+        assertEquals(null, es.pubConnectionInformation)
 
         unmockkAll()
     }
@@ -278,7 +276,6 @@ class ElasticsearchTest {
         val peerAddress = "tcp://localhost:12345"
 
         val es = spyk(Elasticsearch(testConfig, mockClient))
-        es.hasConnectionInformation = true
         es.pubConnectionInformation = PeerConnectionInformation(peerAddress, false)
 
         val job = es.run(Dispatchers.Unconfined)

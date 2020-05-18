@@ -20,7 +20,8 @@ data class ManagerConfig(
         @JsonProperty("buffer_size")
         val bufferSize: Int = 20_000
 ) {
-    val address = "$host:$port"
+    val address
+        get() = "$host:$port"
 }
 
 /**
