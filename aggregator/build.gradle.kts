@@ -56,6 +56,7 @@ dependencies {
 
     // Integration test
     testImplementation("org.testcontainers", "testcontainers", "1.14.1")
+    testImplementation("org.testcontainers", "postgresql", "1.14.1")
     testImplementation("org.testcontainers", "junit-jupiter", "1.14.1")
 }
 

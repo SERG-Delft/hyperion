@@ -13,9 +13,7 @@ import kotlinx.coroutines.runBlocking
 import org.joda.time.DateTime
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import org.testcontainers.containers.GenericContainer
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
+import org.testcontainers.containers.PostgreSQLContainer
 import org.zeromq.SocketType
 import org.zeromq.ZContext
 import java.io.File
@@ -26,22 +24,20 @@ import java.net.http.HttpResponse
 import java.nio.file.Files
 import java.util.concurrent.Executors
 
-@Testcontainers
 class AggregatorIntegrationTest {
-    @Container
-    private val postgresContainer = KGenericContainer("postgres:12.0-alpine")
-        .withExposedPorts(5432)
-        .withEnv("POSTGRES_PASSWORD", "mysecretpassword")
-
     @Test
     fun testMain(): Unit = runBlocking {
+        val postgres = KPostgreSQLContainer()
+        postgres.start()
+
         // Step 1: Write a config.
-        val postgresPath = "${postgresContainer.containerIpAddress}:${postgresContainer.getMappedPort(5432)}"
+        val postgresPath = "${postgres.containerIpAddress}:${postgres.getMappedPort(5432)}"
+        val postgresUrl = "postgresql://$postgresPath/postgres?user=${postgres.username}&password=${postgres.password}"
 
         val temporaryFile = File.createTempFile("hyperion-aggregator-config", "yaml")
         Files.writeString(
             temporaryFile.toPath(), """
-                databaseUrl: "postgresql://$postgresPath/postgres?user=postgres&password=mysecretpassword"
+                databaseUrl: "$postgresUrl"
                 port: 38173
                 granularity: 1 # 1 second
                 aggregationTtl: 604800 # 7 days
@@ -175,20 +171,21 @@ class AggregatorIntegrationTest {
     private fun runDummyZMQPublisher(port: Int): Pair<Job, Channel<String>> {
         val channel = Channel<String>()
 
-        return Pair(CoroutineScope(
-            Executors.newSingleThreadExecutor().asCoroutineDispatcher()
-        ).launch {
-            val ctx = ZContext()
-            val sock = ctx.createSocket(SocketType.PUSH)
-            sock.bind("tcp://*:$port")
+        return Pair(
+            CoroutineScope(
+                Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+            ).launch {
+                val ctx = ZContext()
+                val sock = ctx.createSocket(SocketType.PUSH)
+                sock.bind("tcp://*:$port")
 
-            while (isActive) {
-                sock.send(channel.receive())
-            }
+                while (isActive) {
+                    sock.send(channel.receive())
+                }
 
-            sock.close()
-            ctx.destroy()
-        }, channel
+                sock.close()
+                ctx.destroy()
+            }, channel
         )
     }
 
@@ -233,5 +230,5 @@ class AggregatorIntegrationTest {
 }
 
 // Fix for TestContainers doing some weird java stuff that Kotlin doesn't like.
-class KGenericContainer(imageName: String) : GenericContainer<KGenericContainer>(imageName)
+class KPostgreSQLContainer() : PostgreSQLContainer<KPostgreSQLContainer>()
 
