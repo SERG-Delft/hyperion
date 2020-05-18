@@ -2,7 +2,6 @@ plugins {
     application
     jacoco
     kotlin("jvm")
-    id("org.jetbrains.intellij") version "0.4.18"
     id("io.gitlab.arturbosch.detekt").version("1.8.0")
     id("com.github.johnrengelman.shadow").version("5.2.0")
 }
