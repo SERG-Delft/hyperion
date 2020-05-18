@@ -8,7 +8,7 @@ plugins {
 }
 
 application {
-    mainClassName = "nl.tudelft.hyperion.pipeline.pathextractor.Main"
+    mainClassName = "nl.tudelft.hyperion.pipeline.extractor.Main"
 }
 
 dependencies {
@@ -22,12 +22,6 @@ dependencies {
     testImplementation("io.mockk", "mockk", "1.10.0")
 
     implementation(project(":pipeline:common"))
-}
-
-dependencies {
-    implementation("io.ktor:ktor-client-core:1.3.2")
-    implementation("io.ktor:ktor-client-cio:1.3.2")
-    implementation("joda-time", "joda-time", "2.10.6")
 }
 
 jacoco {
@@ -69,5 +63,5 @@ tasks.build {
 }
 
 tasks.shadowJar {
-    destinationDir = File("./")
+    destinationDir = File("./");
 }
