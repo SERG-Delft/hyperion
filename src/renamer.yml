@@ -1,0 +1,17 @@
+plugin:
+  pluginManager: pluginmanager:30001
+  id: Renamer
+
+rename:
+  -
+    from: "log4j_file"
+    to: "location.file"
+  -
+    from: "log4j_line"
+    to: "location.line"
+  -
+    from: "log4j_level"
+    to: "severity"
+  -
+    from: "@timestamp"
+    to: "timestamp"
