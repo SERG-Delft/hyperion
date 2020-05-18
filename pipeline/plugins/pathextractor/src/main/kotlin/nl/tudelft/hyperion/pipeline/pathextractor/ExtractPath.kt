@@ -23,7 +23,7 @@ fun extractPath(input : String, config : Configuration) : String {
             path += "/"
             path += subfolder
         }
-        path += ".java"
+        path += config.postfix
 
         (parent as ObjectNode).remove(config.field)
         parent.put(config.field, path)

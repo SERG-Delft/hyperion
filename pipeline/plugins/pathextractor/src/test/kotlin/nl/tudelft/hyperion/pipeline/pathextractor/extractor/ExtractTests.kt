@@ -13,6 +13,7 @@ class ExtractTests {
         val config = Configuration(
                 "log4j_file",
                 "src/main/java",
+                ".java",
                 PipelinePluginConfiguration("pathExtractor", "1.2.3.4:4567")
         )
 
@@ -32,6 +33,7 @@ class ExtractTests {
         val config = Configuration(
                 "nonExisting",
                 "src/main/java",
+                ".java",
                 PipelinePluginConfiguration("pathExtractor", "1.2.3.4:4567")
         )
 
