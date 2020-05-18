@@ -18,6 +18,7 @@ import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.assertThrows
+import java.net.ServerSocket
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -101,15 +102,20 @@ class APITest : TestWithoutLogging() {
                 .result("OK!")
         }
 
+        // Find a random free port
+        val port = ServerSocket(0).use {
+            it.localPort
+        }
+
         runBlocking {
             val server = startAPIWorker(
-                Configuration("", 38172, 1, 1)
+                Configuration("", port, 1, 1)
             )
 
             // make request
             val request = HttpRequest
                 .newBuilder()
-                .uri(URI("http://localhost:38172/api/v1/metrics"))
+                .uri(URI("http://127.0.0.1:$port/api/v1/metrics"))
                 .GET()
                 .build()
 
