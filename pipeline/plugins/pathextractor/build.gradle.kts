@@ -12,6 +12,7 @@ application {
 }
 
 dependencies {
+    // Kotlin class reflection
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.3.70")
 
     // Testing
