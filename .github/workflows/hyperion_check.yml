@@ -11,6 +11,15 @@ on:
 jobs:
   gradle-check:
     runs-on: ubuntu-latest
+
+    services:
+      dind:
+        image: dind
+
+    env:
+      DOCKER_HOST: "tcp://dind:2375"
+      DOCKER_DRIVER: overlay2
+
     steps:
       - uses: actions/checkout@v2
         with:
