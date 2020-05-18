@@ -11,7 +11,7 @@ class ConfigurationTest {
     private val yaml = """
             plugin:
                 pluginManager: "1.2.3.4:4567"
-                id: "Plugin1"
+                id: "plugin1"
             
             rename:
               - from: "log_line"
@@ -19,11 +19,10 @@ class ConfigurationTest {
         """.trimIndent()
 
     @Test
-    fun parseRedisConfiguration() {
+    fun parsePluginConfiguration() {
         val config = parseConfig(yaml)
 
-        // Plugin Configuration
-        Assertions.assertEquals("Plugin1", config.plugin.id)
+        Assertions.assertEquals("plugin1", config.plugin.id)
         Assertions.assertEquals("1.2.3.4:4567", config.plugin.pluginManager)
     }
 
@@ -31,7 +30,6 @@ class ConfigurationTest {
     fun parseRenameConfiguration() {
         val config = parseConfig(yaml)
 
-        // Extraction Configuration
         Assertions.assertEquals("log_line", config.rename[0].from)
         Assertions.assertEquals("location.line", config.rename[0].to)
     }
