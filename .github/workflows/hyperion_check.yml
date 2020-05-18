@@ -16,10 +16,6 @@ jobs:
       dind:
         image: docker
 
-    env:
-      DOCKER_HOST: "tcp://dind:2375"
-      DOCKER_DRIVER: overlay2
-
     steps:
       - uses: actions/checkout@v2
         with:
@@ -49,6 +45,9 @@ jobs:
       - name: gradle check aggregator
         if: steps.hyperion-aggregator.outputs.changed == 'true'
         uses: eskatos/gradle-command-action@v1
+        env:
+          DOCKER_HOST: "tcp://dind:2375"
+          DOCKER_DRIVER: overlay2
         with:
           arguments: :aggregator:check
 
