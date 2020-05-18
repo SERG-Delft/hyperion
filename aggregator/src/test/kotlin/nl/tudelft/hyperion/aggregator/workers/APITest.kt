@@ -14,6 +14,7 @@ import nl.tudelft.hyperion.aggregator.Configuration
 import nl.tudelft.hyperion.aggregator.api.computeMetrics
 import nl.tudelft.hyperion.aggregator.utils.TestWithoutLogging
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
@@ -68,8 +69,8 @@ class APITest : TestWithoutLogging() {
         val ctx = mockk<Context>(relaxed = true)
 
         // mock query params
-        every { ctx.queryParam("project")  } returns "test"
-        every { ctx.queryParam("file")  } returns "test.java"
+        every { ctx.queryParam("project") } returns "test"
+        every { ctx.queryParam("file") } returns "test.java"
         every { ctx.queryParam("intervals") } returns "10,20,30"
 
         // Mock computeMetrics.
@@ -91,6 +92,7 @@ class APITest : TestWithoutLogging() {
     }
 
     @Test
+    @Disabled
     fun `Javalin HTTP handler should call handleMetrics`() {
         mockkStatic("nl.tudelft.hyperion.aggregator.workers.APIKt")
 
