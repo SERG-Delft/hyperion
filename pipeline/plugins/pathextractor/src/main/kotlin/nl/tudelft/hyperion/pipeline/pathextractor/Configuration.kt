@@ -1,14 +1,12 @@
-package nl.tudelft.hyperion.pathextractor
+package nl.tudelft.hyperion.pipeline.pathextractor
 
-import nl.tudelft.hyperion.pipeline.PipelineRedisConfiguration
+import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
 
 /**
  * Configuration for field extraction
  */
 data class Configuration(
-        val redis: PipelineRedisConfiguration,
-        var registrationChannelPostfix: String?,
-        val name: String,
         val field : String,
-        val relative_path_from_source : String
+        val relativePathFromSource : String,
+        val plugin : PipelinePluginConfiguration
 )
