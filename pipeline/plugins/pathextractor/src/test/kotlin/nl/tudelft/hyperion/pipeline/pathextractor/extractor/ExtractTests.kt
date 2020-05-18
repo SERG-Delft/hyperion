@@ -1,21 +1,20 @@
-package nl.tudelft.hyperion.pathextractor.extractor
+package nl.tudelft.hyperion.pipeline.pathextractor.extractor
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import nl.tudelft.hyperion.pathextractor.Configuration
-import nl.tudelft.hyperion.pathextractor.extractPath
-import nl.tudelft.hyperion.pipeline.PipelineRedisConfiguration
+import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
+import nl.tudelft.hyperion.pipeline.pathextractor.Configuration
+import nl.tudelft.hyperion.pipeline.pathextractor.extractPath
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class ExtractTests {
     @Test
-    fun testExtract() {
+    fun testRenameLogLine() {
         val config = Configuration(
-                PipelineRedisConfiguration("host", 6379),
-                null,
-                "plugin",
                 "log4j_file",
-                "src/main/java")
+                "src/main/java",
+                PipelinePluginConfiguration("pathExtractor", "1.2.3.4:4567")
+        )
 
         val input = "{ \"log4j_file\" :  \"com.sap.enterprises.server.impl.TransportationService\" }"
         val expected = "{\"log4j_file\":\"src/main/java/com/sap/enterprises/server/impl/TransportationService.java\"}"
@@ -31,11 +30,10 @@ class ExtractTests {
     @Test
     fun testParentNull() {
         val config = Configuration(
-                PipelineRedisConfiguration("host", 6379),
-                null,
-                "plugin",
-                "log4j_nonExisting",
-                "src/main/java")
+                "nonExisting",
+                "src/main/java",
+                PipelinePluginConfiguration("pathExtractor", "1.2.3.4:4567")
+        )
 
         val input = "{ \"log4j_file\" :  \"com.sap.enterprises.server.impl.TransportationService\" }"
 

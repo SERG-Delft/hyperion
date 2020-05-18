@@ -18,7 +18,7 @@ fun extractPath(input : String, config : Configuration) : String {
     if(parent != null) {
         val packageName = tree.findValue(config.field).toString().drop(1).dropLast(1).split(".")
 
-        var path = config.relative_path_from_source
+        var path = config.relativePathFromSource
         for (subfolder in packageName) {
             path += "/"
             path += subfolder

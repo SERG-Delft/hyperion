@@ -1,4 +1,4 @@
-package nl.tudelft.hyperion.pathextractor.configuration
+package nl.tudelft.hyperion.pipeline.pathextractor.configuration
 
 class ConfigurationTests {
 }
