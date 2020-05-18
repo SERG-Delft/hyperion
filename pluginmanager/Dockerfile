@@ -1,5 +1,5 @@
 FROM openjdk:14
-ARG configpath="pluginmanager.yaml"
+ARG configpath="pluginmanager.yml"
 COPY pluginmanager-all.jar .
 COPY pluginmanager.yml .
 ENV CONFIGPATH ${configpath}
