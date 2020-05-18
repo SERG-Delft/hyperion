@@ -2,8 +2,8 @@ version: '3.3'
 services:
   gradle:
     build:
-      context: ../
-      dockerfile: src/Dockerfile
+      context: ../../..
+      dockerfile: Dockerfile
     environment:
       - GRADLE_HOME_DIR=/home/gradle/cache
     volumes:
