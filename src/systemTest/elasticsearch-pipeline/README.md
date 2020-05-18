@@ -1,8 +1,31 @@
-# System tests
-This directory contains end-to-end system tests.  
-The end-to-end test spawns separate containers for each plugin in the pipeline.
+# Simple Elasticsearch pipeline
+This simple pipeline polls data from [Elasticsearch](https://www.elastic.co/), runs a pipeline plugin and aggregates the log data.
 
-## Build all jars using docker
+To run this pipeline you need an [Elasticsearch](https://www.elastic.co/) server with log data in it and
+a machine with the [docker-engine](https://docs.docker.com/engine/) 
+and [docker-compose](https://docs.docker.com/compose/) installed on it.
+To view the aggregated data you can either poll postrgres directly, use a web browser or use a
+Hyperion compatible front-end plugin. Hyperion ships with a plugin for
+[Intellij IDEA](https://www.jetbrains.com/idea/) which can be used with this pipeline.
+Execute the steps below to run the pipeline.
+ 
+
+## 1. Configure the datasource
+Change the `hostname` and `port` fields in `datasource.yml` to point to your server. 
+It might be necessary to set authentication and headers for your setup as well. 
+For a complete overview of configuration options available,  visit the readme of the elasticsearch datasource plugin.
+
+example setup:
+```yaml
+elasticsearch:
+  # replace hostname with your own elasticsearch instance
+  hostname: elk.njkyu.com
+  port: 9200
+  scheme: http
+  authentication: no
+```
+
+## 2. Build all jars using docker
 ```shell script
 $ cd src/
 $ docker-compose -f docker-compose.build.yml up gradle
@@ -12,7 +35,10 @@ Notes:
 - The current builder does not cache dependencies
 - It mounts the host project in the container to build
 
-## Run the project
+## 3. Run the pipeline
 ```shell script
 docker-compose up -d
 ``` 
+
+## Inspecting results
+In order to see the aggregated data visit `http://localhost:8081/path/to/file` in a webbrowser on the machine.
