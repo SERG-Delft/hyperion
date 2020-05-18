@@ -10,15 +10,15 @@ import org.apache.http.impl.client.BasicCredentialsProvider
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder
 import org.elasticsearch.client.Request
 import org.elasticsearch.client.RestClient
+import org.joda.time.DateTime
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.testcontainers.elasticsearch.ElasticsearchContainer
 import org.zeromq.SocketType
 import org.zeromq.ZContext
-import java.util.*
 import java.util.concurrent.Executors
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -31,7 +31,7 @@ class IntegrationTest {
     private val managerPort = 30_000
     private val receiverPort = 30_001
 
-    private val receiverChannel = Channel<String>(1000)
+    private val receiverChannel = Channel<String>()
 
     private val mockPluginManager = object {
         fun manager() = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher()).launch {
@@ -64,7 +64,7 @@ class IntegrationTest {
 
     @BeforeAll
     fun setUp() {
-        esContainer = ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:7.7.0")
+        esContainer = ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:7.6.0")
         esContainer.start()
 
         val credentialsProvider: CredentialsProvider = BasicCredentialsProvider()
@@ -77,11 +77,6 @@ class IntegrationTest {
 
         // create index
         testClient.performRequest(Request("PUT", "/logs"))
-
-        // create document
-        val request = Request("POST", "/logs/_doc")
-        request.setJsonEntity("""{"timestamp":"${Date()}", "log": "INFO /src/foo.py 32 - bar"}""")
-        testClient.performRequest(request)
 
         workers.add(mockPluginManager.manager())
         workers.add(mockPluginManager.receiver())
@@ -97,7 +92,47 @@ class IntegrationTest {
 
     @Test
     fun `Test all components`() {
-        assertTrue(true)
-    }
+        val rawConfig = """
+            id: Elasticsearch
+            poll_interval: 5
+            elasticsearch:
+              hostname: ${esContainer.tcpHost.hostName}
+              index: logs
+              port: ${esContainer.firstMappedPort}
+              scheme: http
+              timestamp_field: "timestamp"
+              authentication: yes
+              response_hit_count: 10
+              username: elastic
+              password: changeme
+            zmq:
+              host: localhost
+              port: $managerPort
+            """.trimIndent()
 
+        val es = Elasticsearch.build(Configuration.parse(rawConfig))
+        es.queryConnectionInformation()
+        es.start()
+
+        // wait for Elasticsearch to startup
+        Thread.sleep(3000)
+
+        // create document
+        val request = Request("POST", "/logs/_doc")
+        val expectedLog = """{"timestamp":"${DateTime.now()}","log":"INFO /src/foo.py 32 - bar"}"""
+        request.setJsonEntity(expectedLog)
+        testClient.performRequest(request)
+
+        var receivedLog: String? = null
+        runBlocking {
+            withTimeout(10_000) {
+                receivedLog = receiverChannel.receive()
+            }
+        }
+
+        es.stop()
+        es.cleanup()
+
+        assertEquals(expectedLog, receivedLog)
+    }
 }

@@ -14,7 +14,7 @@ import java.lang.NullPointerException
 
 class RequestHandlerTest {
     @Test
-    fun `test successful response`() {
+    fun `RequestHandler should use action during onResponse`() {
         val mockAction = mockk<(SearchHit) -> Unit>()
         val requestHandler = RequestHandler(action = mockAction)
 
@@ -31,7 +31,7 @@ class RequestHandlerTest {
     }
 
     @Test
-    fun `test exception during response handling`() {
+    fun `RequestHandler should fail silently handling response`() {
         val mockAction = mockk<(SearchHit) -> Unit>()
         val requestHandler = RequestHandler(action = mockAction)
 
@@ -43,7 +43,7 @@ class RequestHandlerTest {
     }
 
     @Test
-    fun `test failed response`() {
+    fun `onFailure should fail silently`() {
         val mockAction = mockk<(SearchHit) -> Unit>()
         val requestHandler = RequestHandler(action = mockAction)
 
