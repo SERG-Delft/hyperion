@@ -269,44 +269,6 @@ class ElasticsearchTest {
     }
 
     @Test
-    fun `Sender socket should close if cancelled`() {
-        mockkConstructor(ZContext::class)
-
-        val socket = mockk<ZMQ.Socket>(relaxed = true)
-        val channel = mockk<Channel<String>>(relaxed = true)
-
-        every {
-            ZContext().createSocket(any<SocketType>())
-        } returns socket
-
-        coEvery {
-            channel.receive()
-        } coAnswers {
-            """{"foo": "bar"}"""
-        }
-
-        val peerAddress = "tcp://localhost:12345"
-
-        val es = Elasticsearch(testConfig, mockClient)
-        es.pubConnectionInformation = PeerConnectionInformation(peerAddress, true)
-
-        runBlocking {
-            // possibly flaky test
-            withTimeout(5000) {
-                val job = es.runSender(channel = channel)
-                job.cancelAndJoin()
-            }
-        }
-
-        coVerify {
-            socket.bind(peerAddress)
-            socket.close()
-        }
-
-        unmockkAll()
-    }
-
-    @Test
     @ExperimentalCoroutinesApi
     fun `Run should cleanup if sender is cancelled`() {
         mockkConstructor(ZContext::class)
