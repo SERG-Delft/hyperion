@@ -8,6 +8,7 @@ plugins {
 }
 
 dependencies {
+    // Kotlin class reflection
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.3.70")
 
     testImplementation("io.mockk", "mockk", "1.10.0")
