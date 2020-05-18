@@ -7,6 +7,8 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 /**
+ * Configuration for each plugin in the pipeline
+ *
  * @id  Unique identifier of a pipeline plugin
  * @host Host address to which other plugins should bind to given plugin
  */
@@ -16,6 +18,8 @@ data class PipelinePluginConfig(
 )
 
 /**
+ * Configuration used by the :PluginManager: to establish locations and order of plugins
+ *
  * @host The host address to which the :PluginManager: REP socket should bind
  * @plugins List of :PipelinePlugin:, plugins will be loaded in pipeline in this order
  */

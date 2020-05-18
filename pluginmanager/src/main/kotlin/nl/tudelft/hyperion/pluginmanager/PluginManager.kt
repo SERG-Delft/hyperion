@@ -5,6 +5,11 @@ import org.yaml.snakeyaml.introspector.MissingProperty
 import org.zeromq.SocketType
 import org.zeromq.ZMQ
 
+/**
+ * :PluginManager: Takes in configuration and sets up a simple ZMQ REQ socket to answers register calls.
+ * Will tell each registering plugin to what port it should bind or connect.
+ * Will log on illegal register attempts and crash on invalid configuration file.
+ */
 class PluginManager(config: Configuration) {
 
     private val host = config.host
@@ -16,6 +21,9 @@ class PluginManager(config: Configuration) {
         logger.info { "Initialized PluginManager" }
     }
 
+    /**
+     * Launches an infinite loop which handles registration requests from pipeline plugins.
+     */
     fun launchListener() {
         val context = ZMQ.context(1)
         val responder = context.socket(SocketType.REP)
@@ -36,6 +44,10 @@ class PluginManager(config: Configuration) {
         context.term()
     }
 
+    /**
+     * Handles an incoming register event.
+     * Replies with "Invalid Request" on invalid messages.
+     */
     @Suppress("TooGenericExceptionCaught")
     fun handleRegister(request: String, res: ZMQ.Socket) {
         val reqMap: MutableMap<*, *> = try {
@@ -54,7 +66,13 @@ class PluginManager(config: Configuration) {
         }
     }
 
+    /**
+     * Verifies whether the incomming message is valid and parses it to a Map.
+     * Currently accepts {"id": "pluginName", "type": "typeName"} messages
+     * where pluginName should be in the configuration and typeName should be either "push" or "pull"
+     */
     private fun verifyRequest(request: String): MutableMap<*, *> {
+        // try to convert message to a map
         val mapper = ObjectMapper()
         val map = mapper.readValue(
             request,
@@ -74,10 +92,16 @@ class PluginManager(config: Configuration) {
         return map
     }
 
+    /**
+     * Creates the return message for a plugin which registers as a push plugin.
+     */
     private fun registerPush(pluginName: String): String {
         return """{"isBind":"true","host":"${getPlugin(pluginName).host}"}"""
     }
 
+    /**
+     * Creates the return message for a plugin which registers as a pull plugin.
+     */
     private fun registerPull(pluginName: String): String {
         return """{"isBind":"false","host":"${previousPlugin(pluginName).host}"}"""
     }
