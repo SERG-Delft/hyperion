@@ -12,7 +12,10 @@ jacoco {
 }
 
 dependencies {
+    // Necessary for coroutines
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.3.5")
+
+    // Used for command line parsing
     implementation("com.github.ajalt", "clikt", "2.6.0")
 
     // ZeroMQ
@@ -63,6 +66,11 @@ tasks.integrationTest {
 }
 
 tasks.jacocoTestReport {
+    executionData(
+            tasks.run.get(),
+            tasks.integrationTest.get()
+    )
+
     reports {
         xml.isEnabled = false
         csv.isEnabled = false
