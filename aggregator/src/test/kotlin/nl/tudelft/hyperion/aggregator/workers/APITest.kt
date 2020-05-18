@@ -14,7 +14,6 @@ import nl.tudelft.hyperion.aggregator.Configuration
 import nl.tudelft.hyperion.aggregator.api.computeMetrics
 import nl.tudelft.hyperion.aggregator.utils.TestWithoutLogging
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
@@ -92,7 +91,6 @@ class APITest : TestWithoutLogging() {
     }
 
     @Test
-    @Disabled
     fun `Javalin HTTP handler should call handleMetrics`() {
         mockkStatic("nl.tudelft.hyperion.aggregator.workers.APIKt")
 
