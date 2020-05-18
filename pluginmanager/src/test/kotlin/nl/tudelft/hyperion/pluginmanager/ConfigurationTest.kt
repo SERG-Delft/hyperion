@@ -24,11 +24,14 @@ class ConfigurationTest() {
         Assertions.assertTrue(actualMessage!!.contains(expectedMessage))
     }
 
-    @Test fun `Load config from file`() {
+    @Test
+    fun `Load config from file`() {
         val host = "tcp://localhost:5560"
-        val plugins = listOf(mapOf("name" to "Datasource", "host" to "tcp://localhost:1200"),
-                             mapOf("name" to "Renamer", "host" to "tcp://localhost:1201"),
-                             mapOf("name" to "Aggregator", "host" to "tcp://localhost:1202"))
+        val plugins = listOf(
+            mapOf("name" to "Datasource", "host" to "tcp://localhost:1200"),
+            mapOf("name" to "Renamer", "host" to "tcp://localhost:1201"),
+            mapOf("name" to "Aggregator", "host" to "tcp://localhost:1202")
+        )
 
         val temporaryFile = File.createTempFile("hyperion-pluginmanager-config", "yml")
         Files.writeString(

@@ -16,9 +16,11 @@ import org.zeromq.ZMQ
 class PluginManagerTest() {
 
     private val host = "tcp://localhost:5560"
-    private val plugins = listOf(mapOf("name" to "Datasource", "host" to "tcp://localhost:1200"),
-                                 mapOf("name" to "Renamer", "host" to "tcp://localhost:1201"),
-                                 mapOf("name" to "Aggregator", "host" to "tcp://localhost:1202"))
+    private val plugins = listOf(
+        mapOf("name" to "Datasource", "host" to "tcp://localhost:1200"),
+        mapOf("name" to "Renamer", "host" to "tcp://localhost:1201"),
+        mapOf("name" to "Aggregator", "host" to "tcp://localhost:1202")
+    )
     private val config = Configuration(host, plugins)
 
     @Test
@@ -91,7 +93,8 @@ class PluginManagerTest() {
 
         val pluginManager = PluginManager(config)
         val exception: Exception = assertThrows("Plugin chicken does not exist in current pipeline") {
-            pluginManager.handleRegister(req, res) }
+            pluginManager.handleRegister(req, res)
+        }
 
         val expectedMessage = "Plugin chicken does not exist in current pipeline"
         val actualMessage = exception.message
@@ -112,7 +115,8 @@ class PluginManagerTest() {
 
         val pluginManager = PluginManager(config)
         val exception: Exception = assertThrows("Plugin chicken does not exist in current pipeline") {
-            pluginManager.handleRegister(req, res) }
+            pluginManager.handleRegister(req, res)
+        }
 
         val expectedMessage = "Plugin chicken does not exist in current pipeline"
         val actualMessage = exception.message
@@ -149,8 +153,6 @@ class PluginManagerTest() {
             res.close()
             ctx.term()
         }
-
-
     }
 
     @AfterEach

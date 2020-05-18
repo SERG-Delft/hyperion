@@ -13,7 +13,7 @@ class PluginManager(config: Configuration) {
     private val logger = mu.KotlinLogging.logger {}
 
     init {
-        logger.info {"Initialized PluginManager"}
+        logger.info { "Initialized PluginManager" }
     }
 
     fun launchListener() {
@@ -22,7 +22,7 @@ class PluginManager(config: Configuration) {
 
         responder.bind(host)
         logger.info("Connected ZMQ reply to $host")
-        logger.info {"Launching REQ/REP loop"}
+        logger.info { "Launching REQ/REP loop" }
         while (!Thread.currentThread().isInterrupted) {
             //  Wait for next request from client
             val request = responder.recvStr(0)
@@ -62,7 +62,7 @@ class PluginManager(config: Configuration) {
         return "{\"isBind\":\"false\",\"host\":\"${previousPlugin(pluginName)["host"]!!}\"}"
     }
 
-    private fun getPlugin(pluginName:String): Map<String, String> {
+    private fun getPlugin(pluginName: String): Map<String, String> {
         val it = plugins.iterator()
         for (plugin in it) {
             if (plugin["name"] == pluginName) {
@@ -81,5 +81,4 @@ class PluginManager(config: Configuration) {
         }
         throw IllegalArgumentException("Plugin $pluginName does not exist in current pipeline")
     }
-
 }
