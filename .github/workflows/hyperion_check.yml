@@ -57,5 +57,5 @@ jobs:
       - name: gradle check elasticsearch plugin
         if: steps.hyperion-plugin.outputs.changed == 'true'
         uses: eskatos/gradle-command-action@v1
-          with:
-            arguments: :datasource:plugins:elasticsearch:check
+        with:
+          arguments: :datasource:plugins:elasticsearch:check
