@@ -15,6 +15,7 @@ class ConfigurationTests {
             
             field: "log4j_file"
             relativePathFromSource: "src/main/java"
+            postfix: .java
         """.trimIndent()
 
     @Test
@@ -31,6 +32,7 @@ class ConfigurationTests {
 
         Assertions.assertEquals("log4j_file", config.field)
         Assertions.assertEquals("src/main/java", config.relativePathFromSource)
+        Assertions.assertEquals(".java", config.postfix)
     }
 }
 
