@@ -63,6 +63,11 @@ tasks.integrationTest {
 }
 
 tasks.jacocoTestReport {
+    executionData(
+            tasks.run.get(),
+            tasks.integrationTest.get()
+    )
+
     reports {
         xml.isEnabled = false
         csv.isEnabled = false
