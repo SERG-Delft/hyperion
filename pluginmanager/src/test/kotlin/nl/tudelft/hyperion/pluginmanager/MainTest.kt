@@ -13,9 +13,9 @@ class MainTest() {
     fun `Start PluginManager when right config`() {
         val host = "tcp://localhost:5560"
         val plugins = listOf(
-            mapOf("name" to "Datasource", "host" to "tcp://localhost:1200"),
-            mapOf("name" to "Renamer", "host" to "tcp://localhost:1201"),
-            mapOf("name" to "Aggregator", "host" to "tcp://localhost:1202")
+            PipelinePluginConfig("Datasource", "tcp://localhost:1200"),
+            PipelinePluginConfig("Renamer", "tcp://localhost:1201"),
+            PipelinePluginConfig("Aggregator", "tcp://localhost:1202")
         )
         val config = Configuration(host, plugins)
 

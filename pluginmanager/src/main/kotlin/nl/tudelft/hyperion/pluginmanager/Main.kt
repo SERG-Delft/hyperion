@@ -13,24 +13,12 @@ private val logger = mu.KotlinLogging.logger {}
 @Suppress("TooGenericExceptionCaught")
 fun main(vararg args: String) {
     logger.info { "Loading config from ${args[0]}" }
-    val config: Configuration? = try {
-        val config = Configuration.load(Path.of(args[0]).toAbsolutePath())
-        config.verify()
-        config
-    } catch (ex: FileSystemException) {
-        logger.error(ex) { "Failed to retrieve configuration file at ${args[0]}" }
-        throw ex
-    } catch (ex: IllegalArgumentException) {
-        logger.error(ex) { "Failed to parse config file" }
-        throw ex
-    }
+    val config = Configuration.load(Path.of(args[0]).toAbsolutePath()).also(Configuration::verify)
 
     logger.info { "Starting PluginManager" }
     try {
-        if (config != null) {
-            val pluginManager = PluginManager(config)
-            pluginManager.launchListener()
-        }
+        val pluginManager = PluginManager(config)
+        pluginManager.launchListener()
     } catch (ex: Exception) {
         logger.error(ex) { "Failed to execute PluginManager" }
         throw ex
