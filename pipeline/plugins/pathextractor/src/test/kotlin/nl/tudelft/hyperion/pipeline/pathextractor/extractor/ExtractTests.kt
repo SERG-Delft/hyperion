@@ -17,8 +17,8 @@ class ExtractTests {
                 PipelinePluginConfiguration("pathExtractor", "1.2.3.4:4567")
         )
 
-        val input = "{ \"log4j_file\" :  \"com.sap.enterprises.server.impl.TransportationService\" }"
-        val expected = "{\"log4j_file\":\"src/main/java/com/sap/enterprises/server/impl/TransportationService.java\"}"
+        val input = """{ "log4j_file" :  "com.sap.enterprises.server.impl.TransportationService" }"""
+        val expected = """{"log4j_file":"src/main/java/com/sap/enterprises/server/impl/TransportationService.java"}"""
 
         val mapper = jacksonObjectMapper()
 
@@ -37,7 +37,7 @@ class ExtractTests {
                 PipelinePluginConfiguration("pathExtractor", "1.2.3.4:4567")
         )
 
-        val input = "{ \"log4j_file\" :  \"com.sap.enterprises.server.impl.TransportationService\" }"
+        val input = """{ "log4j_file" :  "com.sap.enterprises.server.impl.TransportationService" }"""
 
         val mapper = jacksonObjectMapper()
 

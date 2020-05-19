@@ -33,9 +33,8 @@ class ConfigurationTests {
     @Test
     fun parseExtractorConfiguration() {
         val config = parseConfig(yaml)
-
         Assertions.assertEquals("message", config.field)
-        Assertions.assertEquals("\\[.+?\\] INFO [^:]+:(\\d+) (-) .+", config.match)
+        Assertions.assertEquals("""\[.+?\] INFO [^:]+:(\d+) (-) .+""", config.match)
         Assertions.assertEquals("location.line", config.extract[0].to)
         Assertions.assertEquals("dash", config.extract[1].to)
         Assertions.assertEquals("number", config.extract[0].type)
