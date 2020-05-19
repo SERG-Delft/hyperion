@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
 import nl.tudelft.hyperion.pipeline.extractor.Configuration
 import nl.tudelft.hyperion.pipeline.extractor.Extract
+import nl.tudelft.hyperion.pipeline.extractor.Type
 import nl.tudelft.hyperion.pipeline.extractor.extract
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions
@@ -12,10 +13,10 @@ class ExtractTests {
     @Test
     fun testSimpleMessage() {
         val config = Configuration(
-                PipelinePluginConfiguration("extractor", "1.2.3.4:4567"),
-                "message",
-                "\\[.+?\\] INFO [^:]+:(\\d+) (-) .+",
-                listOf(Extract("location.line", "number"), Extract("dash", "string"))
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"),
+            "message",
+            "\\[.+?\\] INFO [^:]+:(\\d+) (-) .+",
+            listOf(Extract("location.line", Type.NUMBER), Extract("dash", Type.STRING))
         )
 
         val input = """{"message":"[Mar 20 11:11:11] INFO some/file/name:10 - Test"}"""
@@ -33,10 +34,10 @@ class ExtractTests {
     @Test
     fun testMessageWithNumber() {
         val config = Configuration(
-                PipelinePluginConfiguration("extractor", "1.2.3.4:4567"),
-                "message",
-                "\\[.+?\\] INFO [^:]+:(\\d+) (3) .+",
-                listOf(Extract("location.line", "number"), Extract("dash", "number"))
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"),
+            "message",
+            "\\[.+?\\] INFO [^:]+:(\\d+) (3) .+",
+            listOf(Extract("location.line", Type.NUMBER), Extract("dash", Type.NUMBER))
         )
 
         val input = """{"message":"[Mar 20 11:11:11] INFO some/file/name:10 3 Test"}"""
@@ -54,10 +55,10 @@ class ExtractTests {
     @Test
     fun testMessagePathExists() {
         val config = Configuration(
-                PipelinePluginConfiguration("extractor", "1.2.3.4:4567"),
-                "message",
-                "\\[.+?\\] INFO [^:]+:(\\d+) (-) .+",
-                listOf(Extract("location.line", "number"), Extract("dash", "somethingElse"))
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"),
+            "message",
+            "\\[.+?\\] INFO [^:]+:(\\d+) (-) .+",
+            listOf(Extract("location.line", Type.NUMBER), Extract("dash", Type.STRING))
         )
 
         val input = """{"message":"[Mar 20 11:11:11] INFO some/file/name:10 - Test"}"""
@@ -73,33 +74,12 @@ class ExtractTests {
     }
 
     @Test
-    fun testLastPathPartIsDefaultType() {
-        val config = Configuration(
-                PipelinePluginConfiguration("extractor", "1.2.3.4:4567"),
-                "message",
-                "\\[.+?\\] INFO [^:]+:(-) .+",
-                listOf(Extract("location.line", "somethingElse"))
-        )
-
-        val input = """{"message":"[Mar 20 11:11:11] INFO some/file/name:- Test"}"""
-        val expected = """{"message":"[Mar 20 11:11:11] INFO some/file/name:- Test",
-            | "location" : {"line" : "-"}}""".trimMargin()
-
-        val mapper = jacksonObjectMapper()
-
-        val treeExpected = mapper.readTree(expected)
-        val treeActual = mapper.readTree(extract(input, config))
-
-        Assertions.assertEquals(treeExpected, treeActual)
-    }
-
-    @Test
     fun testLastPathPartIsDoubleType() {
         val config = Configuration(
-                PipelinePluginConfiguration("extractor", "1.2.3.4:4567"),
-                "message",
-                "\\[.+?\\] INFO [^:]+:(2.5) .+",
-                listOf(Extract("location.line", "double"))
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"),
+            "message",
+            "\\[.+?\\] INFO [^:]+:(2.5) .+",
+            listOf(Extract("location.line", Type.DOUBLE))
         )
 
         val input = """{"message":"[Mar 20 11:11:11] INFO some/file/name:2.5 Test"}"""
@@ -117,10 +97,10 @@ class ExtractTests {
     @Test
     fun testNonHierarchicalTargetPath() {
         val config = Configuration(
-                PipelinePluginConfiguration("extractor", "1.2.3.4:4567"),
-                "message",
-                "\\[.+?\\] INFO [^:]+:(-) .+",
-                listOf(Extract("location", "string"))
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"),
+            "message",
+            "\\[.+?\\] INFO [^:]+:(-) .+",
+            listOf(Extract("location", Type.STRING))
         )
 
         val input = """{"message":"[Mar 20 11:11:11] INFO some/file/name:- Test"}"""
@@ -138,10 +118,10 @@ class ExtractTests {
     @Test
     fun testNumberType() {
         val config = Configuration(
-                PipelinePluginConfiguration("extractor", "1.2.3.4:4567"),
-                "message",
-                "\\[.+?\\] INFO [^:]+:(\\d+) .+",
-                listOf(Extract("location", "number"))
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"),
+            "message",
+            "\\[.+?\\] INFO [^:]+:(\\d+) .+",
+            listOf(Extract("location", Type.NUMBER))
         )
 
         val input = """{"message":"[Mar 20 11:11:11] INFO some/file/name:1934 Test"}"""
@@ -159,10 +139,10 @@ class ExtractTests {
     @Test
     fun testDoubleType() {
         val config = Configuration(
-                PipelinePluginConfiguration("extractor", "1.2.3.4:4567"),
-                "message",
-                "\\[.+?\\] INFO [^:]+:(\\d+.\\d+) .+",
-                listOf(Extract("location", "double"))
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"),
+            "message",
+            "\\[.+?\\] INFO [^:]+:(\\d+.\\d+) .+",
+            listOf(Extract("location", Type.DOUBLE))
         )
 
         val input = """{"message":"[Mar 20 11:11:11] INFO some/file/name:34.567 Test"}"""
@@ -180,10 +160,10 @@ class ExtractTests {
     @Test
     fun testStringType() {
         val config = Configuration(
-                PipelinePluginConfiguration("extractor", "1.2.3.4:4567"),
-                "message",
-                "\\[.+?\\] INFO [^:]+:(\\d+.\\d+) .+",
-                listOf(Extract("location.line", "string"))
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"),
+            "message",
+            "\\[.+?\\] INFO [^:]+:(\\d+.\\d+) .+",
+            listOf(Extract("location.line", Type.STRING))
         )
 
         val input = """{"message":"[Mar 20 11:11:11] INFO some/file/name:34.567 Test"}"""
@@ -201,10 +181,10 @@ class ExtractTests {
     @Test
     fun testDeepHierarchy() {
         val config = Configuration(
-                PipelinePluginConfiguration("extractor", "1.2.3.4:4567"),
-                "message",
-                "\\[.+?\\] INFO [^:]+:(\\d+) - .+",
-                listOf(Extract("location.line.numeric", "number"))
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"),
+            "message",
+            "\\[.+?\\] INFO [^:]+:(\\d+) - .+",
+            listOf(Extract("location.line.numeric", Type.NUMBER))
         )
 
         val input = """{"message":"[Mar 20 11:11:11] INFO some/file/name:34 - Test"}"""
