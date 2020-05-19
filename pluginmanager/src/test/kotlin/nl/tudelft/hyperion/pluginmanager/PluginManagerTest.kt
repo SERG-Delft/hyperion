@@ -58,6 +58,23 @@ class PluginManagerTest() {
     }
 
     @Test
+    fun `Register datasource as pull (invalid)`() {
+        val req = """{"id":"Datasource","type":"pull"}"""
+        val res = mockk<ZMQ.Socket>()
+
+        every {
+            res.send(any<String>())
+        } returns true
+
+        val pluginManager = PluginManager(config)
+        pluginManager.handleRegister(req, res)
+
+        verify {
+            res.send("Invalid Request")
+        }
+    }
+
+    @Test
     fun `Register invalid request type`() {
         val req = """{"id":"Renamer","type":"chicken"}"""
         val res = mockk<ZMQ.Socket>()
