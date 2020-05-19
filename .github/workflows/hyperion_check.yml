@@ -35,6 +35,11 @@ jobs:
         with:
           paths: plugin/
 
+      - uses: marceloprado/has-changed-path@master
+        id: hyperion-elasticsearch
+        with:
+          paths: datasource/plugins/elasticsearch
+
       - uses: actions/cache@v1
         with:
           path: ~/.gradle/caches
@@ -56,3 +61,9 @@ jobs:
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: :plugin:check
+
+      - name: gradle check elasticsearch plugin
+        if: steps.hyperion-elasticsearch.outputs.changed == 'true'
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: :datasource:plugins:elasticsearch:check
