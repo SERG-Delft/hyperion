@@ -81,8 +81,8 @@ fun extract(input: String, config: Configuration): String {
     val extracts = config.extract
     var i = 0
     matches?.groupValues?.forEach {
-        if(i > 0) {
-            val extract = extracts[i-1]
+        if (i > 0) {
+            val extract = extracts[i - 1]
             (tree.findParent(config.field) as ObjectNode).put(extract.type, it, extract.to)
         }
         i++
