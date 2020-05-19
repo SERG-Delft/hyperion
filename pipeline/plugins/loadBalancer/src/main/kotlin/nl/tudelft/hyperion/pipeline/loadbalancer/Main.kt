@@ -9,52 +9,76 @@ import org.zeromq.SocketType
 import org.zeromq.ZContext
 import java.util.concurrent.Executors
 
-class LoadBalancer(config: LoadBalancerPluginConfiguration) : AbstractPipelinePlugin(config.zmq) {
-
-    // TODO: Change from hard coded
-    private val hostname = "localhost"
-    private val managerPort = 5565
-    private val ventilatorPort = 5575
-    private val sinkPort = 5585
+/**
+ * Basic load balancer that acts as both a plugin and plugin manager.
+ * It distributes the input over multiple workers and collects the outputs
+ * on a single ZeroMQ socket.
+ *
+ * @property config the configuration to use
+ */
+class LoadBalancer(
+        private val config: LoadBalancerPluginConfiguration
+) : AbstractPipelinePlugin(config.zmq) {
 
     override fun run() = GlobalScope.launch {
         if (!hasConnectionInformation) {
             throw PipelinePluginInitializationException("Cannot run plugin without connection information")
         }
 
-        val inputChannel = Channel<String>(capacity = 20_000)
-        val outputChannel = Channel<String>(capacity = 20_000)
+        // create channels for passing messages
+        val inputChannel = Channel<String>(capacity = config.zmq.bufferSize)
+        val outputChannel = Channel<String>(capacity = config.zmq.bufferSize)
 
-        val jobs = listOf(
-            WorkerManager.run(hostname, managerPort, sinkPort, ventilatorPort),
-            runReceiver(inputChannel),
-            createChannelPass(hostname, ventilatorPort, inputChannel, SocketType.PUSH),
-            createChannelPass(hostname, sinkPort, outputChannel, SocketType.PULL),
+        // create separate worker threads for the ventilator and sink
+        val inputWorkerScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
+        val outputWorkerScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
+
+        // start workers
+        val parent = coroutineScope {
+            WorkerManager.run(config.workerManagerHostname, config.workerManagerPort, config.sinkPort, config.ventilatorPort)
+            runReceiver(inputChannel)
+            inputWorkerScope.createChannelPass(
+                    config.workerManagerHostname,
+                    config.ventilatorPort,
+                    inputChannel,
+                    SocketType.PUSH
+            )
+            outputWorkerScope.createChannelPass(
+                    config.workerManagerHostname,
+                    config.sinkPort,
+                    outputChannel,
+                    SocketType.PULL
+            )
             runSender(outputChannel)
-        )
+        }
 
-        // Sleep infinitely
+        // Sleep while workers are active
         try {
-            while (isActive) {
-                delay(Long.MAX_VALUE)
-            }
+            parent.join()
         } finally {
-            jobs.map { it.cancelAndJoin() }
+            parent.cancelAndJoin()
         }
     }
 
-    private fun createChannelPass(
+    /**
+     * Starts a Job that sends messages from the given channel
+     * to a ZeroMQ socket.
+     *
+     * @param hostname hostname to bind the socket to
+     * @param port port to bind the socket to
+     * @param channel the channel to receive messages from
+     * @param socketType defines what type of socket to use
+     */
+    private fun CoroutineScope.createChannelPass(
             hostname: String,
-            port: Int, channel:
-            Channel<String>,
+            port: Int,
+            channel: Channel<String>,
             socketType: SocketType
-    ) = run {
-        val coroutineScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
-        val ctx = ZContext()
-        val sock = ctx.createSocket(socketType)
-        sock.bind(createAddress(hostname, port))
+    ) = launch {
+        ZContext().use {
+            val sock = it.createSocket(socketType)
+            sock.bind(createAddress(hostname, port))
 
-        coroutineScope.launch {
             while (isActive) {
                 sock.send(channel.receive())
             }
@@ -66,9 +90,12 @@ class LoadBalancer(config: LoadBalancerPluginConfiguration) : AbstractPipelinePl
     }
 }
 
+/**
+ * Helper function to create a tcp address string.
+ */
 fun createAddress(hostname: String, port: Int) = "tcp://${hostname}:${port}"
 
 fun main(vararg args: String) = runPipelinePlugin(
-    args.firstOrNull() ?: "./config.yaml",
-    ::LoadBalancer
+        args.firstOrNull() ?: "./config.yaml",
+        ::LoadBalancer
 )
