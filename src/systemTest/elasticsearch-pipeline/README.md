@@ -28,7 +28,7 @@ elasticsearch:
 ## 2. Build all jars using docker
 ```shell script
 $ cd src/
-$ docker-compose -f docker-compose.build.yml up gradle
+$ docker-compose -f docker-compose.build.yml up
 ```
 
 Notes:
