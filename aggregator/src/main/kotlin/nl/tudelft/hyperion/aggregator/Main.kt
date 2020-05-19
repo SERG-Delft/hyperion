@@ -45,6 +45,7 @@ fun coMain(configPath: String) = GlobalScope.launch {
             "Failed to connect to the database. Ensure that the database" +
                 " is running and that the connection URL is correct."
         }
+
         return@launch
     }
 

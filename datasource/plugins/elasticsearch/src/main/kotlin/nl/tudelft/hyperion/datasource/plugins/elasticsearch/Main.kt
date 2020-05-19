@@ -73,6 +73,7 @@ class Run : CliktCommand(help = "Run with the the given config file") {
 
             job.join()
         }
+
     }
 }
 

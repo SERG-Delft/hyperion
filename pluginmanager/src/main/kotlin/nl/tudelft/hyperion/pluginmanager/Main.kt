@@ -23,5 +23,6 @@ fun main(vararg args: String) {
         logger.error(ex) { "Failed to execute PluginManager" }
         throw ex
     }
+
     logger.info { "Stopped PluginManager" }
 }
