@@ -15,9 +15,6 @@ dependencies {
     // Kotlin class reflection
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.3.70")
 
-    // Testing
-    testImplementation("io.mockk", "mockk", "1.10.0")
-
     implementation(project(":pipeline:common"))
 }
 

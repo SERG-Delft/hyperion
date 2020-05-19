@@ -15,16 +15,7 @@ dependencies {
     // Kotlin class reflection
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.3.70")
 
-    // Testing
-    testImplementation("io.mockk", "mockk", "1.10.0")
-
     implementation(project(":pipeline:common"))
-}
-
-dependencies {
-    implementation("io.ktor:ktor-client-core:1.3.2")
-    implementation("io.ktor:ktor-client-cio:1.3.2")
-    implementation("joda-time", "joda-time", "2.10.6")
 }
 
 jacoco {
