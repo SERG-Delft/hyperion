@@ -15,6 +15,7 @@ class PluginManager(config: Configuration) {
     private val plugins = config.plugins
 
     private val logger = mu.KotlinLogging.logger {}
+    private val mapper = ObjectMapper()
 
     init {
         logger.info { "Initialized PluginManager" }
@@ -78,7 +79,6 @@ class PluginManager(config: Configuration) {
      */
     private fun verifyRequest(request: String): MutableMap<*, *> {
         // try to convert message to a map
-        val mapper = ObjectMapper()
         val map = mapper.readValue(
             request,
             MutableMap::class.java

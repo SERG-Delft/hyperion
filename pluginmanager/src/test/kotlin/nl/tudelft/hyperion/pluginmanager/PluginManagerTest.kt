@@ -160,6 +160,26 @@ class PluginManagerTest() {
     }
 
     @Test
+    fun `Register multiple plugins`() {
+        val req1 = """{"id":"Renamer","type":"pull"}"""
+        val req2 = """{"id":"Renamer","type":"push"}"""
+        val res = mockk<ZMQ.Socket>()
+
+        every {
+            res.send(any<String>())
+        } returns true
+
+        val pluginManager = PluginManager(config)
+        pluginManager.handleRegister(req1, res)
+        pluginManager.handleRegister(req2, res)
+
+        verify {
+            res.send("""{"isBind":"false","host":"tcp://localhost:1200"}""")
+            res.send("""{"isBind":"true","host":"tcp://localhost:1201"}""")
+        }
+    }
+
+    @Test
     fun `Cleanup ZMQ connection after Interrupt`() {
         mockkStatic("org.zeromq.ZMQ")
 
