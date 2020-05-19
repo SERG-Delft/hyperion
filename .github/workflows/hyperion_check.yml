@@ -36,6 +36,26 @@ jobs:
           paths: plugin/
 
       - uses: marceloprado/has-changed-path@master
+        id: hyperion-pipeline
+        with:
+          paths: pipeline/common/
+
+      - uses: marceloprado/has-changed-path@master
+        id: hyperion-pipeline-extractor
+        with:
+          paths: pipeline/plugins/extractor
+
+      - uses: marceloprado/has-changed-path@master
+        id: hyperion-pipeline-pathextractor
+        with:
+          paths: pipeline/plugins/pathextractor
+
+      - uses: marceloprado/has-changed-path@master
+        id: hyperion-pipeline-renamer
+        with:
+          paths: pipeline/plugins/renamer
+
+      - uses: marceloprado/has-changed-path@master
         id: hyperion-elasticsearch
         with:
           paths: datasource/plugins/elasticsearch
@@ -78,3 +98,27 @@ jobs:
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: :pluginmanager:check
+
+      - name: gradle check pipeline
+        if: steps.hyperion-pipeline.outputs.changed == 'true'
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: :pipeline:common:check
+
+      - name: gradle check pipeline renamer plugin
+        if: steps.hyperion-pipeline-renamer.outputs.changed == 'true'
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: :pipeline:plugins:renamer:check
+
+      - name: gradle check pipeline extractor plugin
+        if: steps.hyperion-pipeline-extractor.outputs.changed == 'true'
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: :pipeline:plugins:extractor:check
+
+      - name: gradle check pipeline pathextractor plugin
+        if: steps.hyperion-pipeline-pathextractor.outputs.changed == 'true'
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: :pipeline:plugins:pathextractor:check
