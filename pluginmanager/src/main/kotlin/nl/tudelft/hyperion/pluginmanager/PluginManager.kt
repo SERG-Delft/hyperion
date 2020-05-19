@@ -61,10 +61,13 @@ class PluginManager(config: Configuration) {
         logger.info { "Received register request: [$reqMap]" }
         val plugin = reqMap["id"].toString()
         try {
-            when (reqMap["type"].toString()) {
-                "push" -> res.send(registerPush(plugin))
-                "pull" -> res.send(registerPull(plugin))
+            val response = when (reqMap["type"].toString()) {
+                "push" -> registerPush(plugin)
+                "pull" -> registerPull(plugin)
+                else -> null
             }
+            logger.info { "Responding with: $response" }
+            res.send(response)
         } catch (ex: Exception) {
             logger.error { ex }
             res.send("Invalid Request")
