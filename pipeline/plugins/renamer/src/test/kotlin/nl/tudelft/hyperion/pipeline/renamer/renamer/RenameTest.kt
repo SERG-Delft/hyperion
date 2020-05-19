@@ -27,7 +27,7 @@ class RenameTest {
           "severity" : "some severity, no fixed format",
           "timestamp" : "ISO 8601 timestamp format",
           "location" : { "line": 10 }
-        }"""
+        }""".trimIndent()
 
         val input = """{
           "project" : "some unique identifier for project, such as the repo name or package",
@@ -35,7 +35,7 @@ class RenameTest {
           "severity" : "some severity, no fixed format",
           "timestamp" : "ISO 8601 timestamp format",
           "log_line" : 10
-        }"""
+        }""".trimIndent()
 
         val mapper = jacksonObjectMapper()
 
@@ -63,7 +63,7 @@ class RenameTest {
           "severity" : "some severity, no fixed format",
           "timestamp" : "ISO 8601 timestamp format",
           "log-line" : 10
-        }"""
+        }""".trimIndent()
 
         val mapper = jacksonObjectMapper()
 
