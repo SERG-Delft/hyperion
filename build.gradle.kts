@@ -59,7 +59,7 @@ allprojects {
 }
 
 subprojects {
-    apply(plugin= "kotlin")
+    apply(plugin = "kotlin")
 
     sourceSets {
         create("integrationTest") {
