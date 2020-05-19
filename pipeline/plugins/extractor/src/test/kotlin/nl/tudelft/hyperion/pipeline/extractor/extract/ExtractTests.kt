@@ -209,7 +209,7 @@ class ExtractTests {
 
         val input = """{"message":"[Mar 20 11:11:11] INFO some/file/name:34 - Test"}"""
         val expected = """{"message":"[Mar 20 11:11:11] INFO some/file/name:34 - Test",
-            | "location" : {"line" : { "numeric" : 34}} }""".trimMargin()
+            | "location" : {"line" : { "numeric" : 34}}}""".trimMargin()
 
         val mapper = jacksonObjectMapper()
 

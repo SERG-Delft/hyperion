@@ -10,8 +10,8 @@ import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
  * @Param plugin configuration for the abstract plugin
  */
 data class Configuration(
-        val field : String,
-        val relativePathFromSource : String,
-        val postfix : String,
-        val plugin : PipelinePluginConfiguration
+        val field: String,
+        val relativePathFromSource: String,
+        val postfix: String,
+        val plugin: PipelinePluginConfiguration
 )
