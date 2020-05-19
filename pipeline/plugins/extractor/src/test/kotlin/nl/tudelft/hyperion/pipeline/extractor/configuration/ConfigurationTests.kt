@@ -1,6 +1,7 @@
 package nl.tudelft.hyperion.pipeline.extractor.configuration
 
 import nl.tudelft.hyperion.pipeline.extractor.Configuration
+import nl.tudelft.hyperion.pipeline.extractor.Type
 import nl.tudelft.hyperion.pipeline.readYAMLConfig
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions
@@ -37,8 +38,8 @@ class ConfigurationTests {
         Assertions.assertEquals("""\[.+?\] INFO [^:]+:(\d+) (-) .+""", config.match)
         Assertions.assertEquals("location.line", config.extract[0].to)
         Assertions.assertEquals("dash", config.extract[1].to)
-        Assertions.assertEquals("number", config.extract[0].type)
-        Assertions.assertEquals("string", config.extract[1].type)
+        Assertions.assertEquals(Type.NUMBER, config.extract[0].type)
+        Assertions.assertEquals(Type.STRING, config.extract[1].type)
     }
 }
 

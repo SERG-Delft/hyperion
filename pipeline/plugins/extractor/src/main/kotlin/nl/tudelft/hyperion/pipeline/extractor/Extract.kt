@@ -37,15 +37,14 @@ fun ObjectNode.findOrCreateChild(name: String): ObjectNode {
  * @param name The location of the new node
  * @return The ObjectNode with the newly added information
  */
-fun ObjectNode.put(type: String, value: String, name: String): ObjectNode {
+fun ObjectNode.put(type: Type, value: String, name: String): ObjectNode {
     val parts = name.split(".")
 
     if (parts.size == 1) {
         when (type) {
-            "number" -> this.put(parts[0], value.toInt())
-            "double" -> this.put(parts[0], value.toDouble())
-            "string" -> this.put(parts[0], value)
-            else -> this.put(parts[0], value)
+            Type.NUMBER -> this.put(parts[0], value.toInt())
+            Type.DOUBLE -> this.put(parts[0], value.toDouble())
+            Type.STRING -> this.put(parts[0], value)
         }
     } else {
         val target = parts.subList(1, parts.size - 1).fold(this.findOrCreateChild(parts[0]), {
@@ -54,10 +53,9 @@ fun ObjectNode.put(type: String, value: String, name: String): ObjectNode {
 
         val leafName = parts.last()
         when (type) {
-            "number" -> target.put(leafName, value.toInt())
-            "double" -> target.put(leafName, value.toDouble())
-            "string" -> target.put(leafName, value)
-            else -> target.put(leafName, value)
+            Type.NUMBER -> target.put(leafName, value.toInt())
+            Type.STRING -> target.put(leafName, value.toDouble())
+            Type.DOUBLE -> target.put(leafName, value)
         }
     }
 
