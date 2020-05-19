@@ -9,7 +9,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
  * @param config The path renaming configuration
  * @return A JSON string with the new value
  */
-fun extractPath(input : String, config : Configuration) : String {
+fun extractPath(input: String, config: Configuration): String {
     val mapper = jacksonObjectMapper()
     val tree = mapper.readTree(input)
 
