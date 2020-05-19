@@ -1,7 +1,6 @@
 package nl.tudelft.hyperion.pluginmanager
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.yaml.snakeyaml.introspector.MissingProperty
 import org.zeromq.SocketType
 import org.zeromq.ZMQ
 
