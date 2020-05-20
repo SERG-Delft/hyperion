@@ -14,6 +14,7 @@ import java.nio.file.Path
  * Helper function that acts as an infinite main function that runs the
  * specified pipeline plugin.
  */
+@SuppressWarnings("TooGenericExceptionCaught")
 inline fun <reified T : AbstractPipelinePlugin, reified C : Any> runPipelinePlugin(
     configPath: String,
     crossinline createInstance: (C) -> T
