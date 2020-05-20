@@ -2,9 +2,6 @@ package nl.tudelft.hyperion.pipeline
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.NonCancellable.isActive
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
@@ -12,6 +9,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import nl.tudelft.hyperion.pipeline.connection.ConfigZMQ
+import nl.tudelft.hyperion.pipeline.connection.PipelinePush
+import nl.tudelft.hyperion.pipeline.connection.PipelinePushZMQ
 import nl.tudelft.hyperion.pipeline.connection.PluginManagerConnection
 import org.zeromq.SocketType
 import org.zeromq.ZContext
@@ -27,7 +26,8 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 abstract class AbstractPipelinePlugin(
     private val config: PipelinePluginConfiguration,
-    private val pmConn: PluginManagerConnection = ConfigZMQ(config.pluginManager)
+    private val pmConn: PluginManagerConnection = ConfigZMQ(config.pluginManager),
+    private val sink: PipelinePush = PipelinePushZMQ()
 ) {
     private val logger = mu.KotlinLogging.logger {}
     private val processThreadPool = CoroutineScope(
@@ -95,23 +95,16 @@ abstract class AbstractPipelinePlugin(
      * results of computation to the next stage in the pipeline.
      */
     private fun runSender(channel: Channel<String>) = senderScope.launch {
-        val ctx = ZContext()
-        val sock = ctx.createSocket(SocketType.PUSH)
-
-        if (pubConnectionInformation.isBind) {
-            sock.bind(pubConnectionInformation.host)
-        } else {
-            sock.connect(pubConnectionInformation.host)
-        }
+        sink.setupConnection(pubConnectionInformation)
 
         while (isActive) {
             val msg = channel.receive()
             packetBufferCount.decrementAndGet()
-            sock.send(msg, zmq.ZMQ.ZMQ_DONTWAIT)
+            sink.push(msg)
         }
 
-        sock.close()
-        ctx.destroy()
+        sink.closeConnection()
+
     }
 
     /**
@@ -185,7 +178,7 @@ class PipelinePluginInitializationException(
  * future elements in the pipeline. Contains the host, port and whether
  * it needs to bind or connect to that specific element.
  */
-private data class PeerConnectionInformation(
+data class PeerConnectionInformation(
     val host: String,
     val isBind: Boolean
 )
