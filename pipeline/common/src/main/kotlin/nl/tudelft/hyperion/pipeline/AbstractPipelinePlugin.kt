@@ -2,12 +2,17 @@ package nl.tudelft.hyperion.pipeline
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.NonCancellable.isActive
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import nl.tudelft.hyperion.pipeline.connection.ConfigZMQ
+import nl.tudelft.hyperion.pipeline.connection.PluginManagerConnection
 import org.zeromq.SocketType
 import org.zeromq.ZContext
 import java.util.concurrent.Executors
@@ -21,7 +26,8 @@ import java.util.concurrent.atomic.AtomicInteger
  * transformation.
  */
 abstract class AbstractPipelinePlugin(
-    private val config: PipelinePluginConfiguration
+    private val config: PipelinePluginConfiguration,
+    private val pmConn: PluginManagerConnection = ConfigZMQ(config.pluginManager)
 ) {
     private val logger = mu.KotlinLogging.logger {}
     private val processThreadPool = CoroutineScope(
@@ -50,22 +56,12 @@ abstract class AbstractPipelinePlugin(
         }
 
         logger.debug { "Requesting connection information from ${config.pluginManager}" }
+        subConnectionInformation = readJSONContent(pmConn.requestConfig(config.id, "pull"))
+        pubConnectionInformation = readJSONContent(pmConn.requestConfig(config.id, "push"))
 
-        ZContext().use {
-            val socket = it.createSocket(SocketType.REQ)
-            socket.connect("tcp://${config.pluginManager}")
-
-            socket.send("""{"id":"${config.id}","type":"pull"}""")
-            subConnectionInformation = readJSONContent(socket.recvStr())
-
-            socket.send("""{"id":"${config.id}","type":"push"}""")
-            pubConnectionInformation = readJSONContent(socket.recvStr())
-
-            logger.debug { "subConnectionInformation: $subConnectionInformation" }
-            logger.debug { "pubConnectionInformation: $pubConnectionInformation" }
-        }
-
-        logger.debug { "Successfully retrieved connection information" }
+        logger.debug { "subConnectionInformation: $subConnectionInformation" }
+        logger.debug { "pubConnectionInformation: $pubConnectionInformation" }
+        logger.info { "Successfully retrieved connection information" }
 
         hasConnectionInformation = true
     }
@@ -143,7 +139,7 @@ abstract class AbstractPipelinePlugin(
                 continue
             }
 
-            processThreadPool.launch processLaunch@ {
+            processThreadPool.launch processLaunch@{
                 val result = try {
                     this@AbstractPipelinePlugin.process(msg)
                 } catch (ex: Exception) {
@@ -179,7 +175,7 @@ abstract class AbstractPipelinePlugin(
 /**
  * Exception thrown during initialization of a pipeline plugin.
  */
-private class PipelinePluginInitializationException(
+class PipelinePluginInitializationException(
     msg: String,
     cause: Throwable? = null
 ) : RuntimeException(msg, cause)
