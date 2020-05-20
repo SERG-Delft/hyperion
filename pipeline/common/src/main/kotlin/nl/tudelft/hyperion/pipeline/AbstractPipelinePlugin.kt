@@ -14,8 +14,6 @@ import nl.tudelft.hyperion.pipeline.connection.PipelinePullZMQ
 import nl.tudelft.hyperion.pipeline.connection.PipelinePush
 import nl.tudelft.hyperion.pipeline.connection.PipelinePushZMQ
 import nl.tudelft.hyperion.pipeline.connection.PluginManagerConnection
-import org.zeromq.SocketType
-import org.zeromq.ZContext
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 
