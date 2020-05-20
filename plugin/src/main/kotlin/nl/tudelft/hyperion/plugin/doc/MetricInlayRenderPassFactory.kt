@@ -15,13 +15,15 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiModificationTracker
+import com.jetbrains.rd.util.first
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import nl.tudelft.hyperion.plugin.connection.ApiRequestor
 import nl.tudelft.hyperion.plugin.metric.MetricsResult
 
 val MODIFICATION_STAMP = Key.create<Long>("hyperion.render.stamp")
-val ENABLED = Key.create<Boolean>("hyperion.render.enabled")
+val ITEMS = Key.create<List<MetricInlayItem>>("hyperion.render.items")
+val DID_QUERY_METRICS = Key.create<Boolean>("hyperion.render.queried")
 
 class MetricInlayRenderPassFactory : TextEditorHighlightingPassFactoryRegistrar, TextEditorHighlightingPassFactory,
     DumbAware {
@@ -44,13 +46,6 @@ class MetricInlayRenderPassFactory : TextEditorHighlightingPassFactoryRegistrar,
             return null
         }
 
-        val valid = metricsStillValid(editor)
-
-        if (valid) {
-            // lines only moved
-            return null
-        }
-
         return MetricInlayRenderPass(
             editor,
             file
@@ -64,6 +59,12 @@ class MetricInlayRenderPassFactory : TextEditorHighlightingPassFactoryRegistrar,
         var metrics: MetricsResult = MetricsResult(mapOf())
 
         override fun doCollectInformation(progress: ProgressIndicator) {
+            val metricsQueried = myEditor.getUserData(DID_QUERY_METRICS) ?: false
+
+            if (metricsQueried) {
+                return // no need to collect metric info twice
+            }
+
             progress.text = "Loading metrics..."
 
             runBlocking {
@@ -77,7 +78,24 @@ class MetricInlayRenderPassFactory : TextEditorHighlightingPassFactoryRegistrar,
         }
 
         override fun doApplyInformationToEditor() {
-            setMetricsToEditor(myEditor, metrics)
+            val metricsQueried = myEditor.getUserData(DID_QUERY_METRICS) ?: false
+            val items: List<MetricInlayItem>
+
+            if (!metricsQueried) {
+                // build inlays from queried metrics
+                items = metrics.versions.first().value.mapNotNull {
+                    createInlayForMetric(myEditor, it)
+                }
+
+                myEditor.putUserData(DID_QUERY_METRICS, true)
+            } else {
+                // update inlays as long as they are valid
+                items = myEditor.getUserData(ITEMS)!!.mapNotNull {
+                    updateMetricInlayItem(myEditor, it)
+                }
+            }
+
+            myEditor.putUserData(ITEMS, items)
 
             val newStamp = PsiModificationTracker.SERVICE.getInstance(myProject).modificationCount
             myEditor.putUserData(MODIFICATION_STAMP, newStamp)

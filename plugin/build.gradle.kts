@@ -11,6 +11,10 @@ application {
     mainClassName = "nl.tudelft.hyperion.plugin.Main"
 }
 
+intellij {
+    setPlugins("git4idea")
+}
+
 dependencies {
     implementation("io.ktor:ktor-client-core:1.3.2")
     implementation("io.ktor:ktor-client-cio:1.3.2")

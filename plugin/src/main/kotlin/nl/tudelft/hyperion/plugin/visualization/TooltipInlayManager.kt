@@ -25,7 +25,7 @@ object TooltipInlayManager {
 
     fun addLogTooltip(editor: Editor, logInfo: LogInfo): Inlay<TooltipRenderer>? {
         return editor.inlayModel.addBlockElement(logInfo.calculateLineOffset(),
-                false, true, 1, TooltipRenderer(logInfo.lineMetrics.getText(), logInfo))
+                false, true, 1, TooltipRenderer(logInfo.lineMetrics.text, logInfo))
     }
 
     fun refreshMetrics(project: Project, file: VirtualFile, editor: Editor) {
@@ -84,7 +84,7 @@ object TooltipInlayManager {
         val tooltips: MutableSet<Pair<LogInfo, Inlay<TooltipRenderer>>> = mutableSetOf()
 
         for (logInfo in logInfos) {
-            if (logInfo.lineMetrics.getLine() >= document.lineCount) continue
+            if (logInfo.lineMetrics.line >= document.lineCount) continue
             tooltips.add(Pair(logInfo, addLogTooltip(editor, logInfo)!!))
         }
         val listener = DocumentTooltipListener(tooltips)

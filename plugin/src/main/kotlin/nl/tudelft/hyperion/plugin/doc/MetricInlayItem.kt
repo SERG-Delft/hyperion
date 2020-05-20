@@ -4,23 +4,24 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.Inlay
 import com.intellij.openapi.editor.ex.util.EditorScrollingPositionKeeper
 import com.intellij.openapi.editor.markup.HighlighterLayer
+import com.intellij.openapi.editor.markup.HighlighterTargetArea
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.Disposer
-import com.intellij.openapi.util.Key
-import com.jetbrains.rd.util.first
-import nl.tudelft.hyperion.plugin.metric.MetricsResult
-import nl.tudelft.hyperion.plugin.visualization.LogInfo
+import com.intellij.openapi.util.TextRange
+import nl.tudelft.hyperion.plugin.metric.LineMetrics
 import java.awt.Color
 
-val ITEMS = Key.create<MutableList<MetricInlayItem>>("hyperion.render.items")
-
 class MetricInlayItem(
-    val inlay: Inlay<MetricTooltipRenderer>,
+    val metric: LineMetrics,
+    var inlay: Inlay<MetricTooltipRenderer>,
     val highlighter: RangeHighlighter
 ) {
     val isValid
         get() = highlighter.isValid
+
+    val isProperlyPlaced
+        get() = inlay.offset == highlighter.startOffset
 
     fun remove() {
         if (highlighter.isValid) {
@@ -33,51 +34,62 @@ class MetricInlayItem(
     }
 }
 
-fun metricsStillValid(editor: Editor): Boolean {
-    val existing = editor.getUserData(ITEMS) ?: mutableListOf()
-    return !existing.isEmpty() && existing.all { it.isValid }
-}
+fun createInlayForMetric(editor: Editor, metric: LineMetrics): MetricInlayItem? {
+    // TODO: resolve current location of line in file, return null if it doesn't exist
+    return keepScrollingPositionWhile(editor) {
+        val startOffset = editor.document.getLineStartOffset(metric.line)
+        val endOffset = editor.document.getLineEndOffset(metric.line)
+        val line = editor.document.getText(TextRange(startOffset, endOffset))
+        val inlayOffset = startOffset + line.indexOf(line.trim())
 
-fun setMetricsToEditor(editor: Editor, items: MetricsResult) {
-    val existing = editor.getUserData(ITEMS) ?: mutableListOf()
-    editor.putUserData(ITEMS, existing)
+        val highlighter = editor.markupModel.addRangeHighlighter(
+            inlayOffset,
+            inlayOffset + 1,
+            HighlighterLayer.HYPERLINK,
+            TextAttributes().also { it.backgroundColor = Color.RED },
+            HighlighterTargetArea.EXACT_RANGE
+        )
 
-    keepScrollingPositionWhile(editor) {
-        for (item in existing) item.remove()
-        existing.clear()
+        val inlay = editor.inlayModel.addBlockElement(
+            inlayOffset,
+            false,
+            true,
+            1,
+            MetricTooltipRenderer(metric.text, highlighter)
+        )!!
 
-        if (items.versions.isEmpty()) return@keepScrollingPositionWhile
-
-        // For every metric in this file...
-        for (lineMetric in items.versions.first().value) {
-            val info = LogInfo(editor.document, lineMetric)
-
-            val highlighter = editor.markupModel.addLineHighlighter(
-                lineMetric.getLine(),
-                HighlighterLayer.HYPERLINK,
-                TextAttributes().also {
-                    it.backgroundColor = Color.GREEN
-                }
-            )
-
-            // highlighter.isGreedyToRight = true
-
-            val inlay = editor.inlayModel.addBlockElement(
-                info.calculateLineOffset(),
-                false,
-                true,
-                1,
-                MetricTooltipRenderer(info.lineMetrics.getText(), highlighter)
-            )!!
-
-            existing.add(MetricInlayItem(inlay, highlighter))
-        }
+        MetricInlayItem(metric, inlay, highlighter)
     }
 }
 
-fun keepScrollingPositionWhile(editor: Editor, block: () -> Unit) {
+// returns null if we cannot find a new location for the item
+fun updateMetricInlayItem(editor: Editor, item: MetricInlayItem): MetricInlayItem? {
+    if (item.isValid && item.isProperlyPlaced) return item
+
+    if (item.isValid && !item.isProperlyPlaced) {
+        if (item.inlay.isValid) {
+            Disposer.dispose(item.inlay)
+        }
+
+        item.inlay = editor.inlayModel.addBlockElement(
+            item.highlighter.startOffset,
+            false,
+            true,
+            1,
+            MetricTooltipRenderer(item.metric.text, item.highlighter)
+        )!!
+
+        return item
+    }
+
+    item.remove()
+    return createInlayForMetric(editor, item.metric)
+}
+
+fun <T> keepScrollingPositionWhile(editor: Editor, block: () -> T): T {
     val pos = EditorScrollingPositionKeeper(editor)
     pos.savePosition()
-    block()
+    val res = block()
     pos.restorePosition(false)
+    return res
 }

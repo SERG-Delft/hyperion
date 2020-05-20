@@ -31,6 +31,10 @@ object ApiRequestor {
                         "line": 10,
                         "count": 20,
                         "severity": "INFO"
+                    }, {
+                        "line": 20,
+                        "count": 20,
+                        "severity": "INFO"
                     }],
                     "def": [{
                         "line": 20,

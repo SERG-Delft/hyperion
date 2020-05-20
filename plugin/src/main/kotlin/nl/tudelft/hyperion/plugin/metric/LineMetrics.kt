@@ -7,46 +7,30 @@ import org.joda.time.format.PeriodFormatterBuilder
  * Represents all metrics for a given line.
  */
 class LineMetrics(val metrics: List<IntervalMetric>) {
+    val line
+        get() = metrics.firstOrNull()?.metric?.line ?: -1
 
-    fun getLine(): Int {
-        if (metrics.isEmpty()) return -1
-
-        return metrics.first().metric.line
-    }
-
-    fun setLine(line: Int) {
-        for (lineMetric in metrics) {
-            lineMetric.metric.line = line
-        }
-    }
-    fun getText(): String {
-        var result = ""
-
-        for (metric in metrics) {
-            result += "[${metric.getText()}]  "
-        }
-
-        return result.trimEnd(';', ' ')
-    }
+    val text
+        get() = metrics.joinToString(" ") { "[${it.text}]" }
 }
-data class IntervalMetric(
-        val interval: Int,
-        val metric: Metric
-) {
 
-    private val formatter = PeriodFormatterBuilder()
+data class IntervalMetric(
+    val interval: Int,
+    val metric: Metric
+) {
+    companion object {
+        private val formatter = PeriodFormatterBuilder()
             .appendWeeks().appendSuffix(" w").appendSeparator(" ")
             .appendDays().appendSuffix(" d").appendSeparator(" ")
             .appendHours().appendSuffix(" h").appendSeparator(" ")
             .appendMinutes().appendSuffix(" min").appendSeparator(" ")
             .appendSeconds().appendSuffix(" s").appendSeparator(" ")
             .toFormatter()
-
-    fun getFormattedInterval(): String {
-        return formatter.print(Period(interval * 1000L).normalizedStandard())
     }
 
-    fun getText(): String {
-        return "${metric.count} last ${getFormattedInterval()}"
-    }
+    private val formattedInterval: String
+        get() = formatter.print(Period(interval * 1000L).normalizedStandard())
+
+    val text
+        get() = "${metric.count} last $formattedInterval"
 }

@@ -7,7 +7,7 @@ package nl.tudelft.hyperion.plugin.metric
  * triggered.
  */
 data class Metric(
-        var line: Int,
-        val count: Int,
-        val severity: Severity
+    var line: Int,
+    val count: Int,
+    val severity: Severity
 )
