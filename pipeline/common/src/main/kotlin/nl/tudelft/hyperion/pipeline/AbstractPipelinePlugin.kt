@@ -9,6 +9,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import nl.tudelft.hyperion.pipeline.connection.ConfigZMQ
+import nl.tudelft.hyperion.pipeline.connection.PipelinePull
+import nl.tudelft.hyperion.pipeline.connection.PipelinePullZMQ
 import nl.tudelft.hyperion.pipeline.connection.PipelinePush
 import nl.tudelft.hyperion.pipeline.connection.PipelinePushZMQ
 import nl.tudelft.hyperion.pipeline.connection.PluginManagerConnection
@@ -27,7 +29,8 @@ import java.util.concurrent.atomic.AtomicInteger
 abstract class AbstractPipelinePlugin(
     private val config: PipelinePluginConfiguration,
     private val pmConn: PluginManagerConnection = ConfigZMQ(config.pluginManager),
-    private val sink: PipelinePush = PipelinePushZMQ()
+    private val sink: PipelinePush = PipelinePushZMQ(),
+    private val source: PipelinePull = PipelinePullZMQ()
 ) {
     private val logger = mu.KotlinLogging.logger {}
     private val processThreadPool = CoroutineScope(
@@ -113,17 +116,10 @@ abstract class AbstractPipelinePlugin(
      */
     @Suppress("TooGenericExceptionCaught")
     private fun runReceiver(channel: Channel<String>) = receiverScope.launch {
-        val ctx = ZContext()
-        val sock = ctx.createSocket(SocketType.PULL)
-
-        if (subConnectionInformation.isBind) {
-            sock.bind(subConnectionInformation.host)
-        } else {
-            sock.connect(subConnectionInformation.host)
-        }
+        source.setupConnection(subConnectionInformation)
 
         while (isActive) {
-            val msg = sock.recvStr()
+            val msg = source.pull()
 
             // Drop this message if our internal buffer is full
             val inQueue = packetBufferCount.incrementAndGet()
@@ -147,9 +143,6 @@ abstract class AbstractPipelinePlugin(
                 channel.send(result)
             }
         }
-
-        sock.close()
-        ctx.destroy()
     }
 
     /**
