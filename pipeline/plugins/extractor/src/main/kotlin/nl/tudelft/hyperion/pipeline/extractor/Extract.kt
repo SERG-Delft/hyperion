@@ -54,8 +54,8 @@ fun ObjectNode.put(type: Type, value: String, name: String): ObjectNode {
         val leafName = parts.last()
         when (type) {
             Type.NUMBER -> target.put(leafName, value.toInt())
-            Type.STRING -> target.put(leafName, value.toDouble())
-            Type.DOUBLE -> target.put(leafName, value)
+            Type.DOUBLE -> target.put(leafName, value.toDouble())
+            Type.STRING -> target.put(leafName, value)
         }
     }
 

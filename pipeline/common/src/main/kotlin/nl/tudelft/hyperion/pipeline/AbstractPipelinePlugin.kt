@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * class, such that implementors can focus on doing the actual
  * transformation.
  */
+@SuppressWarnings("MagicNumber")
 abstract class AbstractPipelinePlugin(
     private val config: PipelinePluginConfiguration
 ) {
@@ -122,6 +123,7 @@ abstract class AbstractPipelinePlugin(
      * Helper function that will create a new subroutine that is used to receive
      * messages from the previous stage and push it to the process function.
      */
+    @SuppressWarnings("TooGenericExceptionCaught")
     private fun runReceiver(channel: Channel<String>) = receiverScope.launch {
         val ctx = ZContext()
         val sock = ctx.createSocket(SocketType.PULL)
