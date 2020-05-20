@@ -122,6 +122,7 @@ abstract class AbstractPipelinePlugin(
      * Helper function that will create a new subroutine that is used to receive
      * messages from the previous stage and push it to the process function.
      */
+    @Suppress("TooGenericExceptionCaught")
     fun runReceiver(channel: Channel<String>) = receiverScope.launch {
         val ctx = ZContext()
         val sock = ctx.createSocket(SocketType.PULL)

@@ -1,0 +1,7 @@
+plugin :
+  pluginManager: "1.2.3.4:4567"
+  id : "plugin1"
+
+rename :
+  - from : "log_line"
+    to : "location.line"

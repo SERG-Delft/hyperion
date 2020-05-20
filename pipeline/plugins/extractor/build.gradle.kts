@@ -2,24 +2,21 @@ plugins {
     application
     jacoco
     kotlin("jvm")
+    id("org.jetbrains.intellij") version "0.4.18"
     id("io.gitlab.arturbosch.detekt").version("1.8.0")
     id("com.github.johnrengelman.shadow").version("5.2.0")
 }
 
-jacoco {
-    toolVersion = "0.8.5"
-    reportsDir = file("$buildDir/jacoco")
+application {
+    mainClassName = "nl.tudelft.hyperion.pipeline.extractor.Main"
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.3.5")
+    // Kotlin class reflection
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.3.70")
 
-    // Add pipeline commons
+    // Local imports
     implementation(project(":pipeline:common"))
-}
-
-application {
-    mainClassName = "nl.tudelft.hyperion.pipeline.sampleplugin.Main"
 }
 
 jacoco {
@@ -40,12 +37,12 @@ tasks.jacocoTestCoverageVerification {
         rule {
             limit {
                 counter = "BRANCH"
-                minimum = "0.8".toBigDecimal()
+                minimum = "0.7".toBigDecimal()
             }
 
             limit {
                 counter = "LINE"
-                minimum = "0.8".toBigDecimal()
+                minimum = "0.6".toBigDecimal()
             }
         }
     }
@@ -61,9 +58,5 @@ tasks.build {
 }
 
 tasks.shadowJar {
-    destinationDirectory.set(File("./"))
-}
-
-detekt {
-    config = files("detekt-config.yml")
+    destinationDir = File("./");
 }

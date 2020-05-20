@@ -23,7 +23,7 @@ zmq:
 
 ## Overview of the architecture
 
-The plugin uses the divide-and-conquer pattern from the official ZeroMQ 
+The plugin uses the divide-and-conquer pattern from the official ZeroMQ
 [guide](http://zguide.zeromq.org/page:all#Divide-and-Conquer).
 
 The following is a rough idea of how it is set up:
