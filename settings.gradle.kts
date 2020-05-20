@@ -8,5 +8,6 @@ include("plugin")
 include("pluginmanager")
 include("pipeline")
 include("pipeline:common")
-include("pipeline:plugins:sample")
-
+include("pipeline:plugins:renamer")
+include("pipeline:plugins:extractor")
+include("pipeline:plugins:pathextractor")
