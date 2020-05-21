@@ -1,14 +1,12 @@
 package nl.tudelft.hyperion.pipeline.loadbalancer
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import mu.KotlinLogging
 import nl.tudelft.hyperion.pipeline.readJSONContent
 import org.zeromq.SocketType
 import org.zeromq.ZContext
+import org.zeromq.ZMQ
 import java.lang.Exception
 import java.util.concurrent.Executors
 
@@ -18,8 +16,8 @@ import java.util.concurrent.Executors
  * sink and ventilator ports.
  */
 object WorkerManager {
-    private val managerScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
-    private val workerIds = mutableListOf<String>()
+    val managerScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
+    val workerIds = mutableSetOf<String>()
     private val logger = KotlinLogging.logger {}
 
     /**
@@ -41,36 +39,51 @@ object WorkerManager {
         sock.bind(createAddress(hostname, port))
 
         while (isActive) {
-            var workerInfo: WorkerInfo?
-
-            try {
-                val content = sock.recvStr()
-                workerInfo = readJSONContent(content)
-                logger.debug { "Worker request received: $content" }
-
-            } catch (e: Exception) {
-                logger.warn { "Failed to parse client request: ${e.message}" }
-                continue
-            }
-
-            // does not do failure handling
-            val isSuccess = when(workerInfo.type) {
-                ConnectionType.PUSH ->
-                    sock.send("""{"host":"${createAddress(hostname, sinkPort)}", "isBind": "false"}""")
-
-                ConnectionType.PULL ->
-                    sock.send("""{"host":"${createAddress(hostname, ventilatorPort)}", "isBind": "false"}""")
-            }
-
-            // add worker id to list of connected workers on first request
-            if (isSuccess && workerInfo.id !in workerIds) {
-                logger.info { "Worker with id=${workerInfo.id} connected" }
-                workerIds.add(workerInfo.id)
-            }
+            pollRequest(sock, hostname, sinkPort, ventilatorPort)
         }
 
         sock.close()
         ctx.close()
+    }
+
+    /**
+     * Blocking function that polls the given socket and responds
+     * on a valid request.
+     *
+     * @param sock ZeroMQ socket to poll
+     * @param hostname the hostname of the load balancer
+     *  that is sent in the response to the client
+     * @param sinkPort the port of the load balancer's sink
+     * @param ventilatorPort the port of the load balancer's
+     *  ventilator
+     */
+    fun pollRequest(sock: ZMQ.Socket, hostname: String, sinkPort: Int, ventilatorPort: Int) {
+        val workerInfo: WorkerInfo?
+
+        try {
+            val content = sock.recvStr()
+            workerInfo = readJSONContent(content)
+            logger.debug { "Worker request received: $content" }
+
+        } catch (e: Exception) {
+            logger.warn { "Failed to parse client request: ${e.message}" }
+            return
+        }
+
+        // does not do failure handling
+        val isSuccess = when(workerInfo.type) {
+            ConnectionType.PUSH ->
+                sock.send("""{"host":"${createAddress(hostname, sinkPort)}", "isBind": "false"}""")
+
+            ConnectionType.PULL ->
+                sock.send("""{"host":"${createAddress(hostname, ventilatorPort)}", "isBind": "false"}""")
+        }
+
+        // add worker id to list of connected workers on first request
+        if (isSuccess) {
+            logger.info { "Worker with id=${workerInfo.id} connected" }
+            workerIds.add(workerInfo.id)
+        }
     }
 }
 

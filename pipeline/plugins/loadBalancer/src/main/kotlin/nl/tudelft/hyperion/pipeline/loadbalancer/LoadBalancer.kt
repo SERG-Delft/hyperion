@@ -70,33 +70,31 @@ class LoadBalancer(
         }
     }
 
-    /**
-     * Starts a Job that sends messages from the given channel
-     * to a ZeroMQ socket.
-     *
-     * @param hostname hostname to bind the socket to
-     * @param port port to bind the socket to
-     * @param channel the channel to receive messages from
-     * @param socketType defines what type of socket to use
-     */
-    private fun CoroutineScope.createChannelPass(
-            hostname: String,
-            port: Int,
-            channel: Channel<String>,
-            socketType: SocketType
-    ) = launch {
-        ZContext().use {
-            val sock = it.createSocket(socketType)
-            sock.bind(createAddress(hostname, port))
+    override suspend fun process(input: String): String? = input
+}
 
-            while (isActive) {
-                sock.send(channel.receive())
-            }
+/**
+ * Starts a Job that sends messages from the given channel
+ * to a ZeroMQ socket.
+ *
+ * @param hostname hostname to bind the socket to
+ * @param port port to bind the socket to
+ * @param channel the channel to receive messages from
+ * @param socketType defines what type of socket to use
+ */
+fun CoroutineScope.createChannelPass(
+        hostname: String,
+        port: Int,
+        channel: Channel<String>,
+        socketType: SocketType
+) = launch {
+    ZContext().use {
+        val sock = it.createSocket(socketType)
+        sock.bind(createAddress(hostname, port))
+
+        while (isActive) {
+            sock.send(channel.receive())
         }
-    }
-
-    override suspend fun process(input: String): String? {
-        return input
     }
 }
 
