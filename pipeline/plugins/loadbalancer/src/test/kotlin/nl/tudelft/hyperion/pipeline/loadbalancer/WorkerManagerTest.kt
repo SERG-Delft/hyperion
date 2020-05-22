@@ -128,28 +128,4 @@ class WorkerManagerTest {
 
         assertEquals("tcp://$hostname:$ventPort", json["host"])
     }
-
-    @Test
-    @ExperimentalCoroutinesApi
-    fun `Manager should bind to given address`() {
-        val slot = slot<String>()
-
-        coEvery {
-            socket.bind(capture(slot))
-        } returns true
-
-        val hostname = "localhost"
-        val port = 5555
-
-        runBlockingTest {
-            val job = WorkerManager.run(hostname, port, 3333, 4444)
-
-            // possibly flaky test
-            delay(500L)
-
-            job.cancel()
-        }
-
-        assertEquals("tcp://$hostname:$port", slot.captured)
-    }
 }
