@@ -7,13 +7,16 @@ import nl.tudelft.hyperion.pipeline.AbstractPipelinePlugin
 import nl.tudelft.hyperion.pipeline.PeerConnectionInformation
 import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.zeromq.SocketType
 import org.zeromq.ZContext
 import org.zeromq.ZMQ
 import java.net.ServerSocket
+import java.util.concurrent.Executors
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class LoadBalancerTest {
 
     companion object {
@@ -42,6 +45,12 @@ class LoadBalancerTest {
             usedPorts.add(port)
             return port
         }
+    }
+
+    @BeforeAll
+    fun setUp() {
+        // reset managerScope
+        WorkerManager.managerScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
     }
 
     private class LowerCasePlugin(id: String, workerManagerPort: Int) : AbstractPipelinePlugin(
