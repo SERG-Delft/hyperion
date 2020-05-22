@@ -1,13 +1,12 @@
 package nl.tudelft.hyperion.pipeline.loadbalancer
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.channels.Channel
 import nl.tudelft.hyperion.pipeline.AbstractPipelinePlugin
 import nl.tudelft.hyperion.pipeline.PipelinePluginInitializationException
 import org.zeromq.SocketType
@@ -16,8 +15,8 @@ import java.util.concurrent.Executors
 
 /**
  * Basic load balancer that acts as both a plugin and plugin manager.
- * It distributes the input over multiple workers and collects the outputs
- * on a single ZeroMQ socket.
+ * It distributes the input over multiple workers round-robin style
+ * and collects the outputs on a single ZeroMQ socket.
  *
  * @property config the configuration to use
  */
@@ -25,7 +24,7 @@ class LoadBalancer(
         private val config: LoadBalancerPluginConfiguration
 ) : AbstractPipelinePlugin(config.zmq) {
 
-    override fun run() = GlobalScope.launch {
+    override fun run() = CoroutineScope(Dispatchers.Default).launch {
         if (!hasConnectionInformation) {
             throw PipelinePluginInitializationException("Cannot run plugin without connection information")
         }
@@ -39,7 +38,7 @@ class LoadBalancer(
         val outputWorkerScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
 
         // start workers
-        val parent = coroutineScope {
+        val parent = launch {
             WorkerManager.run(
                     config.workerManagerHostname,
                     config.workerManagerPort,
@@ -47,17 +46,15 @@ class LoadBalancer(
                     config.ventilatorPort
             )
             runReceiver(inputChannel)
-            inputWorkerScope.createChannelPass(
+            inputWorkerScope.createChannelReceiver(
                     config.workerManagerHostname,
                     config.ventilatorPort,
-                    inputChannel,
-                    SocketType.PUSH
+                    inputChannel
             )
-            outputWorkerScope.createChannelPass(
+            outputWorkerScope.createChannelSender(
                     config.workerManagerHostname,
                     config.sinkPort,
-                    outputChannel,
-                    SocketType.PULL
+                    outputChannel
             )
             runSender(outputChannel)
         }
@@ -75,25 +72,46 @@ class LoadBalancer(
 
 /**
  * Starts a Job that sends messages from the given channel
- * to a ZeroMQ socket.
+ * with a PUSH ZeroMQ socket.
  *
  * @param hostname hostname to bind the socket to
  * @param port port to bind the socket to
  * @param channel the channel to receive messages from
- * @param socketType defines what type of socket to use
  */
-fun CoroutineScope.createChannelPass(
+fun CoroutineScope.createChannelReceiver(
         hostname: String,
         port: Int,
-        channel: Channel<String>,
-        socketType: SocketType
+        channel: Channel<String>
 ) = launch {
     ZContext().use {
-        val sock = it.createSocket(socketType)
+        val sock = it.createSocket(SocketType.PUSH)
         sock.bind(createAddress(hostname, port))
 
         while (isActive) {
             sock.send(channel.receive())
+        }
+    }
+}
+
+/**
+ * Starts a Job that sends messages to a channel from the
+ * given ZeroMQ PULL socket.
+ *
+ * @param hostname hostname to bind the socket to
+ * @param port port to bind the socket to
+ * @param channel the channel to send messages from
+ */
+fun CoroutineScope.createChannelSender(
+        hostname: String,
+        port: Int,
+        channel: Channel<String>
+) = launch {
+    ZContext().use {
+        val sock = it.createSocket(SocketType.PULL)
+        sock.bind(createAddress(hostname, port))
+
+        while (isActive) {
+            channel.send(sock.recvStr())
         }
     }
 }

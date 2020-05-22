@@ -1,7 +1,10 @@
 package nl.tudelft.hyperion.pipeline.loadbalancer
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.asCoroutineDispatcher
 import mu.KotlinLogging
 import nl.tudelft.hyperion.pipeline.readJSONContent
 import org.zeromq.SocketType
@@ -16,7 +19,7 @@ import java.util.concurrent.Executors
  * sink and ventilator ports.
  */
 object WorkerManager {
-    val managerScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
+    var managerScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
     val workerIds = mutableSetOf<String>()
     private val logger = KotlinLogging.logger {}
 
@@ -30,7 +33,6 @@ object WorkerManager {
      * @param sinkPort the port of the sink
      * @param ventilatorPort the port of the distributor
      */
-    @Suppress("TooGenericExceptionCaught")
     fun run(hostname: String, port: Int, sinkPort: Int, ventilatorPort: Int) = managerScope.launch {
         val ctx = ZContext()
         val sock = ctx.createSocket(SocketType.REP)
@@ -57,6 +59,7 @@ object WorkerManager {
      * @param ventilatorPort the port of the load balancer's
      *  ventilator
      */
+    @Suppress("TooGenericExceptionCaught")
     fun pollRequest(sock: ZMQ.Socket, hostname: String, sinkPort: Int, ventilatorPort: Int) {
         val workerInfo: WorkerInfo?
 
@@ -80,7 +83,7 @@ object WorkerManager {
         }
 
         // add worker id to list of connected workers on first request
-        if (isSuccess) {
+        if (isSuccess && workerInfo.id !in workerIds) {
             logger.info { "Worker with id=${workerInfo.id} connected" }
             workerIds.add(workerInfo.id)
         }

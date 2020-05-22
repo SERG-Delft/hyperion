@@ -12,6 +12,7 @@ jacoco {
 }
 
 dependencies {
+    // Coroutines
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.3.5")
 
     // Logging
@@ -55,7 +56,7 @@ tasks.jacocoTestCoverageVerification {
         rule {
             limit {
                 counter = "BRANCH"
-                minimum = "0.8".toBigDecimal()
+                minimum = "0.65".toBigDecimal()
             }
 
             limit {

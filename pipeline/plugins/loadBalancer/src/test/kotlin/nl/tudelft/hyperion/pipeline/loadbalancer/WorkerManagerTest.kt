@@ -1,9 +1,7 @@
 package nl.tudelft.hyperion.pipeline.loadbalancer
 
 import io.mockk.*
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.test.runBlockingTest
 import nl.tudelft.hyperion.pipeline.readJSONContent
 import org.junit.jupiter.api.AfterEach
@@ -14,6 +12,7 @@ import org.junit.jupiter.api.Test
 import org.zeromq.SocketType
 import org.zeromq.ZContext
 import org.zeromq.ZMQ
+import java.util.concurrent.Executors
 
 class WorkerManagerTest {
 
@@ -28,6 +27,9 @@ class WorkerManagerTest {
         every {
             ZContext().createSocket(SocketType.REP)
         } returns socket
+
+        // reset the scope
+        WorkerManager.managerScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
     }
 
     @AfterEach
@@ -140,9 +142,12 @@ class WorkerManagerTest {
         val port = 5555
 
         runBlockingTest {
-            WorkerManager.run(hostname, port, 3333, 4444)
-            delay(500)
-            WorkerManager.managerScope.cancel()
+            val job = WorkerManager.run(hostname, port, 3333, 4444)
+
+            // possibly flaky test
+            delay(500L)
+
+            job.cancel()
         }
 
         assertEquals("tcp://$hostname:$port", slot.captured)
