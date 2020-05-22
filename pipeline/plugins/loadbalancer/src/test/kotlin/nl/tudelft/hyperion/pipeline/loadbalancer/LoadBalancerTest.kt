@@ -216,7 +216,7 @@ class LoadBalancerTest {
             sock.send("MESSAGE")
         }
 
-        delay(500L)
+        delay(1000L)
 
         sock.close()
         context.close()
