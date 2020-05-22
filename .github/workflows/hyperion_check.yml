@@ -129,7 +129,7 @@ jobs:
           arguments: :pipeline:plugins:pathextractor:check
 
       - name: gradle check pipeline loadbalancer plugin
-          if: steps.hyperion-pipeline-loadbalancer.outputs.changed == 'true'
-          uses: eskatos/gradle-command-action@v1
-          with:
-            arguments: :pipeline:plugins:loadbalancer:check
+        if: steps.hyperion-pipeline-loadbalancer.outputs.changed == 'true'
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: :pipeline:plugins:loadbalancer:check
