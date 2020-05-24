@@ -45,7 +45,7 @@
          Also include dependencies on other plugins as needed.
          See "Compatibility with Multiple Products" and "Plugin Dependencies" for more information.  -->
     <depends>com.intellij.modules.platform</depends>
-
+    <depends>Git4Idea</depends>
 
     <!-- Minimum and maximum build of IDE compatible with the plugin -->
     <idea-version since-build="201.4163"/>
