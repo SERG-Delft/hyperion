@@ -28,6 +28,7 @@ jobs:
           java-version: 11
           
       - uses: actions/cache@v1
+        if: steps.hyperion-plugin.outputs.changed == 'true'
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
