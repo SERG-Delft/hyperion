@@ -6,6 +6,8 @@ name: Gradle check PluginManager
 on:
   pull_request:
   push:
+    paths:
+      - 'pluginmanager/**'
     branches:
       - master
 
@@ -19,9 +21,8 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 11
-          
+
       - uses: actions/cache@v1
-        if: steps.hyperion-pluginmanager.outputs.changed == 'true'
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
@@ -29,7 +30,6 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: gradle check pluginmanager
-        if: steps.hyperion-pluginmanager.outputs.changed == 'true'
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: :pluginmanager:check
