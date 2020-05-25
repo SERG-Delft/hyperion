@@ -27,8 +27,8 @@ import java.util.concurrent.atomic.AtomicInteger
 abstract class AbstractPipelinePlugin(
     private val config: PipelinePluginConfiguration,
     private val pmConn: PluginManagerConnection = ConfigZMQ(config.pluginManager),
-    private val sink: PipelinePush = PipelinePushZMQ(),
-    private val source: PipelinePull = PipelinePullZMQ()
+    private val sink: PipelinePush<PeerConnectionInformation> = PipelinePushZMQ(),
+    private val source: PipelinePull<PeerConnectionInformation> = PipelinePullZMQ()
 ) {
     private val logger = mu.KotlinLogging.logger {}
     private val processThreadPool = CoroutineScope(
