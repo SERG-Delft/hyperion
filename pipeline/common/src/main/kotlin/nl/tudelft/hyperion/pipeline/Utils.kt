@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.runBlocking
 import java.nio.file.Files
@@ -14,6 +15,7 @@ import java.nio.file.Path
  * Helper function that acts as an infinite main function that runs the
  * specified pipeline plugin.
  */
+@InternalCoroutinesApi
 @Suppress("TooGenericExceptionCaught")
 inline fun <reified T : AbstractPipelinePlugin, reified C : Any> runPipelinePlugin(
     configPath: String,

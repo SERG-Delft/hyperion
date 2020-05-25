@@ -1,15 +1,11 @@
 package nl.tudelft.hyperion.pipeline
 
-import io.mockk.every
-import io.mockk.mockkObject
-import io.mockk.spyk
-import io.mockk.verify
+import kotlinx.coroutines.InternalCoroutinesApi
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.zeromq.SocketType
 import org.zeromq.ZContext
 import org.zeromq.ZMQ
-import java.net.Socket
 
 class AbstractPluginIntegrationTest {
     private val pluginId = "TestPlugin"
@@ -21,6 +17,7 @@ class AbstractPluginIntegrationTest {
     var requests = mutableListOf<String>()
     var recvData= mutableListOf<String>()
 
+    @InternalCoroutinesApi
     @Test
     fun `Request configuration from PluginManager`() {
         // setup dummy PluginManager
