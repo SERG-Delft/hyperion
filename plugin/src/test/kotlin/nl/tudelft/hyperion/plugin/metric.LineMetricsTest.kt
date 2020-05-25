@@ -2,8 +2,7 @@ package nl.tudelft.hyperion.plugin
 
 import nl.tudelft.hyperion.plugin.metric.IntervalMetric
 import nl.tudelft.hyperion.plugin.metric.LineMetrics
-import nl.tudelft.hyperion.plugin.metric.Metric
-import nl.tudelft.hyperion.plugin.metric.Severity
+import nl.tudelft.hyperion.plugin.metric.APIMetric
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
@@ -14,9 +13,9 @@ class LineMetricsTest {
 
     @Test
     fun `Test LineMetrics Methods`() {
-        val metricOne = IntervalMetric(60, Metric(20, 20, Severity.INFO))
-        val metricTwo = IntervalMetric(7000, Metric(20, 3000, Severity.INFO))
-        val metricThree = IntervalMetric(3600*25, Metric(20, 3999, Severity.INFO))
+        val metricOne = IntervalMetric(60, APIMetric(20, 20, Severity.INFO))
+        val metricTwo = IntervalMetric(7000, APIMetric(20, 3000, Severity.INFO))
+        val metricThree = IntervalMetric(3600*25, APIMetric(20, 3999, Severity.INFO))
 
         val lineMetrics = LineMetrics(listOf(metricOne, metricTwo, metricThree))
 
@@ -33,7 +32,7 @@ class LineMetricsTest {
     }
     @Test
     fun `Test Constructor`() {
-        val metric = Metric(0, 21, Severity.DEBUG)
+        val metric = APIMetric(0, 21, Severity.DEBUG)
         val intervalMetric = IntervalMetric(20, metric)
         assertEquals(20, intervalMetric.interval, "Interval should be 20")
         assertEquals(metric, intervalMetric.metric,
@@ -42,7 +41,7 @@ class LineMetricsTest {
     }
     @Test
     fun `Test Metric count for getText`() {
-        val metric = Metric(0, 21, Severity.INFO)
+        val metric = APIMetric(0, 21, Severity.INFO)
         val intervalMetric = IntervalMetric(0, metric)
         assertTrue(intervalMetric.getText().startsWith(21.toString()), "Metric should have count 21")
     }
@@ -88,7 +87,7 @@ class LineMetricsTest {
     ).map {dynamicIntervalTest(it.first, it.second)}
     private fun dynamicIntervalTest(input: Int, expected: String): DynamicTest {
         val actual = IntervalMetric(input,
-                Metric(0, 0, Severity.INFO)).getFormattedInterval()
+                                    APIMetric(0, 0, Severity.INFO)).getFormattedInterval()
         return DynamicTest.dynamicTest("Metric with $input second interval should return\"$expected\"") {
             assertEquals(expected, actual)
         }

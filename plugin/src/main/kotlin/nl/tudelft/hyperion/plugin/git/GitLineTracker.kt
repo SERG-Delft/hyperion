@@ -1,7 +1,6 @@
 package nl.tudelft.hyperion.plugin.git
 
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.localVcs.UpToDateLineNumberProvider
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.impl.LineStatusTrackerManager
 import com.intellij.openapi.vfs.VirtualFile
@@ -37,50 +36,29 @@ object GitLineTracker {
 
         // Retrieve the repo this file is located in.
         val repo = GitUtil.getRepositoryManager(project).getRepositoryForFileQuick(file) ?: return null
-        val tracker = LineStatusTrackerManager.getInstance(project).getLineStatusTracker(file) ?: return null
 
-        // Run a git blame first.
-        val blameResult = runBlame(project, repo, file, oldCommit, oldLine) ?: return null
+        // Run our blames
+        val originBlameResult = runOriginBlame(project, repo, file, oldCommit, oldLine) ?: return null
+        val currentBlameResult = runCurrentBlame(project, repo, file, originBlameResult) ?: return null
 
-        // If the last seen commit is not the current head, we lost it somewhere in the commit history.
-        // Give up.
-        if (blameResult.lastSeenCommit != repo.currentRevision) {
-            return null
-        }
-
-        // We know where it was in HEAD, but we might have local unstaged changes for the file
-        // that changes where the line is right now. First, ask intellij if the line was changed.
-        // Note that we need to work with -1 as intellij is 0-based for lines.
-        if (!tracker.isLineModified(blameResult.lastSeenLine - 1)) {
-            return blameResult.lastSeenLine
-        }
-
-        // We will ask intellij if it knows where the file has been moved to.
-        val newLine = tracker.transferLineFromVcs(blameResult.lastSeenLine - 1, false)
-
-        if (newLine == UpToDateLineNumberProvider.ABSENT_LINE_NUMBER) {
-            // IntelliJ does not know where it went.
-            return null
-        }
-
-        return newLine + 1
+        return currentBlameResult.currentLine
     }
 
     /**
      * Runs a git blame on the specified project/repo/file pair, trying to find the
-     * current location of the specified old commit and line. Returns the result if
-     * a success, or null if the blame couldn't be ran.
+     * origin commit of the specified line in the specified file on the specified
+     * commit. Returns the hash and line of the commit that introduced that line, or
+     * null if it could not be resolved.
      */
-    private fun runBlame(
+    private fun runOriginBlame(
         project: Project,
         repo: GitRepository,
         file: VirtualFile,
         oldCommit: String,
         oldLine: Int
-    ): BlameReadResult? {
+    ): OriginBlameReadResult? {
         val handler = GitLineHandler(project, repo.root, GitCommand.BLAME)
         handler.addParameters(
-            "--reverse",
             oldCommit,
             "-L",
             "$oldLine,$oldLine",
@@ -94,7 +72,40 @@ object GitLineTracker {
         handler.endOptions()
         handler.addRelativeFiles(listOf(file))
 
-        val lineReader = BlameLineReader()
+        val lineReader = OriginBlameLineReader()
+        handler.addLineListener(lineReader)
+
+        val result = Git.getInstance().runCommandWithoutCollectingOutput(handler)
+
+        return if (result.success()) {
+            lineReader.result
+        } else {
+            null
+        }
+    }
+
+    /**
+     * Runs a git blame on the current working tree to see if any lines in the
+     * current file can be traced back to the specified origin commit. Returns
+     * the result if the line can be traced back, or null otherwise.
+     */
+    private fun runCurrentBlame(
+        project: Project,
+        repo: GitRepository,
+        file: VirtualFile,
+        origin: OriginBlameReadResult
+    ): CurrentBlameReadResult? {
+        val handler = GitLineHandler(project, repo.root, GitCommand.BLAME)
+        handler.addParameters(
+            "-p",
+            "-l",
+            "-t",
+            "-w"
+        )
+        handler.endOptions()
+        handler.addRelativeFiles(listOf(file))
+
+        val lineReader = CurrentBlameLineReader(origin)
         handler.addLineListener(lineReader)
 
         val result = Git.getInstance().runCommandWithoutCollectingOutput(handler)

@@ -8,9 +8,9 @@ import git4idea.commands.GitLineHandlerListener
  * Line reader that parses the git blame issued by GitLineTracker to
  * track which line the file is located at now.
  */
-class BlameLineReader : GitLineHandlerListener {
+class OriginBlameLineReader : GitLineHandlerListener {
     var hasReadHeader = false
-    var result: BlameReadResult? = null
+    var result: OriginBlameReadResult? = null
 
     override fun onLineAvailable(line: String, outputType: Key<*>) {
         if (hasReadHeader) {
@@ -33,14 +33,14 @@ class BlameLineReader : GitLineHandlerListener {
             return
         }
 
-        result = BlameReadResult(
+        result = OriginBlameReadResult(
             parts[0],
             parts[1].toInt()
         )
     }
 }
 
-data class BlameReadResult(
+data class OriginBlameReadResult(
     val lastSeenCommit: String,
     val lastSeenLine: Int
 )

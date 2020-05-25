@@ -11,7 +11,7 @@ class MetricTooltipRenderer(
     text: String?,
     private val highlighter: RangeHighlighter
 ) : HintRenderer(text) {
-    val offset: Int
+    private val offset: Int
         get() = highlighter.startOffset
 
     override fun paint(inlay: Inlay<*>, g: Graphics, r: Rectangle, textAttributes: TextAttributes) {
