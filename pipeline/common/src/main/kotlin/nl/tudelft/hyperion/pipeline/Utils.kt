@@ -16,7 +16,7 @@ import java.nio.file.Path
  * specified pipeline plugin.
  */
 @InternalCoroutinesApi
-@Suppress("TooGenericExceptionCaught")
+@SuppressWarnings("TooGenericExceptionCaught")
 inline fun <reified T : AbstractPipelinePlugin, reified C : Any> runPipelinePlugin(
     configPath: String,
     crossinline createInstance: (C) -> T

@@ -59,6 +59,7 @@ abstract class AbstractPipelinePlugin(
         }
 
         logger.debug { "Requesting connection information from ${config.pluginManager}" }
+
         subConnectionInformation = readJSONContent(pmConn.requestConfig(config.id, "pull"))
         pubConnectionInformation = readJSONContent(pmConn.requestConfig(config.id, "push"))
 
@@ -113,7 +114,6 @@ abstract class AbstractPipelinePlugin(
         }
 
         sink.closeConnection()
-
     }
 
     /**

@@ -7,7 +7,7 @@ import org.zeromq.ZContext
 /**
  * ZMQ implementation of :PipelinePush:
  */
-class PipelinePushZMQ: PipelinePush<PeerConnectionInformation> {
+class PipelinePushZMQ : PipelinePush<PeerConnectionInformation> {
     private val ctx = ZContext()
     private val socket = ctx.createSocket(SocketType.PUSH)
 
