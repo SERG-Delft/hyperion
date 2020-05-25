@@ -23,6 +23,9 @@ dependencies {
     // ZeroMQ
     implementation("org.zeromq", "jeromq", "0.5.2")
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-jdk8", "1.3.5")
+
+    // Testing
+    testImplementation("io.mockk", "mockk", "1.10.0")
 }
 
 tasks.jacocoTestReport {
