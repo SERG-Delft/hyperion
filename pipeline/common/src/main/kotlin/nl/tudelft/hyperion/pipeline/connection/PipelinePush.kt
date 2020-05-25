@@ -1,17 +1,16 @@
 package nl.tudelft.hyperion.pipeline.connection
 
-import nl.tudelft.hyperion.pipeline.PeerConnectionInformation
-
 /**
  * Interface used by :AbstractPipelinePlugin: to push data to the next plugin.
+ * @param T: type of configuration used by setupConnection()
  */
-interface PipelinePush {
+interface PipelinePush<T> {
     /**
-     * Setup the connection to the previous plugin.
+     * Setup the connection with the successive plugin using config of type T.
      * setupConnection is called once in the :AbstractPipelinePlugin: before
      * calls to push() are made.
      */
-    fun setupConnection(config: PeerConnectionInformation)
+    fun setupConnection(config: T)
 
     /**
      * Pushes the given string over your connection.

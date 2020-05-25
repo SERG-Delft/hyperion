@@ -1,17 +1,16 @@
 package nl.tudelft.hyperion.pipeline.connection
 
-import nl.tudelft.hyperion.pipeline.PeerConnectionInformation
-
 /**
  * Interface used by :AbstractPipelinePlugin: to pull data from the previous plugin.
+ * @param T: type of configuration used by setupConnection()
  */
-interface PipelinePull {
+interface PipelinePull<T> {
     /**
-     * Setup the connection to the previous plugin.
+     * Setup the connection with the previous plugin using config of type T.
      * setupConnection is called once in the :AbstractPipelinePlugin: before
      * calls to pull() are made.
      */
-    fun setupConnection(config: PeerConnectionInformation)
+    fun setupConnection(config: T)
 
     /**
      * Returns the latest message received from the connection.
