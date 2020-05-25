@@ -12,9 +12,10 @@ class PipelinePullZMQ : PipelinePull<PeerConnectionInformation> {
     private val socket = ctx.createSocket(SocketType.PULL)
 
     override fun setupConnection(config: PeerConnectionInformation) {
-        when (config.isBind) {
-            true -> socket.bind(config.host)
-            false -> socket.connect(config.host)
+        if (config.isBind) {
+            socket.bind(config.host)
+        } else {
+            socket.connect(config.host)
         }
     }
 

@@ -1,7 +1,7 @@
 package nl.tudelft.hyperion.pipeline.connection
 
 import org.zeromq.SocketType
-import org.zeromq.ZMQ
+import org.zeromq.ZContext
 
 /**
  * ZMQ implementation of :PluginManagerConnection:
@@ -12,8 +12,8 @@ class ConfigZMQ(pluginManager: String) : PluginManagerConnection {
     private val pluginManagerHost ="tcp://$pluginManager"
 
     override fun requestConfig(id: String, type: String): String {
-        val context = ZMQ.context(1)
-        val socket = context.socket(SocketType.REQ)
+        val context = ZContext()
+        val socket = context.createSocket(SocketType.REQ)
         val req = """{"id":"$id","type":"$type"}"""
 
         logger.debug { "Connecting to $pluginManagerHost"}
@@ -26,7 +26,7 @@ class ConfigZMQ(pluginManager: String) : PluginManagerConnection {
         logger.debug { "Received $rep"}
 
         socket.close()
-        context.term()
+        context.destroy()
 
         return rep
     }
