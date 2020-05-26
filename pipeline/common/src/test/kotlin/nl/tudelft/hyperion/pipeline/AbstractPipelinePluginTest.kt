@@ -8,6 +8,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import nl.tudelft.hyperion.pipeline.connection.ConfigType
 import nl.tudelft.hyperion.pipeline.connection.ConfigZMQ
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -23,10 +24,10 @@ class AbstractPipelinePluginTest {
     fun initSetup() {
         pmConn = mockk<ConfigZMQ>(relaxed = true)
         every {
-            pmConn.requestConfig("Plugin", "pull")
+            pmConn.requestConfig("Plugin", ConfigType.PULL)
         } returns """{"isBind":"true","host":"tcp://localhost:1200"}"""
         every {
-            pmConn.requestConfig("Plugin", "push")
+            pmConn.requestConfig("Plugin", ConfigType.PUSH)
         } returns """{"isBind":"false","host":"tcp://localhost:1201"}"""
     }
 
@@ -41,8 +42,8 @@ class AbstractPipelinePluginTest {
         plugin.queryConnectionInformation()
 
         verify {
-            pmConn.requestConfig("Plugin", "pull")
-            pmConn.requestConfig("Plugin", "push")
+            pmConn.requestConfig("Plugin", ConfigType.PULL)
+            pmConn.requestConfig("Plugin", ConfigType.PUSH)
         }
     }
 

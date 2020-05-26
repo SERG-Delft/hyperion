@@ -11,10 +11,10 @@ class ConfigZMQ(pluginManager: String) {
     private val logger = mu.KotlinLogging.logger {}
     private val pluginManagerHost = "tcp://$pluginManager"
 
-    fun requestConfig(id: String, type: String): String {
+    fun requestConfig(id: String, type: ConfigType): String {
         val context = ZContext()
         val socket = context.createSocket(SocketType.REQ)
-        val req = """{"id":"$id","type":"$type"}"""
+        val req = """{"id":"$id","type":"${type.toString().toLowerCase()}"}"""
 
         logger.debug { "Connecting to $pluginManagerHost" }
         socket.connect(pluginManagerHost)

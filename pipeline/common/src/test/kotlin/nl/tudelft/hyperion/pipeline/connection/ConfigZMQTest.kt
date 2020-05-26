@@ -26,7 +26,7 @@ class ConfigZMQTest {
         val host = "localhost:5000"
         val config = ConfigZMQ(host)
 
-        val res = config.requestConfig("Renamer", "pull")
+        val res = config.requestConfig("Renamer", ConfigType.PULL)
         val expected = """{"isBind":"true","host":"tcp://localhost:1200"}"""
 
         assertEquals(expected, res)

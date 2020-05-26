@@ -8,6 +8,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import nl.tudelft.hyperion.pipeline.connection.ConfigType
 import nl.tudelft.hyperion.pipeline.connection.ConfigZMQ
 import nl.tudelft.hyperion.pipeline.connection.PipelinePullZMQ
 import nl.tudelft.hyperion.pipeline.connection.PipelinePushZMQ
@@ -55,8 +56,8 @@ abstract class AbstractPipelinePlugin(
 
         logger.debug { "Requesting connection information from ${config.pluginManager}" }
 
-        subConnectionInformation = readJSONContent(pmConn.requestConfig(config.id, "pull"))
-        pubConnectionInformation = readJSONContent(pmConn.requestConfig(config.id, "push"))
+        subConnectionInformation = readJSONContent(pmConn.requestConfig(config.id, ConfigType.PULL))
+        pubConnectionInformation = readJSONContent(pmConn.requestConfig(config.id, ConfigType.PUSH))
 
         logger.debug { "subConnectionInformation: $subConnectionInformation" }
         logger.debug { "pubConnectionInformation: $pubConnectionInformation" }
