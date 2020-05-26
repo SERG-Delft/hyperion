@@ -4,7 +4,7 @@ import org.zeromq.SocketType
 import org.zeromq.ZContext
 
 /**
- * ZMQ implementation of :PluginManagerConnection:
+ * Requests the config from [PluginManager] via ZMQ connection
  */
 class ConfigZMQ(pluginManager: String) {
 
