@@ -2,9 +2,9 @@
 
 A basic load balancer plugin that acts as both a plugin and plugin manager.
 This allows for easily starting parallel plugins in the pipeline to handle a larger throughput.
-A standard use case would if the processing time of a plugin in the pipeline is acting as a bottleneck.
+A standard use case would be if the processing time of a plugin in the pipeline is acting as a bottleneck.
 
-Any Hyperion supported plugin could theoretically be used as a worker, as the interface for this plugin is
+Any Hyperion supported plugin could theoretically be used as a worker, as the interface for the load balancer plugin is
 identical to the plugin manager.
 
 The load balancer can be ran by providing the path to a `.yml` config file.
