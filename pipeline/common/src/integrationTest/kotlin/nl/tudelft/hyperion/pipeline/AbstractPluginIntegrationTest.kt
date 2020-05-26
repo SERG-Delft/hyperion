@@ -1,6 +1,5 @@
 package nl.tudelft.hyperion.pipeline
 
-import kotlinx.coroutines.InternalCoroutinesApi
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.zeromq.SocketType
@@ -17,7 +16,6 @@ class AbstractPluginIntegrationTest {
     var requests = mutableListOf<String>()
     var recvData = mutableListOf<String>()
 
-    @InternalCoroutinesApi
     @Test
     fun `Request configuration from PluginManager`() {
         // setup dummy PluginManager

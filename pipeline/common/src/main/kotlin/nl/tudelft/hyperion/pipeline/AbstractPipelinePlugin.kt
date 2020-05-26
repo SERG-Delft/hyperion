@@ -2,8 +2,6 @@ package nl.tudelft.hyperion.pipeline
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.NonCancellable.isActive
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
@@ -74,13 +72,11 @@ abstract class AbstractPipelinePlugin(
      * Sets up the ZMQ sockets needed to consume and send messages for this plugin.
      * Returns a job that, when cancelled, will automatically clean up after itself.
      */
-    @InternalCoroutinesApi
     fun run() = GlobalScope.launch {
-        runSuspend()
+        runSuspend(this)
     }
 
-    @InternalCoroutinesApi
-    suspend fun runSuspend() {
+    suspend fun runSuspend(scope: CoroutineScope) {
         if (!hasConnectionInformation) {
             throw PipelinePluginInitializationException("Cannot run plugin without connection information")
         }
@@ -91,7 +87,7 @@ abstract class AbstractPipelinePlugin(
 
         // Sleep infinitely
         try {
-            while (isActive) {
+            while (scope.isActive) {
                 delay(Long.MAX_VALUE)
             }
         } finally {

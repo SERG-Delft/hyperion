@@ -6,7 +6,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import nl.tudelft.hyperion.pipeline.connection.PluginManagerConnection
@@ -55,7 +54,6 @@ class AbstractPipelinePluginTest {
         assertThrows<PipelinePluginInitializationException> { plugin.queryConnectionInformation() }
     }
 
-    @InternalCoroutinesApi
     @Test
     fun `Throw exception when run without init`() {
         val plugin = TestPlugin(config)
@@ -67,7 +65,7 @@ class AbstractPipelinePluginTest {
 
         runBlocking {
             GlobalScope.launch(handler) {
-                plugin.runSuspend()
+                plugin.runSuspend(this)
             }.join()
         }
 
