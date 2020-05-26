@@ -13,11 +13,11 @@ class AbstractPluginIntegrationTest {
     private val pluginPull = "tcp://localhost:5001"
     private val pluginPush = "tcp://localhost:5002"
 
-    var requests = mutableListOf<String>()
-    var recvData = mutableListOf<String>()
-
     @Test
     fun `Request configuration from PluginManager`() {
+        val requests = mutableListOf<String>()
+        val recvData = mutableListOf<String>()
+
         // setup dummy PluginManager
         val pluginManager = Thread(
             PluginManagerRunnable(pluginManagerHost, pluginPull, pluginPush, pluginId, requests)
@@ -30,7 +30,7 @@ class AbstractPluginIntegrationTest {
         // assert request config from :PluginManager:
         plugin.queryConnectionInformation()
         assertEquals(
-            mutableListOf(
+            listOf(
                 """{"id":"$pluginId","type":"push"}""",
                 """{"id":"$pluginId","type":"pull"}"""
             ), requests
@@ -49,7 +49,7 @@ class AbstractPluginIntegrationTest {
         pushData(pluginPull, "message2")
 
         // assert pushed data is recveid, processed and pused to pull port.
-        assertEquals(mutableListOf("message2", "testMessage"), recvData)
+        assertEquals(listOf("message2", "testMessage"), recvData)
     }
 
     private fun setupPlugin(): TestPlugin {
