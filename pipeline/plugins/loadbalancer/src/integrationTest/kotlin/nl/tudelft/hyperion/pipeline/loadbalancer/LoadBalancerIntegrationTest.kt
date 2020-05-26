@@ -111,7 +111,7 @@ class LoadBalancerIntegrationTest {
         val receiverJob = CoroutineScope(Dispatchers.IO).launch {
             ZContext().use {
                 val sock = it.createSocket(SocketType.PULL)
-                sock.receiveTimeOut = 1000
+                sock.receiveTimeOut = 10_000
                 sock.connect("tcp://localhost:$pubPort")
 
                 while (isActive) {
@@ -130,7 +130,7 @@ class LoadBalancerIntegrationTest {
             sock.send("MESSAGE")
         }
 
-        delay(1000L)
+        delay(2000L)
 
         sock.close()
         context.close()
