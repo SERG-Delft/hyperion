@@ -1,8 +1,19 @@
 package nl.tudelft.hyperion.pipeline.loadbalancer
 
-import io.mockk.*
-import kotlinx.coroutines.*
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.confirmVerified
+import io.mockk.mockk
+import io.mockk.mockkConstructor
+import io.mockk.unmockkAll
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -38,9 +49,9 @@ class LoadBalancerTest {
         val port = 1111
 
         scope.createChannelReceiver(
-                hostname,
-                port,
-                channel
+            hostname,
+            port,
+            channel
         )
 
         runBlocking {
@@ -82,9 +93,9 @@ class LoadBalancerTest {
         } returns expectedMessage
 
         scope.createChannelSender(
-                hostname,
-                port,
-                channel
+            hostname,
+            port,
+            channel
         )
 
         coVerify {

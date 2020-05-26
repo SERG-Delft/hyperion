@@ -1,12 +1,12 @@
 package nl.tudelft.hyperion.pipeline.loadbalancer
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import nl.tudelft.hyperion.pipeline.AbstractPipelinePlugin
 import nl.tudelft.hyperion.pipeline.PipelinePluginInitializationException
 import org.zeromq.SocketType
@@ -21,7 +21,7 @@ import java.util.concurrent.Executors
  * @property config the configuration to use
  */
 class LoadBalancer(
-        private val config: LoadBalancerPluginConfiguration
+    private val config: LoadBalancerPluginConfiguration
 ) : AbstractPipelinePlugin(config.zmq) {
 
     override fun run() = CoroutineScope(Dispatchers.Default).launch {
@@ -40,21 +40,21 @@ class LoadBalancer(
         // start workers
         val parent = launch {
             WorkerManager.run(
-                    config.workerManagerHostname,
-                    config.workerManagerPort,
-                    config.sinkPort,
-                    config.ventilatorPort
+                config.workerManagerHostname,
+                config.workerManagerPort,
+                config.sinkPort,
+                config.ventilatorPort
             )
             runReceiver(inputChannel)
             inputWorkerScope.createChannelReceiver(
-                    config.workerManagerHostname,
-                    config.ventilatorPort,
-                    inputChannel
+                config.workerManagerHostname,
+                config.ventilatorPort,
+                inputChannel
             )
             outputWorkerScope.createChannelSender(
-                    config.workerManagerHostname,
-                    config.sinkPort,
-                    outputChannel
+                config.workerManagerHostname,
+                config.sinkPort,
+                outputChannel
             )
             runSender(outputChannel)
         }
@@ -79,9 +79,9 @@ class LoadBalancer(
  * @param channel the channel to receive messages from
  */
 fun CoroutineScope.createChannelReceiver(
-        hostname: String,
-        port: Int,
-        channel: Channel<String>
+    hostname: String,
+    port: Int,
+    channel: Channel<String>
 ) = launch {
     ZContext().use {
         val sock = it.createSocket(SocketType.PUSH)
@@ -102,9 +102,9 @@ fun CoroutineScope.createChannelReceiver(
  * @param channel the channel to send messages from
  */
 fun CoroutineScope.createChannelSender(
-        hostname: String,
-        port: Int,
-        channel: Channel<String>
+    hostname: String,
+    port: Int,
+    channel: Channel<String>
 ) = launch {
     ZContext().use {
         val sock = it.createSocket(SocketType.PULL)

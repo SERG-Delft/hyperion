@@ -16,9 +16,9 @@ import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
  *  processed messages from the PUSH sockets of the workers
  */
 data class LoadBalancerPluginConfiguration(
-        val zmq: PipelinePluginConfiguration,
-        val workerManagerHostname: String,
-        val workerManagerPort: Int,
-        val ventilatorPort: Int,
-        val sinkPort: Int
+    val zmq: PipelinePluginConfiguration,
+    val workerManagerHostname: String,
+    val workerManagerPort: Int,
+    val ventilatorPort: Int,
+    val sinkPort: Int
 )

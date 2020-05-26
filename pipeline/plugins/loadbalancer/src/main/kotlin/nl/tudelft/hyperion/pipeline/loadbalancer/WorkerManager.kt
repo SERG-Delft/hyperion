@@ -2,15 +2,14 @@ package nl.tudelft.hyperion.pipeline.loadbalancer
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import mu.KotlinLogging
 import nl.tudelft.hyperion.pipeline.readJSONContent
 import org.zeromq.SocketType
 import org.zeromq.ZContext
 import org.zeromq.ZMQ
-import java.lang.Exception
 import java.util.concurrent.Executors
 
 /**
@@ -67,14 +66,13 @@ object WorkerManager {
             val content = sock.recvStr()
             workerInfo = readJSONContent(content)
             logger.debug { "Worker request received: $content" }
-
         } catch (e: Exception) {
             logger.warn { "Failed to parse client request: ${e.message}" }
             return
         }
 
         // does not do failure handling
-        val isSuccess = when(workerInfo.type) {
+        val isSuccess = when (workerInfo.type) {
             ConnectionType.PUSH ->
                 sock.send("""{"host":"${createAddress(hostname, sinkPort)}", "isBind": "false"}""")
 
@@ -96,6 +94,7 @@ object WorkerManager {
 enum class ConnectionType {
     @JsonProperty("push")
     PUSH,
+
     @JsonProperty("pull")
     PULL
 }
@@ -108,6 +107,6 @@ enum class ConnectionType {
  *  the worker is requesting
  */
 data class WorkerInfo(
-        val id: String,
-        val type: ConnectionType
+    val id: String,
+    val type: ConnectionType
 )

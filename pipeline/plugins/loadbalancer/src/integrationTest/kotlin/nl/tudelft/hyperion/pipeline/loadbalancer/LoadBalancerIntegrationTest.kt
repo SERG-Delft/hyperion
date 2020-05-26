@@ -125,8 +125,8 @@ class LoadBalancerIntegrationTest {
         val sock = context.createSocket(SocketType.PUSH)
         sock.connect("tcp://localhost:$subPort")
 
-        // Queue 3 messages
-        for (i in 0..2) {
+        // Queue 6 messages
+        for (i in 0..6) {
             sock.send("MESSAGE")
         }
 
@@ -139,8 +139,8 @@ class LoadBalancerIntegrationTest {
         jobs.map { it.cancel() }
         receiverJob.cancel()
 
-        // Check if all 3 messages are processed
-        val expected = (0..2).map { "message" }
+        // Check if all 6 messages are processed
+        val expected = (0..6).map { "message" }
 
         // messages should be distributed round-robin
         // so all three plugins should have processed a message
