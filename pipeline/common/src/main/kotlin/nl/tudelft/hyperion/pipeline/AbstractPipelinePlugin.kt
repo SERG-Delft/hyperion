@@ -9,7 +9,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import nl.tudelft.hyperion.pipeline.connection.ConfigZMQ
-import nl.tudelft.hyperion.pipeline.connection.PipelinePull
 import nl.tudelft.hyperion.pipeline.connection.PipelinePullZMQ
 import nl.tudelft.hyperion.pipeline.connection.PipelinePush
 import nl.tudelft.hyperion.pipeline.connection.PipelinePushZMQ
@@ -28,7 +27,7 @@ abstract class AbstractPipelinePlugin(
     private val config: PipelinePluginConfiguration,
     private val pmConn: PluginManagerConnection = ConfigZMQ(config.pluginManager),
     private val sink: PipelinePush<PeerConnectionInformation> = PipelinePushZMQ(),
-    private val source: PipelinePull<PeerConnectionInformation> = PipelinePullZMQ()
+    private val source: PipelinePullZMQ = PipelinePullZMQ()
 ) {
     private val logger = mu.KotlinLogging.logger {}
     private val processThreadPool = CoroutineScope(
