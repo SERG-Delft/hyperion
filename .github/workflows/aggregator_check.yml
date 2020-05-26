@@ -15,10 +15,6 @@ jobs:
   gradle-check:
     runs-on: ubuntu-latest
 
-    services:
-      dind:
-        image: docker
-
     steps:
       - uses: actions/checkout@v2
 
@@ -35,8 +31,5 @@ jobs:
 
       - name: gradle check aggregator
         uses: eskatos/gradle-command-action@v1
-        env:
-          DOCKER_HOST: "tcp://dind:2375"
-          DOCKER_DRIVER: overlay2
         with:
           arguments: :aggregator:check
