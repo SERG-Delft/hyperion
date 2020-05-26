@@ -198,7 +198,7 @@ class ElasticsearchTest {
 
         verify {
             socket.connect("tcp://${testConfig.zmq.address}")
-            socket.send("""{"id":"Elasticsearch","type":"out"}""")
+            socket.send("""{"id":"Elasticsearch","type":"push"}""")
         }
 
         assertNotNull(es.pubConnectionInformation)
