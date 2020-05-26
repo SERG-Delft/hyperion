@@ -29,9 +29,6 @@ class VersionTracker(config: Configuration) : AbstractPipelinePlugin(config.zmq)
     private val pollThreadPool = CoroutineScope(Executors.newCachedThreadPool().asCoroutineDispatcher())
 
     companion object {
-        // hardcode update interval to 5 min for now
-        const val UPDATE_INTERVAL = 5 * 60_000L
-
         // what to name the added field name
         const val NEW_FIELD_NAME = "version"
     }
@@ -45,7 +42,7 @@ class VersionTracker(config: Configuration) : AbstractPipelinePlugin(config.zmq)
 
     /**
      * Creates a job within the receiver's [CoroutineScope] that fetches remote
-     * references every [UPDATE_INTERVAL] from the given repository.
+     * references every [ProjectConfig.updateInterval] from the given repository.
      *
      * @param projectName name of the project
      * @param projectConfig the necessary config for communication with git
@@ -59,7 +56,7 @@ class VersionTracker(config: Configuration) : AbstractPipelinePlugin(config.zmq)
                 updateRefs(projectName, projectConfig)
             }
 
-            delay(UPDATE_INTERVAL)
+            delay(projectConfig.updateInterval * 1000L)
         }
     }
 

@@ -33,6 +33,7 @@ data class Configuration(
 data class ProjectConfig(
         val repository: String,
         val branch: String,
+        val updateInterval: Long = 360,
         val authentication: Authentication?
 )
 
