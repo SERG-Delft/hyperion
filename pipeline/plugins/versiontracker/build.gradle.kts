@@ -26,7 +26,7 @@ dependencies {
 }
 
 application {
-    mainClassName = "nl.tudelft.hyperion.pipeline.versiontracker.Main"
+    mainClassName = "nl.tudelft.hyperion.pipeline.versiontracker.MainKt"
 }
 
 jacoco {

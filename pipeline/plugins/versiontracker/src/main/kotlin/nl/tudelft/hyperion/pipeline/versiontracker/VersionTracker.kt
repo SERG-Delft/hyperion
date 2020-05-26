@@ -3,7 +3,14 @@ package nl.tudelft.hyperion.pipeline.versiontracker
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import nl.tudelft.hyperion.pipeline.AbstractPipelinePlugin
 import org.eclipse.jgit.lib.Ref
@@ -73,32 +80,31 @@ class VersionTracker(config: Configuration) : AbstractPipelinePlugin(config.zmq)
         val refMap: Map<String, Ref> = when (val auth = projectConfig.authentication) {
             null ->
                 lsRemoteCommandBuilder(
-                        projectConfig.repository
+                    projectConfig.repository
                 )
 
             is Authentication.SSH ->
                 lsRemoteCommandBuilder(
-                        projectConfig.repository,
-                        auth.keyPath
+                    projectConfig.repository,
+                    auth.keyPath
                 )
 
             is Authentication.HTTPS ->
                 lsRemoteCommandBuilder(
-                        projectConfig.repository,
-                        auth.username,
-                        auth.password
+                    projectConfig.repository,
+                    auth.username,
+                    auth.password
                 )
         }.callAsMap()
 
         // check if the the branch name is in the references
-        // TODO modify the branch value: remove "refs/heads/"
         if (refMap.containsKey(projectConfig.branch) && refMap[projectConfig.branch] != null) {
             logger.debug { "Updating entry for $projectName with ${refMap[projectConfig.branch]}" }
 
             projectVersions[projectName] =
-                    (refMap[projectConfig.branch]
-                            ?: error("Reference with branch ${projectConfig.branch} is null"))
-                            .objectId.name
+                (refMap[projectConfig.branch]
+                    ?: error("Reference with branch ${projectConfig.branch} is null"))
+                    .objectId.name
         }
     }
 

@@ -17,7 +17,7 @@ import org.eclipse.jgit.util.FS
  * @param keyPath path of the private key file
  */
 private fun createSSHFactory(keyPath: String) = object : JschConfigSessionFactory() {
-    override fun configure(hc: OpenSshConfig.Host?, session: Session?) {}
+    override fun configure(hc: OpenSshConfig.Host?, session: Session?) = Unit
 
     override fun createDefaultJSch(fs: FS?): JSch {
         val default = super.createDefaultJSch(fs)
@@ -39,12 +39,12 @@ private fun createSSHFactory(keyPath: String) = object : JschConfigSessionFactor
  * @return the modified [GitCommand]
  */
 private fun <C : GitCommand<*>?, T> TransportCommand<C, T>.addSSHAuthentication(
-        keyPath: String
+    keyPath: String
 ): C =
-        setTransportConfigCallback { transport ->
-            val sshTransport = transport as SshTransport
-            sshTransport.sshSessionFactory = createSSHFactory(keyPath)
-        }
+    setTransportConfigCallback { transport ->
+        val sshTransport = transport as SshTransport
+        sshTransport.sshSessionFactory = createSSHFactory(keyPath)
+    }
 
 /**
  * Base builder for the [LsRemoteCommand], assumes no repo is given.
@@ -53,12 +53,12 @@ private fun <C : GitCommand<*>?, T> TransportCommand<C, T>.addSSHAuthentication(
  * @return [LsRemoteCommand] to call
  */
 fun lsRemoteCommandBuilder(remote: String): LsRemoteCommand =
-        LsRemoteCommand(null)
-                .setRemote(remote)
-                .setHeads(true)
+    LsRemoteCommand(null)
+        .setRemote(remote)
+        .setHeads(true)
 
 /**
- * Builder that adds HTTPS based authentication on top of the base command
+ * Overloaded builder that adds HTTPS based authentication on top of the base command
  *
  * @param remote the URL of the remote repository to fetch from
  * @param username git username to use for authentication
@@ -67,16 +67,16 @@ fun lsRemoteCommandBuilder(remote: String): LsRemoteCommand =
  */
 fun lsRemoteCommandBuilder(remote: String, username: String, password: String): LsRemoteCommand = run {
     lsRemoteCommandBuilder(remote)
-            .setCredentialsProvider(UsernamePasswordCredentialsProvider(username, password))
+        .setCredentialsProvider(UsernamePasswordCredentialsProvider(username, password))
 }
 
 /**
- * Builder that adds SSH based authentication on top of the base command
+ * Overloaded builder that adds SSH based authentication on top of the base command
  *
  * @param remote the URL of the remote repository to fetch from
  * @param keyPath path of the private key file
  * @return [LsRemoteCommand] to call
  */
 fun lsRemoteCommandBuilder(remote: String, keyPath: String): LsRemoteCommand =
-        lsRemoteCommandBuilder(remote)
-                .addSSHAuthentication(keyPath)
+    lsRemoteCommandBuilder(remote)
+        .addSSHAuthentication(keyPath)

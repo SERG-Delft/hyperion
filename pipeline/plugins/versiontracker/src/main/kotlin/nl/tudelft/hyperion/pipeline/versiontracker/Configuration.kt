@@ -16,8 +16,8 @@ import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
  * @property projects Map of projects to track
  */
 data class Configuration(
-        val zmq: PipelinePluginConfiguration,
-        val projects: Map<String, ProjectConfig>
+    val zmq: PipelinePluginConfiguration,
+    val projects: Map<String, ProjectConfig>
 )
 
 /**
@@ -31,10 +31,10 @@ data class Configuration(
  *  HTTPS for username and password based authentication
  */
 data class ProjectConfig(
-        val repository: String,
-        val branch: String,
-        val updateInterval: Long = 360,
-        val authentication: Authentication?
+    val repository: String,
+    val branch: String,
+    val updateInterval: Long = 360,
+    val authentication: Authentication?
 )
 
 /**
@@ -45,24 +45,24 @@ data class ProjectConfig(
 @JsonDeserialize(using = AuthenticationDeserializer::class)
 sealed class Authentication(private val type: CommunicationProtocol) {
     data class SSH(
-            val keyPath: String
+        val keyPath: String
     ) : Authentication(CommunicationProtocol.SSH)
 
     data class HTTPS(
-            val username: String,
-            val password: String
+        val username: String,
+        val password: String
     ) : Authentication(CommunicationProtocol.HTTPS)
 }
 
 /**
  * Represents the possible communication methods for Git.
  */
-enum class CommunicationProtocol {
+enum class CommunicationProtocol(val str: String) {
     @JsonProperty("ssh")
-    SSH,
+    SSH("ssh"),
 
     @JsonProperty("https")
-    HTTPS
+    HTTPS("https")
 }
 
 /**
@@ -79,32 +79,32 @@ class AuthenticationDeserializer : JsonDeserializer<Authentication>() {
         }
 
         return when (val type = root.get("type").textValue().toLowerCase()) {
-            "ssh" -> run {
+            CommunicationProtocol.SSH.str -> run {
                 if (root["keyPath"] == null) {
                     throw InvalidFormatException(
-                            p,
-                            "Missing keyPath field in ssh authentication",
-                            root,
-                            Authentication::class.java
+                        p,
+                        "Missing keyPath field in ssh authentication",
+                        root,
+                        Authentication::class.java
                     )
                 }
 
                 Authentication.SSH(root.get("keyPath").textValue())
             }
 
-            "https" -> run {
+            CommunicationProtocol.HTTPS.str -> run {
                 if (root["username"] == null || root["password"] == null) {
                     throw InvalidFormatException(
-                            p,
-                            "Missing username or password field in https authentication",
-                            root,
-                            Authentication::class.java
+                        p,
+                        "Missing username or password field in https authentication",
+                        root,
+                        Authentication::class.java
                     )
                 }
 
                 Authentication.HTTPS(
-                        root.get("username").textValue(),
-                        root.get("password").textValue()
+                    root.get("username").textValue(),
+                    root.get("password").textValue()
                 )
             }
 
