@@ -1,2 +1,3 @@
 # logstash-output-hyperion
-Example output plugin. This should help bootstrap your effort to write your own output plugin!
+
+Output plugin for integration with the Hyperion pipeline. This plugin will connect to a hyperion plugin manager and provide an input for the pipeline.

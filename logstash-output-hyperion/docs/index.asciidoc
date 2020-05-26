@@ -1,6 +1,6 @@
-:plugin: example
+:plugin: hyperion
 :type: output
-:default_codec: plain
+:default_codec: json
 // Update header with plugin name and default codec
 
 ///////////////////////////////////////////
@@ -16,107 +16,53 @@ END - GENERATED VARIABLES, DO NOT EDIT!
 
 [id="plugins-{type}s-{plugin}"]
 
-=== Example output plugin
+=== Hyperion output plugin
 
 include::{include_path}/plugin_header.asciidoc[]
 
 ==== Description
 
-Add plugin description here
+This plugin enables logstash to write events to plugins in the Hyperion pipeline. This plugin should be prefered over the ElasticSearch input plugin when possible, as it operates on a much more efficient pushing scheme rather than a pulling system.
+
+Since logstash is a powerful manipulation pipeline in itself, you may also be able to link this plugin directly to the Hyperion aggregator, without any other intermediate steps. Please see the Hyperion documentation for more information on how this works.
+
+This plugin requires you to have the ZeroMQ development libraries, version 4.x.x installed. On most distributions you can do this with `apt install libzmq3-dev` (yes, zmq3 will install version 4.x).
 
 // Format anchors and links to support generated ids for versioning
 // Sample anchor: [id="plugins-{type}s-{plugin}-setting_name"]
 // Sample link: <<plugins-{type}s-{plugin}-setting_name>>
 
 [id="plugins-{type}s-{plugin}-options"]
-==== Example Output Configuration Options
+==== Hyperion Output Configuration Options
 
 [cols="<,<,<",options="header",]
 |=======================================================================
 |Setting |Input type|Required
-| <<plugins-{type}s-{plugin}-a_setting_name>> |<<boolean,boolean>>|No
-| <<plugins-{type}s-{plugin}-another_setting_name>> |<<hash,hash>>|No
-| <<plugins-{type}s-{plugin}-setting_name_3>> |<<string,string>>|No
-| <<plugins-{type}s-{plugin}-setting_name_4>> |<<number,number>>|No
-| <<plugins-{type}s-{plugin}-setting_name_5>> |<<array,array>>|No
-| <<plugins-{type}s-{plugin}-setting_name_6>> |<<bytes,bytes>>|No
-| <<plugins-{type}s-{plugin}-setting_name_7>> |<<path,path>>|No
-| <<plugins-{type}s-{plugin}-setting_name_8>> |<<password,password>>|No
-| <<plugins-{type}s-{plugin}-setting_name_9>> |<<uri,uri>>|No
+| <<plugins-{type}s-{plugin}-id>> |<<string,string>>|Yes
+| <<plugins-{type}s-{plugin}-pm_host>> |<<string,string>>|Yes
+| <<plugins-{type}s-{plugin}-pm_port>> |<<number,number>>|Yes
 |=======================================================================
 
-[id="plugins-{type}s-{plugin}-a_setting_name"]
-===== `a_setting_name` 
-
-  * Value type is <<boolean,boolean>>
-  * Default value is `true`
-
-Add description here
-
-[id="plugins-{type}s-{plugin}-another_setting_name"]
-===== `another_setting_name` 
-
-  * Value type is <<hash,hash>>
-  * Default value is `{}`
-
-Add description here
-
-[id="plugins-{type}s-{plugin}-setting_name_3"]
-===== `setting_name_3` 
+[id="plugins-{type}s-{plugin}-id"]
+===== `id` 
 
   * Value type is <<string,string>>
-  * Default value is `{}`
 
-Add description here
+The ID of this input as configured in the plugin manager. This must match the ID as configured in the plugin, or an error will be raised during startup.
 
-[id="plugins-{type}s-{plugin}-setting_name_4"]
-===== `setting_name_4` 
+[id="plugins-{type}s-{plugin}-pm_host"]
+===== `pm_host` 
 
-  * Value type is <<number,number>>
-  * Default value is `0`
+  * Value type is <<string,string>>
 
-Add description here
+The hostname of the machine that is running the Hyperion plugin manager. The local machine must be able to access the host over TCP over the configured port.
 
-[id="plugins-{type}s-{plugin}-setting_name_5"]
-===== `setting_name_5` 
+[id="plugins-{type}s-{plugin}-pm_port"]
+===== `pm_port` 
 
-  * Value type is <<array,array>>
-  * Default value is {}
+  * Value type is <<string,string>>
 
-Add description here
-
-[id="plugins-{type}s-{plugin}-setting_name_6"]
-===== `setting_name_6` 
-
-  * Value type is <<bytes,bytes>>
-  * Default value is {}
-
-Add description here
-
-[id="plugins-{type}s-{plugin}-setting_name_7"]
-===== `setting_name_7` 
-
-  * Value type is <<path,path>>
-  * Default value is {}
-
-Add description here
-
-[id="plugins-{type}s-{plugin}-setting_name_8"]
-===== `setting_name_8` 
-
-  * Value type is <<password,password>>
-  * Default value is {}
-
-Add description here
-
-
-[id="plugins-{type}s-{plugin}-setting_name_9"]
-===== `setting_name_9` 
-
-  * Value type is <<uri,uri>>
-  * Default value is {}
-
-Add description here
+The port that the Hyperion plugin manager is configured to run on. The local machine must be able to talk over TCP to the configured port.
 
 // The full list of Value Types is here: 
 // https://www.elastic.co/guide/en/logstash/current/configuration-file-structure.html
