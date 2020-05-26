@@ -1,11 +1,12 @@
 package nl.tudelft.hyperion.plugin.settings
 
+import com.intellij.openapi.options.ConfigurableEP
 import com.intellij.openapi.options.NonDefaultProjectConfigurable
 import com.intellij.openapi.options.SearchableConfigurable
 import nl.tudelft.hyperion.plugin.settings.ui.HyperionSettingsForm
 import javax.swing.JComponent
 
-class HyperionSettingsConfigurable : SearchableConfigurable, NonDefaultProjectConfigurable {
+class HyperionSettingsConfigurable : SearchableConfigurable, ConfigurableEP<HyperionSettingsConfigurable>() {
     private val settingsPane: HyperionSettingsForm = HyperionSettingsForm()
 
 
@@ -34,7 +35,7 @@ class HyperionSettingsConfigurable : SearchableConfigurable, NonDefaultProjectCo
      * @return `true` if the settings were modified, `false` otherwise
      */
     override fun isModified(): Boolean {
-        return false;
+        return settingsPane.isModified();
     }
 
     /**
@@ -56,7 +57,7 @@ class HyperionSettingsConfigurable : SearchableConfigurable, NonDefaultProjectCo
      * @throws ConfigurationException if values cannot be applied
      */
     override fun apply() {
-
+        settingsPane.apply()
     }
 
 }

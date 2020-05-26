@@ -51,7 +51,7 @@
     <idea-version since-build="201.4163"/>
 
     <extensions defaultExtensionNs="com.intellij">
-        <projectService serviceImplementation="nl.tudelft.hyperion.plugin.settings.HyperionSettings"/>
+        <applicationService serviceImplementation="nl.tudelft.hyperion.plugin.settings.HyperionSettings"/>
         <projectConfigurable id="hyperion.settings" groupId="tools"
                              instance="nl.tudelft.hyperion.plugin.settings.HyperionSettingsConfigurable"/>
     </extensions>

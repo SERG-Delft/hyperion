@@ -1,8 +1,10 @@
 package nl.tudelft.hyperion.plugin.settings
 
 import com.intellij.openapi.components.PersistentStateComponent
+import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
+import com.intellij.openapi.project.Project
 
 @State(
         name = "HyperionProjectSettings",
@@ -13,6 +15,12 @@ class HyperionSettings : PersistentStateComponent<HyperionSettings.State> {
 
     class State {
         public lateinit var intervals: List<Int>
+    }
+
+    companion object {
+        fun getInstance(): HyperionSettings {
+            return ServiceManager.getService(HyperionSettings::class.java)
+        }
     }
 
     fun setIntervals(intervals: List<Int>) {

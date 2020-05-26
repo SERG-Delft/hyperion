@@ -1,10 +1,13 @@
 package nl.tudelft.hyperion.plugin.settings.ui;
 
 import com.intellij.ui.AddEditDeleteListPanel;
+import nl.tudelft.hyperion.plugin.settings.HyperionSettings;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class HyperionSettingsForm {
@@ -12,14 +15,26 @@ public class HyperionSettingsForm {
     private JPanel root;
     private JScrollPane scrollPanel;
     private IntervalListPanel intervalListPanel;
+    private HyperionSettings hyperionSettings;
 
     public JPanel getRoot() {
         return root;
     }
 
     private void createUIComponents() {
-        intervalListPanel = new IntervalListPanel("Intervals", new ArrayList<>());
+        hyperionSettings = HyperionSettings.Companion.getInstance();
+        intervalListPanel = new IntervalListPanel("Intervals", hyperionSettings.getState().intervals);
 //        scrollPanel.add(intervalListPanel);
+    }
+
+    public boolean isModified() {
+        List<Integer> intervals = new ArrayList<>(hyperionSettings.getState().intervals);
+        intervals.removeAll(intervalListPanel.getIntervals());
+        return intervals.size() > 0;
+    }
+
+    public void apply() {
+        hyperionSettings.setIntervals(intervalListPanel.getIntervals());
     }
 
     private class IntervalListPanel extends AddEditDeleteListPanel<Integer> {
@@ -53,6 +68,12 @@ public class HyperionSettingsForm {
             }
 
             return dialog.getIntValue();
+        }
+
+        protected List<Integer> getIntervals() {
+            Integer[] intervals = new Integer[myListModel.size()];
+            myListModel.copyInto(intervals);
+            return Arrays.asList(intervals);
         }
     }
 }
