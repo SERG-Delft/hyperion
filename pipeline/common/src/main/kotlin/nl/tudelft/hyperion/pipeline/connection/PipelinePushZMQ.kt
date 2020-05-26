@@ -5,13 +5,13 @@ import org.zeromq.SocketType
 import org.zeromq.ZContext
 
 /**
- * ZMQ implementation of :PipelinePush:
+ * ZMQ implementation of message push to successive pipeline plugin.
  */
-class PipelinePushZMQ : PipelinePush<PeerConnectionInformation> {
+class PipelinePushZMQ {
     private val ctx = ZContext()
     private val socket = ctx.createSocket(SocketType.PUSH)
 
-    override fun setupConnection(config: PeerConnectionInformation) {
+    fun setupConnection(config: PeerConnectionInformation) {
         if (config.isBind) {
             socket.bind(config.host)
         } else {
@@ -19,11 +19,11 @@ class PipelinePushZMQ : PipelinePush<PeerConnectionInformation> {
         }
     }
 
-    override fun push(msg: String) {
+    fun push(msg: String) {
         socket.send(msg, zmq.ZMQ.ZMQ_DONTWAIT)
     }
 
-    override fun closeConnection() {
+    fun closeConnection() {
         socket.close()
         ctx.destroy()
     }
