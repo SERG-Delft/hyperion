@@ -11,7 +11,6 @@ import kotlinx.coroutines.launch
 import nl.tudelft.hyperion.pipeline.connection.ConfigZMQ
 import nl.tudelft.hyperion.pipeline.connection.PipelinePullZMQ
 import nl.tudelft.hyperion.pipeline.connection.PipelinePushZMQ
-import nl.tudelft.hyperion.pipeline.connection.PluginManagerConnection
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -24,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 abstract class AbstractPipelinePlugin(
     private val config: PipelinePluginConfiguration,
-    private val pmConn: PluginManagerConnection = ConfigZMQ(config.pluginManager),
+    private val pmConn: ConfigZMQ = ConfigZMQ(config.pluginManager),
     private val sink: PipelinePushZMQ = PipelinePushZMQ(),
     private val source: PipelinePullZMQ = PipelinePullZMQ()
 ) {

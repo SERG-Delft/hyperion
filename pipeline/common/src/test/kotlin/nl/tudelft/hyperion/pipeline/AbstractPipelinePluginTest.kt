@@ -8,7 +8,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import nl.tudelft.hyperion.pipeline.connection.PluginManagerConnection
+import nl.tudelft.hyperion.pipeline.connection.ConfigZMQ
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -17,11 +17,11 @@ import org.junit.jupiter.api.assertThrows
 
 class AbstractPipelinePluginTest {
     private val config = PipelinePluginConfiguration("Plugin", "tcp://localhost:5000")
-    private lateinit var pmConn: PluginManagerConnection
+    private lateinit var pmConn: ConfigZMQ
 
     @BeforeEach
     fun initSetup() {
-        pmConn = mockk<PluginManagerConnection>(relaxed = true)
+        pmConn = mockk<ConfigZMQ>(relaxed = true)
         every {
             pmConn.requestConfig("Plugin", "pull")
         } returns """{"isBind":"true","host":"tcp://localhost:1200"}"""
@@ -75,7 +75,7 @@ class AbstractPipelinePluginTest {
 
 class TestPlugin : AbstractPipelinePlugin {
     constructor(config: PipelinePluginConfiguration) : super(config)
-    constructor(config: PipelinePluginConfiguration, pmConn: PluginManagerConnection)
+    constructor(config: PipelinePluginConfiguration, pmConn: ConfigZMQ)
         : super(config, pmConn)
 
     override suspend fun process(input: String): String? {

@@ -6,12 +6,12 @@ import org.zeromq.ZContext
 /**
  * ZMQ implementation of :PluginManagerConnection:
  */
-class ConfigZMQ(pluginManager: String) : PluginManagerConnection {
+class ConfigZMQ(pluginManager: String) {
 
     private val logger = mu.KotlinLogging.logger {}
     private val pluginManagerHost = "tcp://$pluginManager"
 
-    override fun requestConfig(id: String, type: String): String {
+    fun requestConfig(id: String, type: String): String {
         val context = ZContext()
         val socket = context.createSocket(SocketType.REQ)
         val req = """{"id":"$id","type":"$type"}"""
