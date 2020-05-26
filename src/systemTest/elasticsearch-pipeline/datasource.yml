@@ -1,0 +1,17 @@
+poll_interval: 5
+
+elasticsearch:
+  # replace hostname with your own elasticsearch instance
+  hostname: elk.njkyu.com
+  index: logs
+  port: 9200
+  scheme: http
+  timestamp_field: "@timestamp"
+  authentication: no
+  response_hit_count: 9999
+
+id: Datasource
+
+manager:
+  host: pluginmanager
+  port: 30001

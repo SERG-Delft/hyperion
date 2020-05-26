@@ -9,5 +9,5 @@
 build
 
 # Ignore jars
-/plugin/*.jar
-/aggregator/*.jar
+**/*.jar
+!gradle/wrapper/gradle-wrapper.jar
