@@ -42,6 +42,11 @@ jobs:
         with:
           paths: pipeline/plugins/renamer
 
+      - uses: marceloprado/has-changed-path@master
+        id: hyperion-pipeline-loadbalancer
+        with:
+          paths: pipeline/plugins/loadbalancer
+
       - uses: actions/cache@v1
         with:
           path: ~/.gradle/caches
@@ -72,3 +77,9 @@ jobs:
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: :pipeline:plugins:pathextractor:check
+
+      - name: gradle check pipeline loadbalancer plugin
+        if: steps.hyperion-pipeline-loadbalancer.outputs.changed == 'true'
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: :pipeline:plugins:loadbalancer:check

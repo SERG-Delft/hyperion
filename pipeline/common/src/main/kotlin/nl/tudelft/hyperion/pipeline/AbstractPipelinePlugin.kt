@@ -37,9 +37,9 @@ abstract class AbstractPipelinePlugin(
     private val senderScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
     private val receiverScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
 
-    private var hasConnectionInformation = false
-    private lateinit var subConnectionInformation: PeerConnectionInformation
-    private lateinit var pubConnectionInformation: PeerConnectionInformation
+    var hasConnectionInformation = false
+    lateinit var subConnectionInformation: PeerConnectionInformation
+    lateinit var pubConnectionInformation: PeerConnectionInformation
 
     private val packetBufferCount = AtomicInteger()
 

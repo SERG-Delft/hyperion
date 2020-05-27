@@ -12,6 +12,6 @@ elasticsearch:
 
 id: Datasource
 
-manager:
+zmq:
   host: pluginmanager
   port: 30001
