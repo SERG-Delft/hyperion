@@ -242,4 +242,46 @@ class ExtractTests {
 
         Assertions.assertEquals(treeExpected, treeActual)
     }
+
+    @Test
+    fun `Multiple fields should overwrite one another in order`() {
+        val config = Configuration(
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"),
+            listOf(
+                ExtractableFieldConfiguration(
+                    "message",
+                    "\\[.+?\\] INFO [^:]+:(\\d+) - .+",
+                    listOf(Extract("location.line", Type.NUMBER))),
+                ExtractableFieldConfiguration(
+                    "message_2",
+                    "\\[.+?\\] INFO [^:]+:(\\d+) - .+",
+                    listOf(Extract("location.line", Type.NUMBER)))
+            )
+        )
+
+        val input = """
+                {
+                    "message":"[Mar 20 11:11:11] INFO some/file/name:34 - Test", 
+                    "message_2":"[Mar 20 11:11:11] INFO some/file/name:35 - Test"
+                }
+        """.trimMargin()
+
+        val expected = """
+                {
+                    "message":"[Mar 20 11:11:11] INFO some/file/name:34 - Test", 
+                    "message_2":"[Mar 20 11:11:11] INFO some/file/name:35 - Test",
+                    "location" : 
+                        {
+                            "line" : 35
+                        }
+                }
+        """.trimMargin()
+
+        val mapper = jacksonObjectMapper()
+
+        val treeExpected = mapper.readTree(expected)
+        val treeActual = mapper.readTree(extract(input, config))
+
+        Assertions.assertEquals(treeExpected, treeActual)
+    }
 }
