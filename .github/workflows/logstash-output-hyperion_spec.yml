@@ -10,7 +10,6 @@ on:
       - 'logstash-output-hyperion/**'
     branches:
       - master
-      - logstash-plugin
 
 jobs:
   ruby-spec:
