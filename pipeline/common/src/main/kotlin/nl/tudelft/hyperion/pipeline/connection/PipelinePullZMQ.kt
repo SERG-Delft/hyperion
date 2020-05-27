@@ -33,7 +33,7 @@ class PipelinePullZMQ {
         return try {
             socket.recvStr()
         } catch (ex: Exception) {
-            logger.error{ ex }
+            logger.error(ex) { "Error pulling new messages from ZMQ pipeline" }
             "Invalid Message"
         }
     }
