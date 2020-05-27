@@ -32,6 +32,15 @@ class LogStash::Outputs::Hyperion < LogStash::Outputs::Base
   end # def register
 
   public
+  def close
+    check_zmq_error(@socket.close, "closing ZMQ socket") if @socket
+    check_zmq_error(@context.terminate, "terminating ZMQ context") if @context
+  rescue RuntimeError => e
+    warn e.inspect
+    @logger.error "Failed to properly teardown ZeroMQ"
+  end
+
+  public
   def multi_receive_encoded(events_and_encoded)
     events_and_encoded.each {|event, encoded| self.publish(event, encoded)}
   end
@@ -65,6 +74,8 @@ class LogStash::Outputs::Hyperion < LogStash::Outputs::Base
     msg = ""
     check_zmq_error pm_sock.recv_string(msg), "receiving response from plugin manager"
     config = JSON.parse(msg)
+
+    pm_sock.close
 
     # Create the socket for pushing, using the info we just received.
     @socket = @context.socket(ZMQ::PUSH)

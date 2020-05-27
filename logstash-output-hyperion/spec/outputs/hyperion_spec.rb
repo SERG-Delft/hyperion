@@ -16,10 +16,18 @@ describe LogStash::Outputs::Hyperion do
       })
     }
 
+    after do
+      plugin.do_close
+    end
+
     it "should query the plugin manager for identity" do
       pm_thread = start_pm_thread JSON.generate(isBind: true, host: "tcp://*:40192")
-      expect { plugin.register }.to_not raise_error
-      expect(pm_thread.value).to eq "{\"id\":\"Logstash\",\"type\":\"push\"}"
+      begin
+        expect { plugin.register }.to_not raise_error
+        expect(pm_thread.value).to eq "{\"id\":\"Logstash\",\"type\":\"push\"}"
+      ensure
+	pm_thread.exit
+      end
     end
   end
 
@@ -76,6 +84,8 @@ def start_pm_thread(response)
     sock.send_string response
     
     sock.close
+    ctx.terminate
+    
     msg
   }
 end
