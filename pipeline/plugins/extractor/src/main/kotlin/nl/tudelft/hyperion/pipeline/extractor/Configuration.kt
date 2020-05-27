@@ -10,7 +10,7 @@ import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
  */
 data class Configuration(
     val plugin: PipelinePluginConfiguration,
-    val fields: List<extractableFieldConfiguration>
+    val fields: List<ExtractableFieldConfiguration>
 )
 
 /**
@@ -19,7 +19,7 @@ data class Configuration(
  * @param match the regex pattern to match the field on
  * @param extract the list of schemes for the addition of extracted information
  */
-data class extractableFieldConfiguration(
+data class ExtractableFieldConfiguration(
     val field: String,
     val match: String,
     val extract: List<Extract>

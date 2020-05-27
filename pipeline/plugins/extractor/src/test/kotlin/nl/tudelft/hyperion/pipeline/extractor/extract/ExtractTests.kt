@@ -6,7 +6,7 @@ import nl.tudelft.hyperion.pipeline.extractor.Configuration
 import nl.tudelft.hyperion.pipeline.extractor.Extract
 import nl.tudelft.hyperion.pipeline.extractor.Type
 import nl.tudelft.hyperion.pipeline.extractor.extract
-import nl.tudelft.hyperion.pipeline.extractor.extractableFieldConfiguration
+import nl.tudelft.hyperion.pipeline.extractor.ExtractableFieldConfiguration
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions
 
@@ -14,7 +14,7 @@ class ExtractTests {
     @Test
     fun testSimpleMessage() {
         val config = Configuration(
-            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(extractableFieldConfiguration(
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(ExtractableFieldConfiguration(
             "message",
             "\\[.+?\\] INFO [^:]+:(\\d+) (-) .+",
             listOf(Extract("location.line", Type.NUMBER), Extract("dash", Type.STRING))))
@@ -35,7 +35,7 @@ class ExtractTests {
     @Test
     fun testMessageWithNumber() {
         val config = Configuration(
-            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(extractableFieldConfiguration(
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(ExtractableFieldConfiguration(
             "message",
             "\\[.+?\\] INFO [^:]+:(\\d+) (3) .+",
             listOf(Extract("location.line", Type.NUMBER), Extract("dash", Type.NUMBER))))
@@ -56,7 +56,7 @@ class ExtractTests {
     @Test
     fun testMessagePathExists() {
         val config = Configuration(
-            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(extractableFieldConfiguration(
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(ExtractableFieldConfiguration(
             "message",
             "\\[.+?\\] INFO [^:]+:(\\d+) (-) .+",
             listOf(Extract("location.line", Type.NUMBER), Extract("dash", Type.STRING))))
@@ -77,7 +77,7 @@ class ExtractTests {
     @Test
     fun testLastPathPartIsDoubleType() {
         val config = Configuration(
-            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(extractableFieldConfiguration(
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(ExtractableFieldConfiguration(
             "message",
             "\\[.+?\\] INFO [^:]+:(2.5) .+",
             listOf(Extract("location.line", Type.DOUBLE))))
@@ -98,7 +98,7 @@ class ExtractTests {
     @Test
     fun testNonHierarchicalTargetPath() {
         val config = Configuration(
-            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(extractableFieldConfiguration(
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(ExtractableFieldConfiguration(
             "message",
             "\\[.+?\\] INFO [^:]+:(-) .+",
             listOf(Extract("location", Type.STRING))))
@@ -119,7 +119,7 @@ class ExtractTests {
     @Test
     fun testNumberType() {
         val config = Configuration(
-            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(extractableFieldConfiguration(
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(ExtractableFieldConfiguration(
             "message",
             "\\[.+?\\] INFO [^:]+:(\\d+) .+",
             listOf(Extract("location", Type.NUMBER))))
@@ -140,7 +140,7 @@ class ExtractTests {
     @Test
     fun testDoubleType() {
         val config = Configuration(
-            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(extractableFieldConfiguration(
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(ExtractableFieldConfiguration(
             "message",
             "\\[.+?\\] INFO [^:]+:(\\d+.\\d+) .+",
             listOf(Extract("location", Type.DOUBLE))))
@@ -161,7 +161,7 @@ class ExtractTests {
     @Test
     fun testStringType() {
         val config = Configuration(
-            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(extractableFieldConfiguration(
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(ExtractableFieldConfiguration(
             "message",
             "\\[.+?\\] INFO [^:]+:(\\d+.\\d+) .+",
             listOf(Extract("location.line", Type.STRING))))
@@ -182,7 +182,7 @@ class ExtractTests {
     @Test
     fun testDeepHierarchy() {
         val config = Configuration(
-            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(extractableFieldConfiguration(
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(ExtractableFieldConfiguration(
             "message",
             "\\[.+?\\] INFO [^:]+:(\\d+) - .+",
             listOf(Extract("location.line.numeric", Type.NUMBER))))
@@ -205,11 +205,11 @@ class ExtractTests {
         val config = Configuration(
             PipelinePluginConfiguration("extractor", "1.2.3.4:4567"),
             listOf(
-                extractableFieldConfiguration(
+                ExtractableFieldConfiguration(
                     "message",
                     "\\[.+?\\] INFO [^:]+:(\\d+) - .+",
                     listOf(Extract("location.line", Type.NUMBER))),
-                extractableFieldConfiguration(
+                ExtractableFieldConfiguration(
                     "message_2",
                     "\\[.+?\\] INFO [^:]+:(\\d+) - .+",
                     listOf(Extract("location.line_2", Type.NUMBER)))
