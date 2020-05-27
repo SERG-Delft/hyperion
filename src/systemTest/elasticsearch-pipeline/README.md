@@ -27,7 +27,7 @@ elasticsearch:
 
 ## 2. Build all jars using docker
 ```shell script
-$ cd src/
+$ cd src/systemTest/elasticsearch-pipeline/
 $ docker-compose -f docker-compose.build.yml up
 ```
 
@@ -37,9 +37,9 @@ Notes:
 
 ## 3. Run the pipeline
 ```shell script
-docker-compose up -d
+$ docker-compose up -d
 ``` 
 
 ## Inspecting results
-In order to see the aggregated data visit `http://localhost:8081/path/to/file` in a webbrowser on the machine.
+In order to see the aggregated data visit `http://localhost:8081/api/v1/metrics?project=TestProject&file=path.path.path...TestFile&intervals=10,20,30` in a webbrowser on the machine.
 Check out how to setup the Intellij IDEA plugin for showing results at plugin/src/main/README.md

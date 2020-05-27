@@ -1,6 +1,7 @@
-# Runs Gradle Check on every pull request and push to master
-# Only runs Gradle Check on changed modules
-name: Gradle check Hyperion
+# Runs Gradle Check on the pipeline common module and plugins
+# Will be triggered on every pull request and push to master
+# Only commences on check if the code changed
+name: Gradle check Pipeline
 
 on:
   pull_request:
@@ -12,10 +13,6 @@ jobs:
   gradle-check:
     runs-on: ubuntu-latest
 
-    services:
-      dind:
-        image: docker
-
     steps:
       - uses: actions/checkout@v2
         with:
@@ -24,26 +21,6 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 11
-
-      - uses: marceloprado/has-changed-path@master
-        id: hyperion-aggregator
-        with:
-          paths: aggregator/
-
-      - uses: marceloprado/has-changed-path@master
-        id: hyperion-plugin
-        with:
-          paths: plugin/
-
-      - uses: marceloprado/has-changed-path@master
-        id: hyperion-elasticsearch
-        with:
-          paths: datasource/plugins/elasticsearch
-
-      - uses: marceloprado/has-changed-path@master
-        id: hyperion-pluginmanager
-        with:
-          paths: pluginmanager/
 
       - uses: marceloprado/has-changed-path@master
         id: hyperion-pipeline-common
@@ -65,39 +42,17 @@ jobs:
         with:
           paths: pipeline/plugins/renamer
 
+      - uses: marceloprado/has-changed-path@master
+        id: hyperion-pipeline-loadbalancer
+        with:
+          paths: pipeline/plugins/loadbalancer
+
       - uses: actions/cache@v1
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-
-      - name: gradle check aggregator
-        if: steps.hyperion-aggregator.outputs.changed == 'true'
-        uses: eskatos/gradle-command-action@v1
-        env:
-          DOCKER_HOST: "tcp://dind:2375"
-          DOCKER_DRIVER: overlay2
-        with:
-          arguments: :aggregator:check
-
-      - name: gradle check plugin
-        if: steps.hyperion-plugin.outputs.changed == 'true'
-        uses: eskatos/gradle-command-action@v1
-        with:
-          arguments: :plugin:check
-
-      - name: gradle check elasticsearch plugin
-        if: steps.hyperion-elasticsearch.outputs.changed == 'true'
-        uses: eskatos/gradle-command-action@v1
-        with:
-          arguments: :datasource:plugins:elasticsearch:check
-
-      - name: gradle check pluginmanager
-        if: steps.hyperion-pluginmanager.outputs.changed == 'true'
-        uses: eskatos/gradle-command-action@v1
-        with:
-          arguments: :pluginmanager:check
 
       - name: gradle check pipeline common
         if: steps.hyperion-pipeline.outputs.changed == 'true'
@@ -122,3 +77,9 @@ jobs:
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: :pipeline:plugins:pathextractor:check
+
+      - name: gradle check pipeline loadbalancer plugin
+        if: steps.hyperion-pipeline-loadbalancer.outputs.changed == 'true'
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: :pipeline:plugins:loadbalancer:check

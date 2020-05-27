@@ -155,7 +155,7 @@ class Elasticsearch(
             val socket = it.createSocket(SocketType.REQ)
             socket.connect("tcp://${config.zmq.address}")
 
-            socket.send("""{"id":"${config.id}","type":"out"}""")
+            socket.send("""{"id":"${config.id}","type":"push"}""")
             pubConnectionInformation = Utils.readJSONContent(socket.recvStr())
 
             logger.debug { "pubConnectionInformation: $pubConnectionInformation" }
