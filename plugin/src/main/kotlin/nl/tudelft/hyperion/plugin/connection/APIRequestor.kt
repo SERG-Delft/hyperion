@@ -6,6 +6,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import nl.tudelft.hyperion.plugin.metric.FileMetrics
+import nl.tudelft.hyperion.plugin.settings.HyperionSettings
 
 object APIRequestor {
     private val client = HttpClient(CIO)
@@ -18,7 +19,8 @@ object APIRequestor {
 
     public suspend fun getMetricForFile(filePath: String): FileMetrics {
         // TODO: Remove hardcoded intervals & project
-        val intervals = "60,3600,86400"
+        val state = HyperionSettings.getInstance().state ?: return FileMetrics(emptyMap())
+        val intervals = state.intervals.joinToString(",")
         val project = "TestProject"
 
         // val json: String = client.get("/api/v1/metrics?project=$project&file=$filePath&intervals=$intervals")
