@@ -8,8 +8,10 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import org.zeromq.SocketType
-import org.zeromq.ZContext
+import nl.tudelft.hyperion.pipeline.connection.ConfigType
+import nl.tudelft.hyperion.pipeline.connection.ConfigZMQ
+import nl.tudelft.hyperion.pipeline.connection.PipelinePullZMQ
+import nl.tudelft.hyperion.pipeline.connection.PipelinePushZMQ
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -20,9 +22,11 @@ import java.util.concurrent.atomic.AtomicInteger
  * class, such that implementors can focus on doing the actual
  * transformation.
  */
-@SuppressWarnings("MagicNumber")
 abstract class AbstractPipelinePlugin(
-    private val config: PipelinePluginConfiguration
+    private val config: PipelinePluginConfiguration,
+    private val pmConn: ConfigZMQ = ConfigZMQ(config.pluginManager),
+    private val sink: PipelinePushZMQ = PipelinePushZMQ(),
+    private val source: PipelinePullZMQ = PipelinePullZMQ()
 ) {
     private val logger = mu.KotlinLogging.logger {}
     private val processThreadPool = CoroutineScope(
@@ -52,21 +56,12 @@ abstract class AbstractPipelinePlugin(
 
         logger.debug { "Requesting connection information from ${config.pluginManager}" }
 
-        ZContext().use {
-            val socket = it.createSocket(SocketType.REQ)
-            socket.connect("tcp://${config.pluginManager}")
+        subConnectionInformation = readJSONContent(pmConn.requestConfig(config.id, ConfigType.PULL))
+        pubConnectionInformation = readJSONContent(pmConn.requestConfig(config.id, ConfigType.PUSH))
 
-            socket.send("""{"id":"${config.id}","type":"pull"}""")
-            subConnectionInformation = readJSONContent(socket.recvStr())
-
-            socket.send("""{"id":"${config.id}","type":"push"}""")
-            pubConnectionInformation = readJSONContent(socket.recvStr())
-
-            logger.debug { "subConnectionInformation: $subConnectionInformation" }
-            logger.debug { "pubConnectionInformation: $pubConnectionInformation" }
-        }
-
-        logger.debug { "Successfully retrieved connection information" }
+        logger.debug { "subConnectionInformation: $subConnectionInformation" }
+        logger.debug { "pubConnectionInformation: $pubConnectionInformation" }
+        logger.info { "Successfully retrieved connection information" }
 
         hasConnectionInformation = true
     }
@@ -75,7 +70,11 @@ abstract class AbstractPipelinePlugin(
      * Sets up the ZMQ sockets needed to consume and send messages for this plugin.
      * Returns a job that, when cancelled, will automatically clean up after itself.
      */
-    open fun run() = GlobalScope.launch {
+    fun run() = GlobalScope.launch {
+        runSuspend(this)
+    }
+
+    suspend fun runSuspend(scope: CoroutineScope) {
         if (!hasConnectionInformation) {
             throw PipelinePluginInitializationException("Cannot run plugin without connection information")
         }
@@ -86,7 +85,7 @@ abstract class AbstractPipelinePlugin(
 
         // Sleep infinitely
         try {
-            while (isActive) {
+            while (scope.isActive) {
                 delay(Long.MAX_VALUE)
             }
         } finally {
@@ -99,43 +98,28 @@ abstract class AbstractPipelinePlugin(
      * Helper function that will create a new subroutine that is used to send the
      * results of computation to the next stage in the pipeline.
      */
-    fun runSender(channel: Channel<String>) = senderScope.launch {
-        val ctx = ZContext()
-        val sock = ctx.createSocket(SocketType.PUSH)
-
-        if (pubConnectionInformation.isBind) {
-            sock.bind(pubConnectionInformation.host)
-        } else {
-            sock.connect(pubConnectionInformation.host)
-        }
+    private fun runSender(channel: Channel<String>) = senderScope.launch {
+        sink.setupConnection(pubConnectionInformation)
 
         while (isActive) {
             val msg = channel.receive()
             packetBufferCount.decrementAndGet()
-            sock.send(msg, zmq.ZMQ.ZMQ_DONTWAIT)
+            sink.push(msg)
         }
 
-        sock.close()
-        ctx.destroy()
+        sink.closeConnection()
     }
 
     /**
      * Helper function that will create a new subroutine that is used to receive
      * messages from the previous stage and push it to the process function.
      */
-    @SuppressWarnings("TooGenericExceptionCaught")
-    fun runReceiver(channel: Channel<String>) = receiverScope.launch {
-        val ctx = ZContext()
-        val sock = ctx.createSocket(SocketType.PULL)
-
-        if (subConnectionInformation.isBind) {
-            sock.bind(subConnectionInformation.host)
-        } else {
-            sock.connect(subConnectionInformation.host)
-        }
+    @Suppress("TooGenericExceptionCaught")
+    private fun runReceiver(channel: Channel<String>) = receiverScope.launch {
+        source.setupConnection(subConnectionInformation)
 
         while (isActive) {
-            val msg = sock.recvStr()
+            val msg = source.pull()
 
             // Drop this message if our internal buffer is full
             val inQueue = packetBufferCount.incrementAndGet()
@@ -144,7 +128,7 @@ abstract class AbstractPipelinePlugin(
                 continue
             }
 
-            processThreadPool.launch processLaunch@ {
+            processThreadPool.launch processLaunch@{
                 val result = try {
                     this@AbstractPipelinePlugin.process(msg)
                 } catch (ex: Exception) {
@@ -159,9 +143,6 @@ abstract class AbstractPipelinePlugin(
                 channel.send(result)
             }
         }
-
-        sock.close()
-        ctx.destroy()
     }
 
     /**
