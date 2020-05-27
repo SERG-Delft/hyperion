@@ -45,7 +45,7 @@
          Also include dependencies on other plugins as needed.
          See "Compatibility with Multiple Products" and "Plugin Dependencies" for more information.  -->
     <depends>com.intellij.modules.platform</depends>
-
+    <depends>Git4Idea</depends>
 
     <!-- Minimum and maximum build of IDE compatible with the plugin -->
     <idea-version since-build="201.4163"/>
@@ -54,5 +54,22 @@
         <applicationService serviceImplementation="nl.tudelft.hyperion.plugin.settings.HyperionSettings"/>
         <projectConfigurable id="hyperion.settings" groupId="tools"
                              instance="nl.tudelft.hyperion.plugin.settings.HyperionSettingsConfigurable"/>
+    </extensions>
+
+    <projectListeners>
+<!--            <listener class="nl.tudelft.hyperion.plugin.visualization.FileOpenedListener"-->
+<!--                      topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>-->
+    </projectListeners>
+    <actions>
+        <action id="nl.tudelft.hyperion.plugin.visualization.RefreshTooltipAction"
+                class="nl.tudelft.hyperion.plugin.visualization.RefreshTooltipAction"
+                text="Hyperion: Refresh Metrics" description="Refresh/Gather all Metrics">
+            <override-text place="MainMenu" text="Refresh Metrics"/>
+            <keyboard-shortcut first-keystroke="control alt H" second-keystroke="F" keymap="$default"/>
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+    </actions>
+    <extensions defaultExtensionNs="com.intellij">
+        <highlightingPassFactory implementation="nl.tudelft.hyperion.plugin.doc.MetricInlayRenderPassFactory" />
     </extensions>
 </idea-plugin>
