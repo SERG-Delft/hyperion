@@ -30,7 +30,7 @@ import java.util.concurrent.Executors
  */
 class VersionTracker(config: Configuration) : AbstractPipelinePlugin(config.zmq) {
 
-    private val projectVersions = ConcurrentHashMap<String, String>()
+    val projectVersions = ConcurrentHashMap<String, String>()
     private val mapper = jacksonObjectMapper()
     private val logger = KotlinLogging.logger {}
     private val pollThreadPool = CoroutineScope(Executors.newCachedThreadPool().asCoroutineDispatcher())
@@ -54,9 +54,17 @@ class VersionTracker(config: Configuration) : AbstractPipelinePlugin(config.zmq)
      * @param projectName name of the project
      * @param projectConfig the necessary config for communication with git
      *  and tracking versions
-     * @return the create [Job]
+     * @return the created [Job]
      */
+    @SuppressWarnings("MagicNumber")
     private fun CoroutineScope.runVersionResolver(projectName: String, projectConfig: ProjectConfig): Job = launch {
+        if (projectConfig.authentication is Authentication.HTTPS) {
+            logger.warn {
+                "Project '$projectName' is set up to fetch using username and " +
+                    "password authentication, this should not be run in production"
+            }
+        }
+
         while (isActive) {
             withContext(Dispatchers.IO) {
                 logger.debug { "Fetching refs for $projectName" }
@@ -76,7 +84,7 @@ class VersionTracker(config: Configuration) : AbstractPipelinePlugin(config.zmq)
      * @param projectConfig the necessary config for communication with git
      *  and tracking versions
      */
-    private fun updateRefs(projectName: String, projectConfig: ProjectConfig) {
+    fun updateRefs(projectName: String, projectConfig: ProjectConfig) {
         val refMap: Map<String, Ref> = when (val auth = projectConfig.authentication) {
             null ->
                 lsRemoteCommandBuilder(
@@ -118,10 +126,12 @@ class VersionTracker(config: Configuration) : AbstractPipelinePlugin(config.zmq)
      * @return JSON string with the added field,
      *  will return null if the project does not exist
      */
-    private fun resolveCommitHash(input: String): String? {
+    @SuppressWarnings("ReturnCount")
+    fun resolveCommitHash(input: String): String? {
         val root: JsonNode = mapper.readTree(input)
 
-        val projectName = root.get("project").textValue() ?: return null
+        val projectNode = root.get("project") ?: return null
+        val projectName = projectNode.textValue()
 
         // Add commit hash if the project exists
         if (projectVersions.containsKey(projectName)) {

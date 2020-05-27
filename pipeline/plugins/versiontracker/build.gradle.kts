@@ -18,6 +18,11 @@ dependencies {
     implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.10.2")
     implementation("com.fasterxml.jackson.dataformat", "jackson-dataformat-yaml", "2.10.2")
 
+    // Used for testing
+    testImplementation("org.junit.jupiter", "junit-jupiter-params", "5.6.2")
+    testImplementation("io.mockk", "mockk", "1.9.3")
+    testImplementation("net.bytebuddy", "byte-buddy", "1.10.10")
+
     // Logging
     implementation("io.github.microutils", "kotlin-logging", "1.7.9")
     implementation("org.slf4j", "slf4j-simple", "1.7.28")
@@ -47,12 +52,12 @@ tasks.jacocoTestCoverageVerification {
         rule {
             limit {
                 counter = "BRANCH"
-                minimum = "0.8".toBigDecimal()
+                minimum = "0.7".toBigDecimal()
             }
 
             limit {
                 counter = "LINE"
-                minimum = "0.8".toBigDecimal()
+                minimum = "0.75".toBigDecimal()
             }
         }
     }
@@ -68,5 +73,5 @@ tasks.build {
 }
 
 tasks.shadowJar {
-    destinationDir = File("./");
+    destinationDir = File("./")
 }

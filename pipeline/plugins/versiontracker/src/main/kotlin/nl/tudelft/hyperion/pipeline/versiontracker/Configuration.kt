@@ -44,14 +44,24 @@ data class ProjectConfig(
  */
 @JsonDeserialize(using = AuthenticationDeserializer::class)
 sealed class Authentication(private val type: CommunicationProtocol) {
-    data class SSH(
+    class SSH(
         val keyPath: String
-    ) : Authentication(CommunicationProtocol.SSH)
+    ) : Authentication(CommunicationProtocol.SSH) {
+        // do not allow retrieving the private key path
+        override fun toString(): String = "SSH"
+        override fun equals(other: Any?): Boolean = this === other
+        override fun hashCode(): Int = 1
+    }
 
-    data class HTTPS(
+    class HTTPS(
         val username: String,
         val password: String
-    ) : Authentication(CommunicationProtocol.HTTPS)
+    ) : Authentication(CommunicationProtocol.HTTPS) {
+        // do not allow checking if credentials match
+        override fun toString(): String = "HTTPS"
+        override fun equals(other: Any?): Boolean = this === other
+        override fun hashCode(): Int = 1
+    }
 }
 
 /**

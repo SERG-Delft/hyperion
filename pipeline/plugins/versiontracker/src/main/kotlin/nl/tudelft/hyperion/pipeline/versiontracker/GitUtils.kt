@@ -65,10 +65,9 @@ fun lsRemoteCommandBuilder(remote: String): LsRemoteCommand =
  * @param password git password to use for authentication
  * @return [LsRemoteCommand] to call
  */
-fun lsRemoteCommandBuilder(remote: String, username: String, password: String): LsRemoteCommand = run {
+fun lsRemoteCommandBuilder(remote: String, username: String, password: String): LsRemoteCommand =
     lsRemoteCommandBuilder(remote)
         .setCredentialsProvider(UsernamePasswordCredentialsProvider(username, password))
-}
 
 /**
  * Overloaded builder that adds SSH based authentication on top of the base command

@@ -6,9 +6,12 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 
 class ConfigurationTest {
 
@@ -21,17 +24,23 @@ class ConfigurationTest {
     }
 
     @Test
+    fun `Authentication HTTPS should not allow matching`() {
+        val auth1 = Authentication.HTTPS("john", "secret")
+        val auth2 = Authentication.HTTPS("john", "secret")
+
+        assertFalse(auth1 == auth2)
+    }
+
+    @Test
     fun `Authentication deserializer should correctly deserialize SSH`() {
         val config = """
             type: ssh
             keyPath: ./id_rsa
        """.trimIndent()
 
-        val expected = Authentication.SSH("./id_rsa")
-
         val result: Authentication = mapper.readValue(config)
 
-        assertEquals(expected, result)
+        assertTrue(result is Authentication.SSH)
     }
 
     @Test
@@ -42,19 +51,18 @@ class ConfigurationTest {
             password: john123
        """.trimIndent()
 
-        val expected = Authentication.HTTPS("john", "john123")
-
         val result: Authentication = mapper.readValue(config)
 
-        assertEquals(expected, result)
+        assertTrue(result is Authentication.HTTPS)
     }
 
-    @Test
-    fun `Authentication deserializer should throw exception when HTTPS field is missing`() {
-        val config = """
-            type: https
-            username: john
-       """.trimIndent()
+    @ParameterizedTest
+    @CsvSource(
+        "type: https\nusername: john",
+        "type: https\npassword: secret",
+        "type: https"
+    )
+    fun `Authentication deserializer should throw exception when HTTPS field is missing`(config: String) {
         assertThrows<InvalidFormatException> { mapper.readValue<Authentication>(config) }
     }
 

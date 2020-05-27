@@ -40,7 +40,19 @@ projects:
 
 zmq:
   id: VersionTracker
-  pluginmanager: "tcp://localhost:5555"
-``` 
+  pluginManager: "tcp://localhost:5555"
+```
+
+Note: Private key authentication currently only PEM style keys due to JGit.
+You can verify that it is in PEM if the header starts with `-----BEGIN RSA PRIVATE KEY-----`.
+
+A workaround for converting an existing key from openSSH to PEM exists by changing the
+passphrase and rewriting it in a different format. This can be done by executing:
+
+```shell script
+$ ssh-keygen -p -N "new_passphrase" -m pem -f /path/to/key
+```
+
+This will change the file in place! So save it to somewhere else if necessary.
 
 
