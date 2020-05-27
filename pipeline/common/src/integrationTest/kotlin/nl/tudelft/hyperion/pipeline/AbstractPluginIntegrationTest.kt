@@ -83,7 +83,7 @@ class SinkRunnable(
         ZContext().use {
             val puller = it.createSocket(SocketType.PULL)
             puller.connect(host)
-            for (msgCount in  0..2) {
+            for (msgCount in 0..2) {
                 val msg = puller.recvStr()
                 recvData.add(0, msg)
             }
@@ -104,7 +104,7 @@ class PluginManagerRunnable(
         ZContext().use {
             val socket = it.createSocket(SocketType.REP)
             socket.bind("tcp://$host")
-            for (msgCount in  0..2) {
+            for (msgCount in 0..2) {
                 val msg = socket.recvStr()
                 requests.add(0, msg)
                 val rep = when (msg) {
