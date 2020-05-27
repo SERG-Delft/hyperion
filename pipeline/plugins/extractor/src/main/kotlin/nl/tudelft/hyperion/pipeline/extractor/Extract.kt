@@ -72,7 +72,7 @@ fun extract(input: String, config: Configuration): String {
     val mapper = jacksonObjectMapper()
     val tree = mapper.readTree(input)
 
-    for(extractableField in config.fields) {
+    for (extractableField in config.fields) {
         val fieldValue = tree.findValue(extractableField.field).toString()
         val pattern = Regex(extractableField.match)
         val matches = pattern.find(fieldValue)
