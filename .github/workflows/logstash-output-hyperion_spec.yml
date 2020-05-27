@@ -29,4 +29,5 @@ jobs:
 
       - run: gem install bundler -v '< 2'
 
-      - run: logstash-output-hyperion/ci/build.sh
+      - run: ci/build.sh
+        working-directory: ./logstash-output-hyperion
