@@ -1,0 +1,52 @@
+# Runs Gradle Check on the datasource common module and plugins
+# Will be triggered on every pull request and push to master
+# Only commences on check if the code changed
+name: Gradle check Datasource
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  gradle-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 100
+
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      - uses: marceloprado/has-changed-path@master
+        id: hyperion-datasource-common
+        with:
+          paths: datasource/common
+
+      - uses: marceloprado/has-changed-path@master
+        id: hyperion-datasource-elasticsearch
+        with:
+          paths: datasource/plugins/elasticsearch
+
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: gradle check elasticsearch plugin
+        if: steps.hyperion-datasource-common.outputs.changed == 'true'
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: :datasource:common:check
+
+      - name: gradle check elasticsearch plugin
+        if: steps.hyperion-datasource-elasticsearch.outputs.changed == 'true'
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: :datasource:plugins:elasticsearch:check

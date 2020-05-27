@@ -33,9 +33,9 @@ abstract class AbstractPipelinePlugin(
     private val senderScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
     private val receiverScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
 
-    private var hasConnectionInformation = false
-    private lateinit var subConnectionInformation: PeerConnectionInformation
-    private lateinit var pubConnectionInformation: PeerConnectionInformation
+    var hasConnectionInformation = false
+    lateinit var subConnectionInformation: PeerConnectionInformation
+    lateinit var pubConnectionInformation: PeerConnectionInformation
 
     private val packetBufferCount = AtomicInteger()
 
@@ -75,7 +75,7 @@ abstract class AbstractPipelinePlugin(
      * Sets up the ZMQ sockets needed to consume and send messages for this plugin.
      * Returns a job that, when cancelled, will automatically clean up after itself.
      */
-    fun run() = GlobalScope.launch {
+    open fun run() = GlobalScope.launch {
         if (!hasConnectionInformation) {
             throw PipelinePluginInitializationException("Cannot run plugin without connection information")
         }
@@ -99,7 +99,7 @@ abstract class AbstractPipelinePlugin(
      * Helper function that will create a new subroutine that is used to send the
      * results of computation to the next stage in the pipeline.
      */
-    private fun runSender(channel: Channel<String>) = senderScope.launch {
+    fun runSender(channel: Channel<String>) = senderScope.launch {
         val ctx = ZContext()
         val sock = ctx.createSocket(SocketType.PUSH)
 
@@ -124,7 +124,7 @@ abstract class AbstractPipelinePlugin(
      * messages from the previous stage and push it to the process function.
      */
     @SuppressWarnings("TooGenericExceptionCaught")
-    private fun runReceiver(channel: Channel<String>) = receiverScope.launch {
+    fun runReceiver(channel: Channel<String>) = receiverScope.launch {
         val ctx = ZContext()
         val sock = ctx.createSocket(SocketType.PULL)
 
@@ -180,7 +180,7 @@ abstract class AbstractPipelinePlugin(
 /**
  * Exception thrown during initialization of a pipeline plugin.
  */
-private class PipelinePluginInitializationException(
+class PipelinePluginInitializationException(
     msg: String,
     cause: Throwable? = null
 ) : RuntimeException(msg, cause)
@@ -190,7 +190,7 @@ private class PipelinePluginInitializationException(
  * future elements in the pipeline. Contains the host, port and whether
  * it needs to bind or connect to that specific element.
  */
-private data class PeerConnectionInformation(
+data class PeerConnectionInformation(
     val host: String,
     val isBind: Boolean
 )
