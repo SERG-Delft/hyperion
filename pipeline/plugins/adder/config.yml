@@ -1,0 +1,10 @@
+plugin :
+  pluginManager: "1.2.3.4:4567"
+  id : "adder"
+
+add:
+  - key: "chicken"
+    value: "egg"
+    location: "location.line"
+  - key: "low"
+    value: "high"
