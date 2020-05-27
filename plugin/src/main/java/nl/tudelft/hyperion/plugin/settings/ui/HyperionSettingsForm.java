@@ -7,13 +7,12 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class HyperionSettingsForm {
 
     private JPanel root;
-    private JScrollPane scrollPanel;
+    private IntervalTable intervalTable;
     private IntervalListPanel intervalListPanel;
     private HyperionSettings hyperionSettings;
 
@@ -23,17 +22,16 @@ public class HyperionSettingsForm {
 
     private void createUIComponents() {
         hyperionSettings = HyperionSettings.Companion.getInstance();
+        intervalTable = new IntervalTable();
         intervalListPanel = new IntervalListPanel("Intervals", hyperionSettings.getState().intervals);
-//        scrollPanel.add(intervalListPanel);
     }
 
     public boolean isModified() {
-        List<Integer> intervals = new ArrayList<>(hyperionSettings.getState().intervals);
-        intervals.removeAll(intervalListPanel.getIntervals());
-        return intervals.size() > 0;
+        return intervalTable.isModified();
     }
 
     public void apply() {
+        Row[] data = intervalTable.updateData();
         hyperionSettings.setIntervals(intervalListPanel.getIntervals());
     }
 

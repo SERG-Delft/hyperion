@@ -47,7 +47,7 @@ class HyperionSettingsConfigurable : SearchableConfigurable, ConfigurableEP<Hype
      * @return the visible name of the configurable component
      */
     override fun getDisplayName(): String {
-        return "HyperionSettings"
+        return "Hyperion"
     }
 
     /**
