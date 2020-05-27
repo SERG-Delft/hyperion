@@ -59,5 +59,4 @@ class HyperionSettingsConfigurable : SearchableConfigurable, ConfigurableEP<Hype
     override fun apply() {
         settingsPane.apply()
     }
-
 }

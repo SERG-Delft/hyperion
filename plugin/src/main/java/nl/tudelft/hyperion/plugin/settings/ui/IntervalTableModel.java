@@ -1,22 +1,29 @@
 package nl.tudelft.hyperion.plugin.settings.ui;
 
 import javax.swing.table.AbstractTableModel;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 class IntervalTableModel extends AbstractTableModel {
-    private Row[] data = {
-            new Row(1, "Hours"),
-            new Row(1, "Days"),
-            new Row(1, "Months")
-    };
+    private List<Row> data = Arrays.asList(
+            new Row(1, Period.Hours),
+            new Row(1, Period.Days),
+            new Row(1, Period.Weeks)
+    );
     private final String[] columnNames = new String[]{"Interval", "Frequency"};
 
-    public Row[] getData() {
+    IntervalTableModel(List<Row> data) {
+        super();
+        if (data != null) this.data = new ArrayList<>(data);
+    }
+    public List<Row> getData() {
         return data;
     }
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        return data[0].getColumn(columnIndex).getClass();
+        return data.get(0).getColumn(columnIndex).getClass();
     }
 
     @Override
@@ -39,7 +46,7 @@ class IntervalTableModel extends AbstractTableModel {
      */
     @Override
     public int getRowCount() {
-        return data.length;
+        return data.size();
     }
 
     /**
@@ -65,12 +72,22 @@ class IntervalTableModel extends AbstractTableModel {
      */
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        return data[rowIndex].getColumn(columnIndex);
+        return data.get(rowIndex).getColumn(columnIndex);
     }
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        data[rowIndex].setColumn(columnIndex, aValue);
+        data.get(rowIndex).setColumn(columnIndex, aValue);
         fireTableCellUpdated(rowIndex, columnIndex);
+    }
+
+    void addRow(Row row) {
+        data.add(row);
+        fireTableDataChanged();
+    }
+
+    void removeRow(int rowIndex) {
+        data.remove(rowIndex);
+        fireTableDataChanged();
     }
 }

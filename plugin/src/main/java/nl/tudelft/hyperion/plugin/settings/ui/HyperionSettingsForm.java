@@ -1,20 +1,24 @@
 package nl.tudelft.hyperion.plugin.settings.ui;
 
-import com.intellij.ui.AddEditDeleteListPanel;
+import com.intellij.ui.IdeBorderFactory;
+import com.intellij.ui.ToolbarDecorator;
 import nl.tudelft.hyperion.plugin.settings.HyperionSettings;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class HyperionSettingsForm {
 
     private JPanel root;
     private IntervalTable intervalTable;
-    private IntervalListPanel intervalListPanel;
+    private IntervalListPanel intervalPanel;
     private HyperionSettings hyperionSettings;
+
 
     public JPanel getRoot() {
         return root;
@@ -22,8 +26,14 @@ public class HyperionSettingsForm {
 
     private void createUIComponents() {
         hyperionSettings = HyperionSettings.Companion.getInstance();
-        intervalTable = new IntervalTable();
-        intervalListPanel = new IntervalListPanel("Intervals", hyperionSettings.getState().intervals);
+        List<Integer> intervals = hyperionSettings.getState().getIntervals();
+        List<Row> data = new ArrayList<>();
+        for (int interval : intervals) {
+
+            data.add(Row.parse(interval));
+        }
+        intervalTable = new IntervalTable(data);
+        intervalPanel = new IntervalListPanel();
     }
 
     public boolean isModified() {
@@ -31,47 +41,49 @@ public class HyperionSettingsForm {
     }
 
     public void apply() {
-        Row[] data = intervalTable.updateData();
-        hyperionSettings.setIntervals(intervalListPanel.getIntervals());
+        List<Row> data = intervalTable.updateData();
+        // Intervals in seconds
+        List<Integer> intervals = new ArrayList<>();
+
+        for (Row row : data) {
+            int seconds = row.toSeconds();
+            intervals.add(seconds);
+        }
+
+        hyperionSettings.setIntervals(intervals);
     }
 
-    private class IntervalListPanel extends AddEditDeleteListPanel<Integer> {
+    class IntervalListPanel extends JPanel {
 
-        public IntervalListPanel(String title, List<Integer> initialList) {
-            super(title, initialList);
+        private final String title = "Intervals";
+
+        IntervalListPanel() {
+            initPanel();
         }
 
-        @Nullable
-        @Override
-        protected Integer editSelectedItem(Integer item) {
-            int index = myList.getSelectedIndex();
-            Integer result = myListModel.get(index);
-            if (index >= 0) {
-                Integer newValue = editSelectedItem(myListModel.get(index));
-                if (newValue != null) {
-                    myListModel.set(index, newValue);
-                }
+        protected void initPanel() {
+            final ToolbarDecorator decorator = ToolbarDecorator.createDecorator(intervalTable)
+                    .disableUpAction()
+                    .disableDownAction()
+                    .setAddAction(button -> addRow())
+                    .setRemoveAction(button -> removeSelectedRow());
+            setLayout(new BorderLayout());
+            add(decorator.createPanel(), BorderLayout.CENTER);
+            setBorder(IdeBorderFactory.createTitledBorder(title, false));
+        }
+
+        private void removeSelectedRow() {
+            // Convert the array to list and sort in reverse order.
+            List<Integer> selectedRows = Arrays.stream(intervalTable.getSelectedRows())
+                    .boxed().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+            for (int row : selectedRows) {
+                intervalTable.getIntervalTableModel().removeRow(row);
             }
-
-            return result;
         }
 
-        @Nullable
-        @Override
-        protected Integer findItemToAdd() {
-            final IntValueDialog dialog = new IntValueDialog(this, false);
-            dialog.show();
-            if (!dialog.isOK()) {
-                return -1;
-            }
-
-            return dialog.getIntValue();
+        private void addRow() {
+            intervalTable.getIntervalTableModel().addRow(new Row(1, Period.Seconds));
         }
 
-        protected List<Integer> getIntervals() {
-            Integer[] intervals = new Integer[myListModel.size()];
-            myListModel.copyInto(intervals);
-            return Arrays.asList(intervals);
-        }
     }
 }
