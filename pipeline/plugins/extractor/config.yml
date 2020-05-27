@@ -2,10 +2,18 @@ plugin :
   pluginManager: "1.2.3.4:4567"
   id : "plugin1"
 
-field : "message"
-match : "\\[.+?\\] INFO [^:]+:(\\d+) (-) .+"
-extract :
-  - to : "location.line"
-    type : "number"
-  - to : "dash"
-    type : "string"
+fields:
+  - field : "message"
+    match : "\\[.+?\\] INFO [^:]+:(\\d+) (-) .+"
+    extract :
+      - to : "location.line"
+        type : "number"
+      - to : "dash"
+        type : "string"
+  - field: "message_2"
+    match: "\\[.+?\\] INFO [^:]+:(\\d+) (-) .+"
+    extract:
+      - to: "location.line_2"
+        type: "number"
+      - to: "dash_2"
+        type: "string"

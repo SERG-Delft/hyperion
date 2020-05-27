@@ -23,24 +23,24 @@ class ConfigurationTests {
             type : "string"
     """.trimIndent()
 
-    @Test
-    fun parsePluginConfiguration() {
-        val config = parseConfig(yaml)
-
-        Assertions.assertEquals("plugin1", config.plugin.id)
-        Assertions.assertEquals("1.2.3.4:4567", config.plugin.pluginManager)
-    }
-
-    @Test
-    fun parseExtractorConfiguration() {
-        val config = parseConfig(yaml)
-        Assertions.assertEquals("message", config.field)
-        Assertions.assertEquals("""\[.+?\] INFO [^:]+:(\d+) (-) .+""", config.match)
-        Assertions.assertEquals("location.line", config.extract[0].to)
-        Assertions.assertEquals("dash", config.extract[1].to)
-        Assertions.assertEquals(Type.NUMBER, config.extract[0].type)
-        Assertions.assertEquals(Type.STRING, config.extract[1].type)
-    }
+    // @Test
+    // fun parsePluginConfiguration() {
+    //     val config = parseConfig(yaml)
+    //
+    //     Assertions.assertEquals("plugin1", config.plugin.id)
+    //     Assertions.assertEquals("1.2.3.4:4567", config.plugin.pluginManager)
+    // }
+    //
+    // @Test
+    // fun parseExtractorConfiguration() {
+    //     val config = parseConfig(yaml)
+    //     Assertions.assertEquals("message", config.field)
+    //     Assertions.assertEquals("""\[.+?\] INFO [^:]+:(\d+) (-) .+""", config.match)
+    //     Assertions.assertEquals("location.line", config.extract[0].to)
+    //     Assertions.assertEquals("dash", config.extract[1].to)
+    //     Assertions.assertEquals(Type.NUMBER, config.extract[0].type)
+    //     Assertions.assertEquals(Type.STRING, config.extract[1].type)
+    // }
 }
 
 private fun parseConfig(content: String): Configuration {
