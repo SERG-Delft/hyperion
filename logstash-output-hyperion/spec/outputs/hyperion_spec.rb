@@ -26,7 +26,7 @@ describe LogStash::Outputs::Hyperion do
         expect { plugin.register }.to_not raise_error
         expect(pm_thread.value).to eq "{\"id\":\"Logstash\",\"type\":\"push\"}"
       ensure
-	pm_thread.exit
+        pm_thread.exit
       end
     end
   end
@@ -85,7 +85,7 @@ def start_pm_thread(response)
     
     sock.close
     ctx.terminate
-    
+
     msg
   }
 end
