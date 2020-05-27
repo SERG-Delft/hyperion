@@ -1,10 +1,7 @@
-package nl.tudelft.hyperion.pipeline.renamer.renamer
+package nl.tudelft.hyperion.pipeline.renamer
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
-import nl.tudelft.hyperion.pipeline.renamer.Configuration
-import nl.tudelft.hyperion.pipeline.renamer.Rename
-import nl.tudelft.hyperion.pipeline.renamer.rename
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 

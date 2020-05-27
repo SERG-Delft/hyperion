@@ -1,7 +1,5 @@
-package nl.tudelft.hyperion.pipeline.extractor.configuration
+package nl.tudelft.hyperion.pipeline.extractor
 
-import nl.tudelft.hyperion.pipeline.extractor.Configuration
-import nl.tudelft.hyperion.pipeline.extractor.Type
 import nl.tudelft.hyperion.pipeline.readYAMLConfig
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions

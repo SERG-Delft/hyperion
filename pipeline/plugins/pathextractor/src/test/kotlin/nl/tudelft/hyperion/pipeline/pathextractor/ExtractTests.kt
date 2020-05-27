@@ -1,4 +1,4 @@
-package nl.tudelft.hyperion.pipeline.pathextractor.extractor
+package nl.tudelft.hyperion.pipeline.pathextractor
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration

@@ -1,12 +1,7 @@
-package nl.tudelft.hyperion.pipeline.extractor.extract
+package nl.tudelft.hyperion.pipeline.extractor
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
-import nl.tudelft.hyperion.pipeline.extractor.Configuration
-import nl.tudelft.hyperion.pipeline.extractor.Extract
-import nl.tudelft.hyperion.pipeline.extractor.Type
-import nl.tudelft.hyperion.pipeline.extractor.extract
-import nl.tudelft.hyperion.pipeline.extractor.ExtractableFieldConfiguration
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions
 
