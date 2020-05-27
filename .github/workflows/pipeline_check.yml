@@ -47,11 +47,6 @@ jobs:
         with:
           paths: pipeline/plugins/loadbalancer
 
-      - uses: marceloprado/has-changed-path@master
-        id: hyperion-pipeline-versiontracker
-        with:
-          paths: pipeline/plugins/versiontracker
-
       - uses: actions/cache@v1
         with:
           path: ~/.gradle/caches
@@ -88,9 +83,3 @@ jobs:
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: :pipeline:plugins:loadbalancer:check
-
-      - name: gradle check pipeline versiontracker plugin
-        if: steps.hyperion-pipeline-versiontracker.outputs.changed == 'true'
-        uses: eskatos/gradle-command-action@v1
-        with:
-          arguments: :pipeline:plugins:versiontracker:check
