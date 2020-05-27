@@ -1,7 +1,7 @@
 # Runs Gradle Check on the pipeline common module and plugins
 # Will be triggered on every pull request and push to master
 # Only commences on check if the code changed
-name: Gradle check Pipeline
+name: Gradle check VersionTracker plugin
 
 on:
   pull_request:
