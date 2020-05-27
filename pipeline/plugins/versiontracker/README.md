@@ -18,6 +18,7 @@ only use it when in development or testing.
 The following shows a configuration for tracking multiple projects using
 different authentication schemes. The `updateInterval` field is optional
 and defines the amount of seconds to wait between each fetch.
+
 ```yaml
 projects:
   sap:
@@ -43,7 +44,31 @@ zmq:
   pluginManager: "tcp://localhost:5555"
 ```
 
-Note: Private key authentication currently only PEM style keys due to JGit.
+## Example of plugin
+
+current hash of HEAD on `production` on `https://github.com/John/sap.git`:
+`48a7361cbaddbc4976e3afd6664724859c380a92`
+
+
+Input:
+```json
+{
+  "message": "[May 27 09:27:13] ERROR com.sap.Main:23 - Test",
+  "project": "sap"
+}
+```
+
+Output:
+```json
+{
+  "message": "[May 27 09:27:13] ERROR com.sap.Main:23 - Test",
+  "project": "sap",
+  "version": "48a7361cbaddbc4976e3afd6664724859c380a92"
+}
+```
+
+## Notes
+Private key authentication currently only supports PEM style keys due to JGit.
 You can verify that it is in PEM if the header starts with `-----BEGIN RSA PRIVATE KEY-----`.
 
 A workaround for converting an existing key from openSSH to PEM exists by changing the
