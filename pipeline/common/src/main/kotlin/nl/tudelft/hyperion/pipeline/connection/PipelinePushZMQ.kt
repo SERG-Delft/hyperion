@@ -10,6 +10,7 @@ import org.zeromq.ZContext
 class PipelinePushZMQ {
     private val ctx = ZContext()
     private val socket = ctx.createSocket(SocketType.PUSH)
+    private val logger = mu.KotlinLogging.logger {}
 
     /**
      * Setup the ZMQ connection in a blocking fashion.
@@ -24,9 +25,15 @@ class PipelinePushZMQ {
 
     /**
      * Pushes given string on ZMQ socket blocking.
+     * Does not throw.
      */
+    @Suppress("TooGenericExceptionCaught")
     fun push(msg: String) {
-        socket.send(msg, zmq.ZMQ.ZMQ_DONTWAIT)
+        try {
+            socket.send(msg, zmq.ZMQ.ZMQ_DONTWAIT)
+        } catch (ex: Exception) {
+            logger.error { ex }
+        }
     }
 
     /**

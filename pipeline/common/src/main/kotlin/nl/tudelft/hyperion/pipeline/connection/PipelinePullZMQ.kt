@@ -10,6 +10,7 @@ import org.zeromq.ZContext
 class PipelinePullZMQ {
     private val ctx = ZContext()
     private val socket = ctx.createSocket(SocketType.PULL)
+    private val logger = mu.KotlinLogging.logger {}
 
     /**
      * Setup the ZMQ connection in a blocking fashion.
@@ -24,9 +25,17 @@ class PipelinePullZMQ {
 
     /**
      * Receives string from ZMQ socket blocking.
+     * When receive fails, "Invalid Message" will be returned.
+     * This method does not throw.
      */
+    @Suppress("TooGenericExceptionCaught")
     fun pull(): String {
-        return socket.recvStr()
+        return try {
+            socket.recvStr()
+        } catch (ex: Exception) {
+            logger.error{ ex }
+            "Invalid Message"
+        }
     }
 
     /**
