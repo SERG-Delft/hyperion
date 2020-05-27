@@ -32,7 +32,7 @@ class PipelinePushZMQ {
         try {
             socket.send(msg, zmq.ZMQ.ZMQ_DONTWAIT)
         } catch (ex: Exception) {
-            logger.error { ex }
+            logger.error(ex) { "Error pushing message to ZMQ pipeline" }
         }
     }
 
