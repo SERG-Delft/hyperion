@@ -1,9 +1,9 @@
 host: "tcp://*:30001"
 
 plugins:
-  - name: "Datasource"
+  - id: "Datasource"
     host: "tcp://datasource:30002"
-  - name: "Renamer"
+  - id: "Renamer"
     host: "tcp://renamer:30003"
-  - name: "Aggregator"
+  - id: "Aggregator"
     host: "tcp://aggregator:30004"
