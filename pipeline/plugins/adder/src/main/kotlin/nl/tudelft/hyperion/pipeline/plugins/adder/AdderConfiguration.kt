@@ -8,6 +8,6 @@ data class AddConfiguration(
 )
 
 data class AdderConfiguration (
-    val plugin: PipelinePluginConfiguration,
+    val pipeline: PipelinePluginConfiguration,
     val add: List<AddConfiguration>
 )
