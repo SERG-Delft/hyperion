@@ -38,22 +38,39 @@ class ConfigurationTests {
     }
 
     @Test
-    fun parseExtractorConfiguration() {
+    fun parseExtractorConfigurationFieldOneMatch() {
         val config = parseConfig(yaml)
 
-        // field 1
         val extractableField1 = config.fields[0]
         Assertions.assertEquals("message", extractableField1.field)
         Assertions.assertEquals("""\[.+?\] INFO [^:]+:(\d+) (-) .+""", extractableField1.match)
+    }
+
+    @Test
+    fun parseExtractorConfigurationFieldOneExtractionTypes() {
+        val config = parseConfig(yaml)
+
+        val extractableField1 = config.fields[0]
         Assertions.assertEquals("location.line", extractableField1.extract[0].to)
         Assertions.assertEquals("dash", extractableField1.extract[1].to)
         Assertions.assertEquals(Type.NUMBER, extractableField1.extract[0].type)
         Assertions.assertEquals(Type.STRING, extractableField1.extract[1].type)
+    }
 
-        // field 2
+    @Test
+    fun parseExtractorConfigurationFieldTwoMatch() {
+        val config = parseConfig(yaml)
+
         val extractableField2 = config.fields[1]
         Assertions.assertEquals("message_2", extractableField2.field)
         Assertions.assertEquals("""\[.+?\] INFO [^:]+:(\d+) (-) .+""", extractableField2.match)
+    }
+
+    @Test
+    fun parseExtractorConfigurationFieldTwoExtractionTypes() {
+        val config = parseConfig(yaml)
+
+        val extractableField2 = config.fields[1]
         Assertions.assertEquals("location.line_2", extractableField2.extract[0].to)
         Assertions.assertEquals("dash_2", extractableField2.extract[1].to)
         Assertions.assertEquals(Type.NUMBER, extractableField2.extract[0].type)
