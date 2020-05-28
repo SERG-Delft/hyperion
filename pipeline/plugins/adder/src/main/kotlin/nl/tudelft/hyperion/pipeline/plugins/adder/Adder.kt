@@ -3,7 +3,6 @@ package nl.tudelft.hyperion.pipeline.plugins.adder
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 
-
 /**
  * Helper function that will get or create an object child
  * of the current object node.
@@ -16,6 +15,11 @@ fun ObjectNode.findOrCreateChild(name: String): ObjectNode {
     return this.putObject(name)
 }
 
+/**
+ * Takes the input string and applies all [AddConfiguration] to it.
+ * Expects a json formatted string as input, returns a json formatted string.
+ * Uses the given mapper to convert the input string to a tree.
+ */
 fun adder(input: String, config: List<AddConfiguration>, mapper: ObjectMapper): String {
     // parse json string
     val tree = mapper.readTree(input) as ObjectNode
