@@ -9,10 +9,13 @@ class ExtractTests {
     @Test
     fun testSimpleMessage() {
         val config = Configuration(
-            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(ExtractableFieldConfiguration(
-            "message",
-            "\\[.+?\\] INFO [^:]+:(\\d+) (-) .+",
-            listOf(Extract("location.line", Type.NUMBER), Extract("dash", Type.STRING))))
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
+            ExtractableFieldConfiguration(
+                "message",
+                "\\[.+?\\] INFO [^:]+:(\\d+) (-) .+",
+                listOf(Extract("location.line", Type.NUMBER), Extract("dash", Type.STRING))
+            )
+        )
         )
 
         val input = """{"message":"[Mar 20 11:11:11] INFO some/file/name:10 - Test"}"""
@@ -30,10 +33,13 @@ class ExtractTests {
     @Test
     fun testMessageWithNumber() {
         val config = Configuration(
-            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(ExtractableFieldConfiguration(
-            "message",
-            "\\[.+?\\] INFO [^:]+:(\\d+) (3) .+",
-            listOf(Extract("location.line", Type.NUMBER), Extract("dash", Type.NUMBER))))
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
+            ExtractableFieldConfiguration(
+                "message",
+                "\\[.+?\\] INFO [^:]+:(\\d+) (3) .+",
+                listOf(Extract("location.line", Type.NUMBER), Extract("dash", Type.NUMBER))
+            )
+        )
         )
 
         val input = """{"message":"[Mar 20 11:11:11] INFO some/file/name:10 3 Test"}"""
@@ -51,10 +57,13 @@ class ExtractTests {
     @Test
     fun testMessagePathExists() {
         val config = Configuration(
-            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(ExtractableFieldConfiguration(
-            "message",
-            "\\[.+?\\] INFO [^:]+:(\\d+) (-) .+",
-            listOf(Extract("location.line", Type.NUMBER), Extract("dash", Type.STRING))))
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
+            ExtractableFieldConfiguration(
+                "message",
+                "\\[.+?\\] INFO [^:]+:(\\d+) (-) .+",
+                listOf(Extract("location.line", Type.NUMBER), Extract("dash", Type.STRING))
+            )
+        )
         )
 
         val input = """{"message":"[Mar 20 11:11:11] INFO some/file/name:10 - Test"}"""
@@ -72,10 +81,13 @@ class ExtractTests {
     @Test
     fun testLastPathPartIsDoubleType() {
         val config = Configuration(
-            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(ExtractableFieldConfiguration(
-            "message",
-            "\\[.+?\\] INFO [^:]+:(2.5) .+",
-            listOf(Extract("location.line", Type.DOUBLE))))
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
+            ExtractableFieldConfiguration(
+                "message",
+                "\\[.+?\\] INFO [^:]+:(2.5) .+",
+                listOf(Extract("location.line", Type.DOUBLE))
+            )
+        )
         )
 
         val input = """{"message":"[Mar 20 11:11:11] INFO some/file/name:2.5 Test"}"""
@@ -93,10 +105,13 @@ class ExtractTests {
     @Test
     fun testNonHierarchicalTargetPath() {
         val config = Configuration(
-            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(ExtractableFieldConfiguration(
-            "message",
-            "\\[.+?\\] INFO [^:]+:(-) .+",
-            listOf(Extract("location", Type.STRING))))
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
+            ExtractableFieldConfiguration(
+                "message",
+                "\\[.+?\\] INFO [^:]+:(-) .+",
+                listOf(Extract("location", Type.STRING))
+            )
+        )
         )
 
         val input = """{"message":"[Mar 20 11:11:11] INFO some/file/name:- Test"}"""
@@ -114,10 +129,13 @@ class ExtractTests {
     @Test
     fun testNumberType() {
         val config = Configuration(
-            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(ExtractableFieldConfiguration(
-            "message",
-            "\\[.+?\\] INFO [^:]+:(\\d+) .+",
-            listOf(Extract("location", Type.NUMBER))))
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
+            ExtractableFieldConfiguration(
+                "message",
+                "\\[.+?\\] INFO [^:]+:(\\d+) .+",
+                listOf(Extract("location", Type.NUMBER))
+            )
+        )
         )
 
         val input = """{"message":"[Mar 20 11:11:11] INFO some/file/name:1934 Test"}"""
@@ -135,10 +153,13 @@ class ExtractTests {
     @Test
     fun testDoubleType() {
         val config = Configuration(
-            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(ExtractableFieldConfiguration(
-            "message",
-            "\\[.+?\\] INFO [^:]+:(\\d+.\\d+) .+",
-            listOf(Extract("location", Type.DOUBLE))))
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
+            ExtractableFieldConfiguration(
+                "message",
+                "\\[.+?\\] INFO [^:]+:(\\d+.\\d+) .+",
+                listOf(Extract("location", Type.DOUBLE))
+            )
+        )
         )
 
         val input = """{"message":"[Mar 20 11:11:11] INFO some/file/name:34.567 Test"}"""
@@ -156,10 +177,13 @@ class ExtractTests {
     @Test
     fun testStringType() {
         val config = Configuration(
-            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(ExtractableFieldConfiguration(
-            "message",
-            "\\[.+?\\] INFO [^:]+:(\\d+.\\d+) .+",
-            listOf(Extract("location.line", Type.STRING))))
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
+            ExtractableFieldConfiguration(
+                "message",
+                "\\[.+?\\] INFO [^:]+:(\\d+.\\d+) .+",
+                listOf(Extract("location.line", Type.STRING))
+            )
+        )
         )
 
         val input = """{"message":"[Mar 20 11:11:11] INFO some/file/name:34.567 Test"}"""
@@ -177,10 +201,13 @@ class ExtractTests {
     @Test
     fun testDeepHierarchy() {
         val config = Configuration(
-            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(ExtractableFieldConfiguration(
-            "message",
-            "\\[.+?\\] INFO [^:]+:(\\d+) - .+",
-            listOf(Extract("location.line.numeric", Type.NUMBER))))
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
+            ExtractableFieldConfiguration(
+                "message",
+                "\\[.+?\\] INFO [^:]+:(\\d+) - .+",
+                listOf(Extract("location.line.numeric", Type.NUMBER))
+            )
+        )
         )
 
         val input = """{"message":"[Mar 20 11:11:11] INFO some/file/name:34 - Test"}"""
@@ -203,11 +230,13 @@ class ExtractTests {
                 ExtractableFieldConfiguration(
                     "message",
                     "\\[.+?\\] INFO [^:]+:(\\d+) - .+",
-                    listOf(Extract("location.line", Type.NUMBER))),
+                    listOf(Extract("location.line", Type.NUMBER))
+                ),
                 ExtractableFieldConfiguration(
                     "message_2",
                     "\\[.+?\\] INFO [^:]+:(\\d+) - .+",
-                    listOf(Extract("location.line_2", Type.NUMBER)))
+                    listOf(Extract("location.line_2", Type.NUMBER))
+                )
             )
         )
 
@@ -246,11 +275,13 @@ class ExtractTests {
                 ExtractableFieldConfiguration(
                     "message",
                     "\\[.+?\\] INFO [^:]+:(\\d+) - .+",
-                    listOf(Extract("location.line", Type.NUMBER))),
+                    listOf(Extract("location.line", Type.NUMBER))
+                ),
                 ExtractableFieldConfiguration(
                     "message_2",
                     "\\[.+?\\] INFO [^:]+:(\\d+) - .+",
-                    listOf(Extract("location.line", Type.NUMBER)))
+                    listOf(Extract("location.line", Type.NUMBER))
+                )
             )
         )
 
