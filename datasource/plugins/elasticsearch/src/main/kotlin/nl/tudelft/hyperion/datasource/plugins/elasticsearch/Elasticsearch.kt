@@ -1,16 +1,16 @@
 package nl.tudelft.hyperion.datasource.plugins.elasticsearch
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import mu.KotlinLogging
 import nl.tudelft.hyperion.datasource.common.DataPluginInitializationException
 import nl.tudelft.hyperion.datasource.common.DataSourcePlugin
@@ -28,7 +28,7 @@ import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.search.builder.SearchSourceBuilder
 import org.zeromq.SocketType
 import org.zeromq.ZContext
-import java.util.*
+import java.util.Timer
 import java.util.concurrent.Executors
 import kotlin.concurrent.fixedRateTimer
 import kotlin.coroutines.CoroutineContext
@@ -41,8 +41,8 @@ import kotlin.coroutines.CoroutineContext
  * @property esClient Elasticsearch client for requests
  */
 class Elasticsearch(
-        private var config: Configuration,
-        val esClient: RestHighLevelClient
+    private var config: Configuration,
+    val esClient: RestHighLevelClient
 ) : DataSourcePlugin {
 
     private var finished = false
@@ -50,7 +50,7 @@ class Elasticsearch(
     var pubConnectionInformation: PeerConnectionInformation? = null
 
     var senderScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
-    private val queue = Channel<String>(config.zmq.bufferSize)
+    private val queue = Channel<String>(config.pipeline.bufferSize)
 
     companion object {
         private val logger = KotlinLogging.logger {}
@@ -66,20 +66,21 @@ class Elasticsearch(
          * @return the created search request
          */
         fun createSearchRequest(
-                index: String,
-                timeStampField: String,
-                currentTime: Int,
-                range: Int,
-                responseHitCount: Int): SearchRequest {
+            index: String,
+            timeStampField: String,
+            currentTime: Int,
+            range: Int,
+            responseHitCount: Int
+        ): SearchRequest {
 
             val searchRequest = SearchRequest()
             searchRequest.indices(index)
 
             val query = QueryBuilders
-                    .rangeQuery(timeStampField)
-                    .gt(currentTime - range)
-                    .to(currentTime)
-                    .format("epoch_second")
+                .rangeQuery(timeStampField)
+                .gt(currentTime - range)
+                .to(currentTime)
+                .format("epoch_second")
 
             logger.debug { "Sending query: $query" }
 
@@ -107,10 +108,13 @@ class Elasticsearch(
             }
 
             // create Elasticsearch client
-            val clientBuilder = RestClient.builder(HttpHost(
+            val clientBuilder = RestClient.builder(
+                HttpHost(
                     config.es.hostname,
                     config.es.port,
-                    config.es.scheme))
+                    config.es.scheme
+                )
+            )
 
             // add credentials to httpClient if authentication is enabled
             if (config.es.authentication) {
@@ -135,8 +139,10 @@ class Elasticsearch(
         private fun RestClientBuilder.addAuthentication(username: String, password: String) {
             val credentialsProvider: CredentialsProvider = BasicCredentialsProvider()
 
-            credentialsProvider.setCredentials(AuthScope.ANY,
-                    UsernamePasswordCredentials(username, password))
+            credentialsProvider.setCredentials(
+                AuthScope.ANY,
+                UsernamePasswordCredentials(username, password)
+            )
 
             this.setHttpClientConfigCallback { httpClientBuilder ->
                 httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)
@@ -153,9 +159,9 @@ class Elasticsearch(
     fun queryConnectionInformation() {
         ZContext().use {
             val socket = it.createSocket(SocketType.REQ)
-            socket.connect("tcp://${config.zmq.address}")
+            socket.connect("tcp://${config.pipeline.host}")
 
-            socket.send("""{"id":"${config.id}","type":"push"}""")
+            socket.send("""{"id":"${config.pipeline.id}","type":"push"}""")
             pubConnectionInformation = Utils.readJSONContent(socket.recvStr())
 
             logger.debug { "pubConnectionInformation: $pubConnectionInformation" }
@@ -216,11 +222,13 @@ class Elasticsearch(
         logger.info { "Starting retrieval of logs" }
 
         timer = fixedRateTimer("requestScheduler", period = config.pollInterval * 1000.toLong(), daemon = true) {
-            val searchRequest = createSearchRequest(config.es.index,
-                    config.es.timestampField,
-                    (System.currentTimeMillis() / 1000).toInt(),
-                    config.pollInterval,
-                    config.es.responseHitCount)
+            val searchRequest = createSearchRequest(
+                config.es.index,
+                config.es.timestampField,
+                (System.currentTimeMillis() / 1000).toInt(),
+                config.pollInterval,
+                config.es.responseHitCount
+            )
 
             esClient.searchAsync(searchRequest, RequestOptions.DEFAULT, requestHandler)
         }
@@ -260,6 +268,6 @@ class Elasticsearch(
  * it needs to bind or connect to that specific element.
  */
 data class PeerConnectionInformation(
-        val host: String,
-        val isBind: Boolean
+    val host: String,
+    val isBind: Boolean
 )

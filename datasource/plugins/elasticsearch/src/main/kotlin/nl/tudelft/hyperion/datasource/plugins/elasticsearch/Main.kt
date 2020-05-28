@@ -78,5 +78,5 @@ class Run : CliktCommand(help = "Run with the the given config file") {
 
 @lombok.Generated
 fun main(args: Array<String>) = Command()
-        .subcommands(Verify(), Run())
-        .main(args)
+    .subcommands(Verify(), Run())
+    .main(args)

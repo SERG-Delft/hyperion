@@ -27,36 +27,34 @@ $ java -jar elasticsearch-all.jar run datasource-es.yml
 ### Example `datasource-es.yml`
 
 ```yaml
-poll_interval: 5
-id: Elasticsearch
+poll-interval: 5
 
 elasticsearch:
   hostname: elk.njkyu.com
   index: logs
   port: 9200
   scheme: http
-  timestamp_field: "@timestamp"
+  timestamp-field: "@timestamp"
   authentication: no
-  response_hit_count: 10000
+  response-hit-count: 10000
 
-zmq:
-  host: localhost
-  port: 6379
+plugin-manager:
+  plugin-id: Elasticsearch
+  manager-host: "localhost:6379"
 ``` 
 
 The full spec is as follows:
 
 ```yaml
-poll_interval: <num>
-id: <string>
+poll-interval: <num>
 
 elasticsearch:
   hostname: <string>
   index: <string>
   port: <num?, default=9200>
   scheme: <string, http | https>
-  timestamp_field: <string>
-  response_hit_count: <num>
+  timestamp-field: <string>
+  response-hit_count: <num>
   authentication: <boolean>
 
   # username and password are necessary
@@ -64,8 +62,8 @@ elasticsearch:
   username: <string?>
   password: <string?>
 
-zmq:
+plugin-manager:
+  id: <string>
   host: <string>
-  port: <num>
-  buffer_capacity: <num?, default=20000>
+  buffer-capacity: <num?, default=20000>
 ``` 
