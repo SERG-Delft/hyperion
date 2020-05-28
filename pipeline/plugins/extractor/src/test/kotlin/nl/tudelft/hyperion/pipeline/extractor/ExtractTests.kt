@@ -334,7 +334,31 @@ class ExtractTests {
         )
         )
 
-        val input = """{"message":"1 2 3 4 5", "numeric" : { "1" : 1, "2" : 2, "3" : 3 }}"""
+        val input = """{"message":"1 2 3 4 5"}"""
+        val expected = """{"message":"1 2 3 4 5",
+            | "numeric" : {"1" : 1, "2" : 2, "3": 3}}""".trimMargin()
+
+        val treeExpected = mapper.readTree(expected)
+        val treeActual = mapper.readTree(extract(input, config))
+
+        Assertions.assertEquals(treeExpected, treeActual)
+    }
+
+    @Test
+    fun `If field value does not exist, it should not be considered`() {
+        val config = Configuration(
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
+            ExtractableFieldConfiguration(
+                "message",
+                "(1)",
+                listOf(
+                    Extract("numeric.1", Type.NUMBER)
+                )
+            )
+        )
+        )
+
+        val input = """{"nonExistent":"1 2 3 4 5"}"""
 
         val treeExpected = mapper.readTree(input)
         val treeActual = mapper.readTree(extract(input, config))
