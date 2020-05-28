@@ -1,5 +1,6 @@
 package nl.tudelft.hyperion.plugin.settings.ui;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.ToolbarDecorator;
 import nl.tudelft.hyperion.plugin.settings.HyperionSettings;
@@ -17,15 +18,22 @@ public class HyperionSettingsForm {
     private JPanel root;
     private IntervalTable intervalTable;
     private IntervalListPanel intervalPanel;
+
+    private Project project;
     private HyperionSettings hyperionSettings;
 
+    public HyperionSettingsForm(Project project) {
+        super();
+        this.project = project;
+        hyperionSettings = HyperionSettings.Companion.getInstance(project);
+    }
 
     public JPanel getRoot() {
         return root;
     }
 
     private void createUIComponents() {
-        hyperionSettings = HyperionSettings.Companion.getInstance();
+
         List<Integer> intervals = hyperionSettings.getState().getIntervals();
         List<Row> data = new ArrayList<>();
         for (int interval : intervals) {
@@ -69,7 +77,6 @@ public class HyperionSettingsForm {
                     .setRemoveAction(button -> removeSelectedRow());
             setLayout(new BorderLayout());
             add(decorator.createPanel(), BorderLayout.CENTER);
-            setBorder(IdeBorderFactory.createTitledBorder(title, false));
         }
 
         private void removeSelectedRow() {

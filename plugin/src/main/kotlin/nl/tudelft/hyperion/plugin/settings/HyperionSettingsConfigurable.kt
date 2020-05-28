@@ -3,11 +3,12 @@ package nl.tudelft.hyperion.plugin.settings
 import com.intellij.openapi.options.ConfigurableEP
 import com.intellij.openapi.options.NonDefaultProjectConfigurable
 import com.intellij.openapi.options.SearchableConfigurable
+import com.intellij.openapi.project.Project
 import nl.tudelft.hyperion.plugin.settings.ui.HyperionSettingsForm
 import javax.swing.JComponent
 
-class HyperionSettingsConfigurable : SearchableConfigurable, ConfigurableEP<HyperionSettingsConfigurable>() {
-    private val settingsPane: HyperionSettingsForm = HyperionSettingsForm()
+class HyperionSettingsConfigurable(val project: Project) : SearchableConfigurable {
+    private val settingsPane: HyperionSettingsForm = HyperionSettingsForm(project)
 
 
     /**

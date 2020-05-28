@@ -64,7 +64,7 @@
         </action>
     </actions>
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="nl.tudelft.hyperion.plugin.settings.HyperionSettings"/>
+        <projectService serviceImplementation="nl.tudelft.hyperion.plugin.settings.HyperionSettings"/>
         <projectConfigurable displayName="Hyperion" groupId="tools"
                              instance="nl.tudelft.hyperion.plugin.settings.HyperionSettingsConfigurable"/>
         <highlightingPassFactory implementation="nl.tudelft.hyperion.plugin.doc.MetricInlayRenderPassFactory" />

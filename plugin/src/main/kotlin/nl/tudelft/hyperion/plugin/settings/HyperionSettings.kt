@@ -18,8 +18,8 @@ class HyperionSettings : PersistentStateComponent<HyperionSettings.State> {
     }
 
     companion object {
-        fun getInstance(): HyperionSettings {
-            return ServiceManager.getService(HyperionSettings::class.java)
+        fun getInstance(project: Project): HyperionSettings {
+            return ServiceManager.getService(project, HyperionSettings::class.java)
         }
     }
 
