@@ -77,14 +77,8 @@ fun extract(input: String, config: Configuration): String {
         val pattern = extractableField.regex
         val matches = pattern.find(fieldValue)
 
-        val extracts = extractableField.extract
-        var i = 0
-        matches?.groupValues?.forEach {
-            if (i > 0) {
-                val extract = extracts[i - 1]
-                (tree.findParent(extractableField.field) as ObjectNode).put(extract.type, it, extract.to)
-            }
-            i++
+        matches?.groupValues?.drop(1)?.zip(extractableField.extract)?.forEach { (match, extract) ->
+            (tree.findParent(extractableField.field) as ObjectNode).put(extract.type, match, extract.to)
         }
     }
 

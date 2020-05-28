@@ -310,4 +310,59 @@ class ExtractTests {
 
         Assertions.assertEquals(treeExpected, treeActual)
     }
+
+    @Test
+    fun `If there are additional unmatched extraction patterns, they should not be considered`() {
+        val config = Configuration(
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
+            ExtractableFieldConfiguration(
+                "message",
+                "(1) (2) (3)",
+                listOf(
+                    Extract("numeric.1", Type.NUMBER),
+                    Extract("numeric.2", Type.NUMBER),
+                    Extract("numeric.3", Type.NUMBER),
+                    Extract("numeric.4", Type.NUMBER)
+                )
+            )
+        )
+        )
+
+        val input = """{"message":"1 2 3 4"}"""
+        val expected = """{"message":"1 2 3 4",
+            | "numeric" : {"1" : 1, "2" : 2, "3": 3}}""".trimMargin()
+
+        val mapper = ObjectMapper()
+
+        val treeExpected = mapper.readTree(expected)
+        val treeActual = mapper.readTree(extract(input, config))
+
+        Assertions.assertEquals(treeExpected, treeActual)
+    }
+
+    @Test
+    fun `If there are capture groups without an extraction pattern, they should not be matched`() {
+        val config = Configuration(
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
+            ExtractableFieldConfiguration(
+                "message",
+                "(1) (2) (3) (4) (5)",
+                listOf(
+                    Extract("numeric.1", Type.NUMBER),
+                    Extract("numeric.2", Type.NUMBER),
+                    Extract("numeric.3", Type.NUMBER)
+                )
+            )
+        )
+        )
+
+        val input = """{"message":"1 2 3 4 5", "numeric" : { "1" : 1, "2" : 2, "3" : 3 }}"""
+
+        val mapper = ObjectMapper()
+
+        val treeExpected = mapper.readTree(input)
+        val treeActual = mapper.readTree(extract(input, config))
+
+        Assertions.assertEquals(treeExpected, treeActual)
+    }
 }
