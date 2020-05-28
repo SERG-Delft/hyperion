@@ -3,8 +3,7 @@ plugin :
   id : "adder"
 
 add:
-  - key: "chicken"
+  - key: "animals.chicken"
     value: "egg"
-    location: "location.line"
   - key: "low"
     value: "high"

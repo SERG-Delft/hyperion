@@ -3,9 +3,8 @@ package nl.tudelft.hyperion.pipeline.plugins.adder
 import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
 
 data class AddConfiguration(
-    val key: Any,
-    val value: Any,
-    val location: String? = null
+    val key: String,
+    val value: String
 )
 
 data class AdderConfiguration (

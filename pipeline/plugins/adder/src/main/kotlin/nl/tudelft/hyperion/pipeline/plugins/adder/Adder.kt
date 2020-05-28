@@ -22,13 +22,13 @@ fun adder(input: String, config: List<AddConfiguration>): String {
     val tree = mapper.readTree(input) as ObjectNode
 
     for (item in config) {
-        val parts = item.key.toString().split(".")
+        val parts = item.key.split(".")
         val target = parts.subList(0, parts.size - 1).fold(tree, { p, c ->
             p.findOrCreateChild(c)
         })
 
         if (target.get(parts.last()) == null) {
-            target.put(parts.last(), item.value.toString())
+            target.put(parts.last(), item.value)
         }
     }
 
