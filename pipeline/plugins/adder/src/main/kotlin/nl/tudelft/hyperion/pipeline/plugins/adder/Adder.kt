@@ -1,7 +1,7 @@
 package nl.tudelft.hyperion.pipeline.plugins.adder
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
 
 /**
@@ -16,9 +16,8 @@ fun ObjectNode.findOrCreateChild(name: String): ObjectNode {
     return this.putObject(name)
 }
 
-fun adder(input: String, config: List<AddConfiguration>): String {
+fun adder(input: String, config: List<AddConfiguration>, mapper: ObjectMapper): String {
     // parse json string
-    val mapper = jacksonObjectMapper()
     val tree = mapper.readTree(input) as ObjectNode
 
     for (item in config) {

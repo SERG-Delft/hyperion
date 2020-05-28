@@ -1,9 +1,12 @@
 package nl.tudelft.hyperion.pipeline.plugins.adder
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions
 
 class AdderTest {
+    private val mapper = jacksonObjectMapper()
+
     @Test
     fun `add one parent level field`() {
         val config = listOf(
@@ -13,7 +16,7 @@ class AdderTest {
         val input = """{"message":"hey"}"""
         val expected = """{"message":"hey","version":"1.0.2"}"""
 
-        Assertions.assertEquals(expected, adder(input, config))
+        Assertions.assertEquals(expected, adder(input, config, mapper))
     }
 
     @Test
@@ -26,7 +29,7 @@ class AdderTest {
         val input = """{"message":"hey"}"""
         val expected = """{"message":"hey","version":"1.0.2","secret":"egg"}"""
 
-        Assertions.assertEquals(expected, adder(input, config))
+        Assertions.assertEquals(expected, adder(input, config, mapper))
     }
 
     @Test
@@ -39,7 +42,7 @@ class AdderTest {
         val input = """{"message":"hey"}"""
         val expected = """{"message":"hey","version":"1.0.2"}"""
 
-        Assertions.assertEquals(expected, adder(input, config))
+        Assertions.assertEquals(expected, adder(input, config, mapper))
     }
 
     @Test
@@ -51,7 +54,7 @@ class AdderTest {
         val input = """{"message":"hey"}"""
         val expected = """{"message":"hey","code":{"version":"1.0.2"}}""".trimMargin()
 
-        Assertions.assertEquals(expected, adder(input, config))
+        Assertions.assertEquals(expected, adder(input, config, mapper))
     }
 
     @Test
@@ -63,7 +66,7 @@ class AdderTest {
         val input = """{"code":{"author":"superman"}}"""
         val expected = """{"code":{"author":"superman","version":"1.0.2"}}"""
 
-        Assertions.assertEquals(expected, adder(input, config))
+        Assertions.assertEquals(expected, adder(input, config, mapper))
     }
 
     @Test
@@ -75,6 +78,6 @@ class AdderTest {
         val input = """{"code":{"author":"superman"}}"""
         val expected = """{"code":{"author":"superman"}}"""
 
-        Assertions.assertEquals(expected, adder(input, config))
+        Assertions.assertEquals(expected, adder(input, config, mapper))
     }
 }
