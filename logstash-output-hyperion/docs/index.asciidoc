@@ -1,0 +1,73 @@
+:plugin: hyperion
+:type: output
+:default_codec: json
+// Update header with plugin name and default codec
+
+///////////////////////////////////////////
+START - GENERATED VARIABLES, DO NOT EDIT!
+///////////////////////////////////////////
+:version: %VERSION%
+:release_date: %RELEASE_DATE%
+:changelog_url: %CHANGELOG_URL%
+:include_path: ../../../../logstash/docs/include
+///////////////////////////////////////////
+END - GENERATED VARIABLES, DO NOT EDIT!
+///////////////////////////////////////////
+
+[id="plugins-{type}s-{plugin}"]
+
+=== Hyperion output plugin
+
+include::{include_path}/plugin_header.asciidoc[]
+
+==== Description
+
+This plugin enables logstash to write events to plugins in the Hyperion pipeline. This plugin should be prefered over the ElasticSearch input plugin when possible, as it operates on a much more efficient pushing scheme rather than a pulling system.
+
+Since logstash is a powerful manipulation pipeline in itself, you may also be able to link this plugin directly to the Hyperion aggregator, without any other intermediate steps. Please see the Hyperion documentation for more information on how this works.
+
+This plugin requires you to have the ZeroMQ development libraries, version 4.x.x installed. On most distributions you can do this with `apt install libzmq3-dev` (yes, zmq3 will install version 4.x).
+
+// Format anchors and links to support generated ids for versioning
+// Sample anchor: [id="plugins-{type}s-{plugin}-setting_name"]
+// Sample link: <<plugins-{type}s-{plugin}-setting_name>>
+
+[id="plugins-{type}s-{plugin}-options"]
+==== Hyperion Output Configuration Options
+
+[cols="<,<,<",options="header",]
+|=======================================================================
+|Setting |Input type|Required
+| <<plugins-{type}s-{plugin}-id>> |<<string,string>>|Yes
+| <<plugins-{type}s-{plugin}-pm_host>> |<<string,string>>|Yes
+| <<plugins-{type}s-{plugin}-pm_port>> |<<number,number>>|Yes
+|=======================================================================
+
+[id="plugins-{type}s-{plugin}-id"]
+===== `id` 
+
+  * Value type is <<string,string>>
+
+The ID of this input as configured in the plugin manager. This must match the ID as configured in the plugin, or an error will be raised during startup.
+
+[id="plugins-{type}s-{plugin}-pm_host"]
+===== `pm_host` 
+
+  * Value type is <<string,string>>
+
+The hostname of the machine that is running the Hyperion plugin manager. The local machine must be able to access the host over TCP over the configured port.
+
+[id="plugins-{type}s-{plugin}-pm_port"]
+===== `pm_port` 
+
+  * Value type is <<string,string>>
+
+The port that the Hyperion plugin manager is configured to run on. The local machine must be able to talk over TCP to the configured port.
+
+// The full list of Value Types is here: 
+// https://www.elastic.co/guide/en/logstash/current/configuration-file-structure.html
+
+[id="plugins-{type}s-{plugin}-common-options"]
+include::{include_path}/{type}.asciidoc[]
+
+:default_codec!:
