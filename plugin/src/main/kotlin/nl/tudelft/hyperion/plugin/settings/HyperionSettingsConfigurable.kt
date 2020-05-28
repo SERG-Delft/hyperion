@@ -29,6 +29,9 @@ class HyperionSettingsConfigurable(val project: Project) : SearchableConfigurabl
         return settingsPane.root
     }
 
+    override fun reset() {
+        settingsPane.reset()
+    }
     /**
      * Indicates whether the Swing form was modified or not.
      * This method is called very often, so it should not take a long time.
