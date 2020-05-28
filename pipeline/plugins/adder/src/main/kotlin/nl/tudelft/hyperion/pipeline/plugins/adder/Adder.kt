@@ -19,10 +19,15 @@ fun ObjectNode.findOrCreateChild(name: String): ObjectNode {
  * Takes the input string and applies all [AddConfiguration] to it.
  * Expects a json formatted string as input, returns a json formatted string.
  * Uses the given mapper to convert the input string to a tree.
+ * Returns the input when string cannot be parsed.
  */
 fun adder(input: String, config: List<AddConfiguration>, mapper: ObjectMapper): String {
     // parse json string
-    val tree = mapper.readTree(input) as ObjectNode
+    val tree = try{
+        mapper.readTree(input) as ObjectNode
+    } catch (ex: Exception) {
+        return input
+    }
 
     for (item in config) {
         val parts = item.key.split(".")

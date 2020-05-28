@@ -20,6 +20,18 @@ class AdderTest {
     }
 
     @Test
+    fun `return normal input when unable to parse`() {
+        val config = listOf(
+            AddConfiguration("version", "1.0.2")
+        )
+
+        val input = """chicken"""
+        val expected = """chicken"""
+
+        Assertions.assertEquals(expected, adder(input, config, mapper))
+    }
+
+    @Test
     fun `add two parent level fields`() {
         val config = listOf(
             AddConfiguration("version", "1.0.2"),
