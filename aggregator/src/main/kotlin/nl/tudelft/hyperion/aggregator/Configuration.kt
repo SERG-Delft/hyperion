@@ -1,5 +1,6 @@
 package nl.tudelft.hyperion.aggregator
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
@@ -15,6 +16,7 @@ data class Configuration(
     /**
      * The JDBC url to the database.
      */
+    @JsonProperty("database-url")
     val databaseUrl: String,
     /**
      * The port on which the web service should listen.
@@ -28,11 +30,12 @@ data class Configuration(
      * The time in seconds aggregated entries should persist after
      * their creation.
      */
+    @JsonProperty("aggregation-ttl")
     val aggregationTtl: Int,
     /**
      * The connection information for the ZMQ plugin manager.
      */
-    val zmq: ZMQConfiguration = ZMQConfiguration("localhost:30101", "Aggregator")
+    val pipeline: ZMQConfiguration = ZMQConfiguration("localhost:30101", "Aggregator")
 ) {
     /**
      * Ensures that this is a valid configuration, i.e. that all properties
@@ -111,9 +114,11 @@ data class ZMQConfiguration(
     /**
      * The path to the plugin manager, without tcp://.
      */
-    val pluginManager: String,
+    @JsonProperty("manager-host")
+    val managerHost: String,
     /**
      * The ID of this component, within the pipeline.
      */
+    @JsonProperty("plugin-id")
     val id: String
 )

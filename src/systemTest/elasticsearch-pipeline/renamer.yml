@@ -1,6 +1,6 @@
-plugin:
-  pluginManager: pluginmanager:30001
-  id: Renamer
+pipeline:
+  manager-host: pluginmanager:30001
+  plugin-id: Renamer
 
 rename:
   -
