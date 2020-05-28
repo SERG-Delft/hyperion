@@ -35,7 +35,7 @@ class ConfigurationTest {
     fun `Authentication deserializer should correctly deserialize SSH`() {
         val config = """
             type: ssh
-            keyPath: ./id_rsa
+            key-path: ./id_rsa
        """.trimIndent()
 
         val result: Authentication = mapper.readValue(config)

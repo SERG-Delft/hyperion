@@ -16,7 +16,7 @@ would require storing a password in plain text. It is recommended to
 only use it when in development or testing.
 
 The following shows a configuration for tracking multiple projects using
-different authentication schemes. The `updateInterval` field is optional
+different authentication schemes. The `update-interval` field is optional
 and defines the amount of seconds to wait between each fetch.
 
 ```yaml
@@ -24,7 +24,7 @@ projects:
   sap:
     repository: https://github.com/John/sap.git
     branch: refs/heads/production
-    updateInterval: 60
+    update-interval: 60
   backend:
     repository: https://github.com/Jane/backend.git
     branch: refs/heads/production
@@ -39,9 +39,9 @@ projects:
       type: ssh
       keyPath: ./path/to/key/id_rsa
 
-zmq:
-  id: VersionTracker
-  pluginManager: "tcp://localhost:5555"
+pipeline:
+  plugin-id: VersionTracker
+  manager-host: "tcp://localhost:5555"
 ```
 
 ## Example of plugin

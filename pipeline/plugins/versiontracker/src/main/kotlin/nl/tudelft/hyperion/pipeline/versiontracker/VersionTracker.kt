@@ -28,7 +28,7 @@ import java.util.concurrent.Executors
  *
  * @param config the configuration to run the plugin
  */
-class VersionTracker(config: Configuration) : AbstractPipelinePlugin(config.zmq) {
+class VersionTracker(config: Configuration) : AbstractPipelinePlugin(config.pipeline) {
 
     val projectVersions = ConcurrentHashMap<String, String>()
     private val mapper = jacksonObjectMapper()

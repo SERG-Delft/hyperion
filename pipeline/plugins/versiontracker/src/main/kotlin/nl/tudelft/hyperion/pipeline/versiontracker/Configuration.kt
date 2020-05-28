@@ -12,11 +12,11 @@ import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
 /**
  * Represents the global configuration necessary for the version tracker plugin to run.
  *
- * @property zmq ZeroMQ specific config
+ * @property pipeline ZeroMQ specific config
  * @property projects Map of projects to track
  */
 data class Configuration(
-    val zmq: PipelinePluginConfiguration,
+    val pipeline: PipelinePluginConfiguration,
     val projects: Map<String, ProjectConfig>
 )
 
@@ -33,6 +33,7 @@ data class Configuration(
 data class ProjectConfig(
     val repository: String,
     val branch: String,
+    @JsonProperty("update-interval")
     val updateInterval: Long = 360,
     val authentication: Authentication?
 )
@@ -90,7 +91,7 @@ class AuthenticationDeserializer : JsonDeserializer<Authentication>() {
 
         return when (val type = root.get("type").textValue().toLowerCase()) {
             CommunicationProtocol.SSH.str -> run {
-                if (root["keyPath"] == null) {
+                if (root["key-path"] == null) {
                     throw InvalidFormatException(
                         p,
                         "Missing keyPath field in ssh authentication",
@@ -99,7 +100,7 @@ class AuthenticationDeserializer : JsonDeserializer<Authentication>() {
                     )
                 }
 
-                Authentication.SSH(root.get("keyPath").textValue())
+                Authentication.SSH(root.get("key-path").textValue())
             }
 
             CommunicationProtocol.HTTPS.str -> run {
