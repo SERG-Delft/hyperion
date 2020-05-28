@@ -8,9 +8,9 @@ import java.nio.file.Files
 
 class ConfigurationTests {
     private val yaml = """
-        plugin :
-          pluginManager: "1.2.3.4:4567"
-          id : "plugin1"
+        pipeline :
+          manager-host: "1.2.3.4:4567"
+          plugin-id : "plugin1"
         
         fields:
           - field : "message"
@@ -33,8 +33,8 @@ class ConfigurationTests {
     fun parsePluginConfiguration() {
         val config = parseConfig(yaml)
 
-        Assertions.assertEquals("plugin1", config.plugin.id)
-        Assertions.assertEquals("1.2.3.4:4567", config.plugin.pluginManager)
+        Assertions.assertEquals("plugin1", config.pipeline.id)
+        Assertions.assertEquals("1.2.3.4:4567", config.pipeline.pluginManager)
     }
 
     @Test

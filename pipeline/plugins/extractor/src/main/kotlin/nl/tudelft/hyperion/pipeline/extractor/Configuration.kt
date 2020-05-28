@@ -9,7 +9,7 @@ import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
  * @param fields the list of configurations for fields to be extracted
  */
 data class Configuration(
-    val plugin: PipelinePluginConfiguration,
+    val pipeline: PipelinePluginConfiguration,
     val fields: List<ExtractableFieldConfiguration>
 )
 

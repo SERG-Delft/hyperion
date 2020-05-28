@@ -1,17 +1,37 @@
 package nl.tudelft.hyperion.datasource.plugins.elasticsearch
 
-import io.mockk.*
-import kotlinx.coroutines.*
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkConstructor
+import io.mockk.spyk
+import io.mockk.unmockkAll
+import io.mockk.verify
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.withTimeout
 import nl.tudelft.hyperion.datasource.common.DataPluginInitializationException
 import org.elasticsearch.client.RestHighLevelClient
-import org.junit.jupiter.api.*
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertDoesNotThrow
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.assertThrows
 import org.zeromq.SocketType
 import org.zeromq.ZContext
 import org.zeromq.ZMQ
-import java.util.*
+import java.util.Timer
 import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KClass
 
@@ -23,9 +43,9 @@ class ElasticsearchTest {
 
     companion object {
         fun <T : Any> suspendingCoroutineThrows(
-                expected: KClass<T>,
-                timeout: Long,
-                closure: (CoroutineContext) -> Job
+            expected: KClass<T>,
+            timeout: Long,
+            closure: (CoroutineContext) -> Job
         ) {
             var success = false
 
@@ -47,20 +67,19 @@ class ElasticsearchTest {
     @BeforeAll
     fun globalSetUp() {
         testConfig = Configuration(
-                5,
-                ManagerConfig("localhost", 5555),
-                ElasticsearchConfig(
-                        "host",
-                        "index",
-                        9200,
-                        "http",
-                        false,
-                        "time",
-                        10,
-                        null,
-                        null
-                ),
-                "Elasticsearch"
+            5,
+            PipelineConfig("Elasticsearch", "localhost:5555"),
+            ElasticsearchConfig(
+                "host",
+                "index",
+                9200,
+                "http",
+                false,
+                "time",
+                10,
+                null,
+                null
+            )
         )
     }
 
@@ -135,20 +154,19 @@ class ElasticsearchTest {
     @Test
     fun `Builder should throw exception if partial authentication is given`() {
         val config = Configuration(
-                5,
-                ManagerConfig("localhost", 5555),
-                ElasticsearchConfig(
-                        "host",
-                        "index",
-                        9200,
-                        "http",
-                        true,
-                        "time",
-                        10,
-                        null,
-                        "password"
-                ),
-                "Elasticsearch"
+            5,
+            PipelineConfig("Elasticsearch", "localhost:5555"),
+            ElasticsearchConfig(
+                "host",
+                "index",
+                9200,
+                "http",
+                true,
+                "time",
+                10,
+                null,
+                "password"
+            )
         )
 
         assertThrows<NullPointerException> { Elasticsearch.build(config) }
@@ -157,20 +175,19 @@ class ElasticsearchTest {
     @Test
     fun `Builder should not throw exception if authentication is correct`() {
         val config = Configuration(
-                5,
-                ManagerConfig("localhost", 5555),
-                ElasticsearchConfig(
-                        "host",
-                        "index",
-                        9200,
-                        "http",
-                        true,
-                        "time",
-                        10_000,
-                        "user",
-                        "password"
-                ),
-                "Elasticsearch"
+            5,
+            PipelineConfig("Elasticsearch", "localhost:5555"),
+            ElasticsearchConfig(
+                "host",
+                "index",
+                9200,
+                "http",
+                true,
+                "time",
+                10_000,
+                "user",
+                "password"
+            )
         )
 
         assertDoesNotThrow { Elasticsearch.build(config) }
@@ -197,8 +214,8 @@ class ElasticsearchTest {
         es.queryConnectionInformation()
 
         verify {
-            socket.connect("tcp://${testConfig.zmq.address}")
-            socket.send("""{"id":"Elasticsearch","type":"out"}""")
+            socket.connect("tcp://${testConfig.pipeline.host}")
+            socket.send("""{"id":"Elasticsearch","type":"push"}""")
         }
 
         assertNotNull(es.pubConnectionInformation)
