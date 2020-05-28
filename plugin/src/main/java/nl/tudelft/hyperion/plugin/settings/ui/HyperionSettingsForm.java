@@ -18,6 +18,9 @@ public class HyperionSettingsForm {
     private JPanel root;
     private IntervalTable intervalTable;
     private IntervalListPanel intervalPanel;
+    private JTextField addressField;
+    private JLabel addressTitle;
+    private JLabel intervalsTitle;
 
     private Project project;
     private HyperionSettings hyperionSettings;
