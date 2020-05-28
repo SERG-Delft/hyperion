@@ -26,6 +26,10 @@ public class IntervalTable extends JBTable {
         return tableModel.getData();
     }
 
+    void setData(List<Row> data) {
+        lastData = data;
+    }
+
     IntervalTableModel getIntervalTableModel() {
         return tableModel;
     }

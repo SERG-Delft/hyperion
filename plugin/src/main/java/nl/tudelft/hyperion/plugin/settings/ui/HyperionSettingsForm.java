@@ -3,6 +3,7 @@ package nl.tudelft.hyperion.plugin.settings.ui;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.ToolbarDecorator;
 import nl.tudelft.hyperion.plugin.settings.HyperionSettings;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
@@ -35,28 +36,41 @@ public class HyperionSettingsForm {
 
     /**
      * Initialize any custom created UI Components here.
-     * In our case this is only intervalTable and intervalPanel
+     * In our case this is only intervalTable and intervalPanel.
      */
     private void createUIComponents() {
         hyperionSettings = HyperionSettings.Companion.getInstance(project);
 
         // Make sure we found an instance given the project.
         if (hyperionSettings == null) return;
+        List<Row> data = getIntervalRows();
+        intervalTable = new IntervalTable(data);
+        intervalPanel = new IntervalListPanel();
+    }
+
+    @NotNull
+    private List<Row> getIntervalRows() {
         List<Integer> intervals = hyperionSettings.getState().getIntervals();
         List<Row> data = new ArrayList<>();
         for (int interval : intervals) {
 
             data.add(Row.parse(interval));
         }
-        intervalTable = new IntervalTable(data);
-        intervalPanel = new IntervalListPanel();
+        return data;
     }
 
+    /**
+     * Asks the editable fields in the settings form if they have been modified or not.
+     * This returns true only if the values differ compared to the last time {@link #apply()} has been called.
+     * @return true if any editable values were changed compared to last {@link #apply()} call.
+     */
     public boolean isModified() {
-        return intervalTable.isModified();
+        return intervalTable.isModified() || !addressField.getText().equals(hyperionSettings.getState().address);
     }
 
     public void apply() {
+        hyperionSettings.setAddress(addressField.getText());
+
         List<Row> data = intervalTable.updateData();
         // Intervals in seconds
         List<Integer> intervals = new ArrayList<>();

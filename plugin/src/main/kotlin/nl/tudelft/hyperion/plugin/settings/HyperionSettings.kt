@@ -11,10 +11,15 @@ import com.intellij.openapi.project.Project
         storages = [Storage("/hyperion.xml")]
 )
 class HyperionSettings : PersistentStateComponent<HyperionSettings.State> {
-    private var currentState = State().apply { intervals = listOf(3600, 86400, 2592000) }
+    private var currentState = State().apply {
+        // Set default values.
+        intervals = listOf(3600, 86400, 2592000)
+        address = "/api/v1/metrics"
+    }
 
     class State {
-        public lateinit var intervals: List<Int>
+        lateinit var intervals: List<Int>
+        lateinit var address: String
     }
 
     companion object {
@@ -26,13 +31,17 @@ class HyperionSettings : PersistentStateComponent<HyperionSettings.State> {
     fun setIntervals(intervals: List<Int>) {
         currentState.intervals = intervals
     }
+
+    fun setAddress(address: String) {
+        currentState.address = address
+    }
     /**
      * @return a component state. All properties, public and annotated fields are serialized. Only values, which differ
      * from the default (i.e., the value of newly instantiated class) are serialized. `null` value indicates
      * that the returned state won't be stored, as a result previously stored state will be used.
      * @see com.intellij.util.xmlb.XmlSerializer
      */
-    override fun getState(): State? {
+    override fun getState(): State {
         return currentState
     }
 
