@@ -22,7 +22,7 @@ import java.util.concurrent.Executors
  */
 class LoadBalancer(
     private val config: LoadBalancerPluginConfiguration
-) : AbstractPipelinePlugin(config.zmq) {
+) : AbstractPipelinePlugin(config.pipeline) {
 
     override fun run() = CoroutineScope(Dispatchers.Default).launch {
         if (!hasConnectionInformation) {
@@ -30,8 +30,8 @@ class LoadBalancer(
         }
 
         // create channels for passing messages
-        val inputChannel = Channel<String>(capacity = config.zmq.bufferSize)
-        val outputChannel = Channel<String>(capacity = config.zmq.bufferSize)
+        val inputChannel = Channel<String>(capacity = config.pipeline.bufferSize)
+        val outputChannel = Channel<String>(capacity = config.pipeline.bufferSize)
 
         // create separate worker threads for the ventilator and sink
         val inputWorkerScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())

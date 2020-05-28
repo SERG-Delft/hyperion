@@ -10,5 +10,5 @@ class Rename(val from: String, val to: String)
  */
 data class Configuration(
     val rename: List<Rename>,
-    val plugin: PipelinePluginConfiguration
+    val pipeline: PipelinePluginConfiguration
 )

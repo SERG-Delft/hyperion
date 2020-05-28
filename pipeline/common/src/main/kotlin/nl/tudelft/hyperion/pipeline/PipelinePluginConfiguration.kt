@@ -1,5 +1,7 @@
 package nl.tudelft.hyperion.pipeline
 
+import com.fasterxml.jackson.annotation.JsonProperty
+
 /**
  * Represents a configuration for a pipeline plugin that is loaded from
  * some file or other representation. Plugins can subclass this configuration
@@ -13,12 +15,14 @@ data class PipelinePluginConfiguration(
      * not conflict with other plugins and must match the one set in the
      * plugin manager.
      */
+    @JsonProperty("plugin-id")
     val id: String,
 
     /**
      * The host and port that contains the plugin manager this plugin needs
      * to connect to.
      */
+    @JsonProperty("manager-host")
     val pluginManager: String,
 
     /**
@@ -29,5 +33,6 @@ data class PipelinePluginConfiguration(
      * Any messages received while the buffer is full will be discarded. If
      * this happens, consider load balancing this plugin.
      */
+    @JsonProperty("buffer-size")
     val bufferSize: Int = 20_000
 )

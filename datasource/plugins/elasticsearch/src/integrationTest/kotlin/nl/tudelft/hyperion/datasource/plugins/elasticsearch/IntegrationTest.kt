@@ -1,7 +1,13 @@
 package nl.tudelft.hyperion.datasource.plugins.elasticsearch
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.apache.http.HttpHost
 import org.apache.http.auth.AuthScope
 import org.apache.http.auth.UsernamePasswordCredentials
@@ -70,10 +76,10 @@ class IntegrationTest {
         val credentialsProvider: CredentialsProvider = BasicCredentialsProvider()
         credentialsProvider.setCredentials(AuthScope.ANY, UsernamePasswordCredentials("elastic", "changeme"))
         testClient = RestClient.builder(HttpHost.create(esContainer.httpHostAddress))
-                .setHttpClientConfigCallback { httpClientBuilder: HttpAsyncClientBuilder ->
-                    httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)
-                }
-                .build()
+            .setHttpClientConfigCallback { httpClientBuilder: HttpAsyncClientBuilder ->
+                httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)
+            }
+            .build()
 
         // create index
         testClient.performRequest(Request("PUT", "/logs"))
@@ -93,21 +99,20 @@ class IntegrationTest {
     @Test
     fun `Test all components`() {
         val rawConfig = """
-            id: Elasticsearch
-            poll_interval: 5
+            poll-interval: 5
             elasticsearch:
               hostname: ${esContainer.tcpHost.hostName}
               index: logs
               port: ${esContainer.firstMappedPort}
               scheme: http
-              timestamp_field: "timestamp"
+              timestamp-field: "timestamp"
               authentication: yes
-              response_hit_count: 10
+              response-hit-count: 10
               username: elastic
               password: changeme
-            zmq:
-              host: localhost
-              port: $managerPort
+            pipeline:
+              manager-host: "localhost:$managerPort"
+              plugin-id: Elasticsearch
             """.trimIndent()
 
         val es = Elasticsearch.build(Configuration.parse(rawConfig))

@@ -10,7 +10,6 @@ import org.elasticsearch.search.SearchHit
 import org.elasticsearch.search.SearchHits
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
-import java.lang.NullPointerException
 
 class RequestHandlerTest {
     @Test
