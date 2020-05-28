@@ -16,7 +16,11 @@ import java.util.stream.Collectors;
 /**
  * Class that represents the visual layout of the settings page.
  * Saving the settings is handled by {@link HyperionSettings}.
+ *
+ * Some fields are unused in this class but are necessary in order to bind and display
+ * them through HyperionSettingsForm.form.
  */
+@SuppressWarnings("unused")
 public class HyperionSettingsForm {
 
     /**
@@ -55,8 +59,6 @@ public class HyperionSettingsForm {
     private void createUIComponents() {
         hyperionSettings = HyperionSettings.Companion.getInstance(project);
 
-        // Make sure we found an instance given the project.
-        if (hyperionSettings == null) return;
         List<Row> data = getIntervalRows();
         intervalTable = new IntervalTable(data);
         intervalPanel = new IntervalListPanel();
