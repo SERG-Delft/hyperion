@@ -13,8 +13,15 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Class that represents the visual layout of the settings page.
+ * Saving the settings is handled by {@link HyperionSettings}.
+ */
 public class HyperionSettingsForm {
 
+    /**
+     * UI Components.
+     */
     private JPanel root;
     private IntervalTable intervalTable;
     private IntervalListPanel intervalPanel;
@@ -22,9 +29,16 @@ public class HyperionSettingsForm {
     private JLabel addressTitle;
     private JLabel intervalsTitle;
 
+    /**
+     * Other data needed.
+     */
     private Project project;
     private HyperionSettings hyperionSettings;
 
+    /**
+     * Instantiate Settings for given Project.
+     * @param project relates to the settings we need to load. {@see HyperionSettings#getInstance(Project)}
+     */
     public HyperionSettingsForm(Project project) {
         super();
         this.project = project;
@@ -48,6 +62,11 @@ public class HyperionSettingsForm {
         intervalPanel = new IntervalListPanel();
     }
 
+    /**
+     * Obtains the intervals (in seconds) from the state {@link HyperionSettings#getState()} and converts
+     * them to rows {@link Row} for use in the IntervalTable.
+     * @return a List of rows {@link Row}
+     */
     @NotNull
     private List<Row> getIntervalRows() {
         List<Integer> intervals = hyperionSettings.getState().getIntervals();
@@ -68,6 +87,11 @@ public class HyperionSettingsForm {
         return intervalTable.isModified() || !addressField.getText().equals(hyperionSettings.getState().address);
     }
 
+    /**
+     * Applies (saves) settings.
+     * It converts values from {@link IntervalTable} to seconds {@link Row#toSeconds()} and saves the
+     * API address.
+     */
     public void apply() {
         hyperionSettings.setAddress(addressField.getText());
 
@@ -83,12 +107,20 @@ public class HyperionSettingsForm {
         hyperionSettings.setIntervals(intervals);
     }
 
+    /**
+     * Resets all editable fields to the previously applied values.
+     * This can only be called when {@link #isModified()} returns true
+     * (when false the reset button is invisible).
+     */
     public void reset() {
         addressField.setText(hyperionSettings.getState().address);
 
         intervalTable.reset();
     }
 
+    /**
+     * Class that holds the {@link IntervalTable} and manages the add & delete buttons.
+     */
     class IntervalListPanel extends JPanel {
 
         IntervalListPanel() {
@@ -117,6 +149,5 @@ public class HyperionSettingsForm {
         private void addRow() {
             intervalTable.getIntervalTableModel().addRow(new Row(1, Period.Seconds));
         }
-
     }
 }
