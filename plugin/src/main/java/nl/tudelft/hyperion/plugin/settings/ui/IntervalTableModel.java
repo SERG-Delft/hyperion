@@ -15,6 +15,11 @@ class IntervalTableModel extends AbstractTableModel {
         return data;
     }
 
+    public void setData(List<Row> data) {
+        this.data = data;
+        fireTableDataChanged();
+    }
+
     @Override
     public Class<?> getColumnClass(int columnIndex) {
         return data.get(0).getColumn(columnIndex).getClass();

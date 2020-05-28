@@ -86,7 +86,7 @@ public class HyperionSettingsForm {
     public void reset() {
         addressField.setText(hyperionSettings.getState().address);
 
-        intervalTable.setData(getIntervalRows());
+        intervalTable.reset();
     }
 
     class IntervalListPanel extends JPanel {

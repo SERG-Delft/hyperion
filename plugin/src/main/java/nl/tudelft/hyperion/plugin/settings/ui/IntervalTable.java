@@ -19,25 +19,28 @@ public class IntervalTable extends JBTable {
         frequencyColumn.setCellEditor(new DefaultCellEditor(comboBox));
 
         tableModel = ((IntervalTableModel) this.getModel());
-        lastData = getCurrentData().stream().map(row -> row.clone()).collect(Collectors.toList());
+        lastData = cloneData(getCurrentData());
     }
 
     List<Row> getCurrentData() {
         return tableModel.getData();
     }
 
-    void setData(List<Row> data) {
-        lastData = data;
+    void reset() {
+        tableModel.setData(cloneData(lastData));
     }
 
     IntervalTableModel getIntervalTableModel() {
         return tableModel;
     }
     List<Row> updateData() {
-        return lastData = new ArrayList<>(getCurrentData());
+        return lastData = cloneData(getCurrentData());
     }
     boolean isModified() {
         return !lastData.equals(getCurrentData());
     }
 
+    private List<Row> cloneData(List<Row> data) {
+        return data.stream().map(Row::clone).collect(Collectors.toList());
+    }
 }
