@@ -73,16 +73,16 @@ fun extract(input: String, config: Configuration): String {
     val tree = mapper.readTree(input)
 
     for (extractableField in config.fields) {
-        if(tree.has(extractableField.field)) {
-            val fieldValue = tree.findValue(extractableField.field).toString()
-            val pattern = extractableField.regex
-            val matches = pattern.find(fieldValue)
+        if (!tree.has(extractableField.field)) continue
 
-            matches?.groupValues?.drop(1)?.zip(extractableField.extract)?.forEach { (match, extract) ->
-                (tree.findParent(extractableField.field) as ObjectNode).put(extract.type, match, extract.to)
-            }
+        val fieldValue = tree.findValue(extractableField.field).toString()
+        val pattern = extractableField.regex
+        val matches = pattern.find(fieldValue)
+
+        matches?.groupValues?.drop(1)?.zip(extractableField.extract)?.forEach { (match, extract) ->
+            (tree.findParent(extractableField.field) as ObjectNode).put(extract.type, match, extract.to)
         }
     }
 
-    return tree.toString();
+    return tree.toString()
 }
