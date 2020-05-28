@@ -50,12 +50,6 @@
     <!-- Minimum and maximum build of IDE compatible with the plugin -->
     <idea-version since-build="201.4163"/>
 
-    <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="nl.tudelft.hyperion.plugin.settings.HyperionSettings"/>
-        <projectConfigurable id="hyperion.settings" groupId="tools"
-                             instance="nl.tudelft.hyperion.plugin.settings.HyperionSettingsConfigurable"/>
-    </extensions>
-
     <projectListeners>
 <!--            <listener class="nl.tudelft.hyperion.plugin.visualization.FileOpenedListener"-->
 <!--                      topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>-->
@@ -70,6 +64,9 @@
         </action>
     </actions>
     <extensions defaultExtensionNs="com.intellij">
+        <applicationService serviceImplementation="nl.tudelft.hyperion.plugin.settings.HyperionSettings"/>
+        <projectConfigurable displayName="Hyperion" groupId="tools"
+                             instance="nl.tudelft.hyperion.plugin.settings.HyperionSettingsConfigurable"/>
         <highlightingPassFactory implementation="nl.tudelft.hyperion.plugin.doc.MetricInlayRenderPassFactory" />
     </extensions>
 </idea-plugin>
