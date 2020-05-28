@@ -30,7 +30,9 @@ fun adder(input: String, config: List<AddConfiguration>, mapper: ObjectMapper): 
             p.findOrCreateChild(c)
         })
 
-        if (target.get(parts.last()) == null) {
+        if ((target.get(parts.last()) == null)) {
+            target.put(parts.last(), item.value)
+        } else if (item.overwriteNull && (target.get(parts.last()).toString() == "null")) {
             target.put(parts.last(), item.value)
         }
     }

@@ -33,6 +33,30 @@ class AdderTest {
     }
 
     @Test
+    fun `value null of existing key should be overriden on default`() {
+        val config = listOf(
+            AddConfiguration("version", "1.0.2")
+        )
+
+        val input = """{"version":null}"""
+        val expected = """{"version":"1.0.2"}"""
+
+        Assertions.assertEquals(expected, adder(input, config, mapper))
+    }
+
+    @Test
+    fun `value null of existing key should not be overriden when false`() {
+        val config = listOf(
+            AddConfiguration("version", "1.0.2", false)
+        )
+
+        val input = """{"version":null}"""
+        val expected = """{"version":null}"""
+
+        Assertions.assertEquals(expected, adder(input, config, mapper))
+    }
+
+    @Test
     fun `add two same key parent level fields shouldn't overwrite`() {
         val config = listOf(
             AddConfiguration("version", "1.0.2"),
