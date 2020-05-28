@@ -27,15 +27,21 @@ public class HyperionSettingsForm {
     public HyperionSettingsForm(Project project) {
         super();
         this.project = project;
-        hyperionSettings = HyperionSettings.Companion.getInstance(project);
     }
 
     public JPanel getRoot() {
         return root;
     }
 
+    /**
+     * Initialize any custom created UI Components here.
+     * In our case this is only intervalTable and intervalPanel
+     */
     private void createUIComponents() {
+        hyperionSettings = HyperionSettings.Companion.getInstance(project);
 
+        // Make sure we found an instance given the project.
+        if (hyperionSettings == null) return;
         List<Integer> intervals = hyperionSettings.getState().getIntervals();
         List<Row> data = new ArrayList<>();
         for (int interval : intervals) {

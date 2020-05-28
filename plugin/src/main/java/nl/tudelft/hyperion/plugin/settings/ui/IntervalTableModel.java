@@ -1,21 +1,15 @@
 package nl.tudelft.hyperion.plugin.settings.ui;
 
 import javax.swing.table.AbstractTableModel;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 class IntervalTableModel extends AbstractTableModel {
-    private List<Row> data = Arrays.asList(
-            new Row(1, Period.Hours),
-            new Row(1, Period.Days),
-            new Row(1, Period.Weeks)
-    );
+    private List<Row> data;
     private final String[] columnNames = new String[]{"Interval", "Frequency"};
 
     IntervalTableModel(List<Row> data) {
         super();
-        if (data != null) this.data = new ArrayList<>(data);
+        this.data = data;
     }
     public List<Row> getData() {
         return data;
