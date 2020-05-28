@@ -1,7 +1,7 @@
 package nl.tudelft.hyperion.pipeline.extractor
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -69,7 +69,7 @@ fun ObjectNode.put(type: Type, value: String, name: String): ObjectNode {
  * @return A JSON string with additional extracted information
  */
 fun extract(input: String, config: Configuration): String {
-    val mapper = jacksonObjectMapper()
+    val mapper = ObjectMapper()
     val tree = mapper.readTree(input)
 
     for (extractableField in config.fields) {

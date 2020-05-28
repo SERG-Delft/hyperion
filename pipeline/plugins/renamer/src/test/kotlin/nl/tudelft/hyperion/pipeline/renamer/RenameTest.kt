@@ -1,6 +1,6 @@
 package nl.tudelft.hyperion.pipeline.renamer
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.databind.ObjectMapper
 import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -34,7 +34,7 @@ class RenameTest {
           "log_line" : 10
         }""".trimIndent()
 
-        val mapper = jacksonObjectMapper()
+        val mapper = ObjectMapper()
 
         val treeExpected = mapper.readTree(expected)
         val treeActual = mapper.readTree(rename(input, config))
@@ -62,7 +62,7 @@ class RenameTest {
           "log-line" : 10
         }""".trimIndent()
 
-        val mapper = jacksonObjectMapper()
+        val mapper = ObjectMapper()
 
         val treeBefore = mapper.readTree(input)
         val treeAfter = mapper.readTree(rename(input, config))

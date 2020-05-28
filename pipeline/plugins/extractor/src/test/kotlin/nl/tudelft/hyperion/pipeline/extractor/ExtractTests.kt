@@ -1,6 +1,6 @@
 package nl.tudelft.hyperion.pipeline.extractor
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.databind.ObjectMapper
 import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions
@@ -19,7 +19,7 @@ class ExtractTests {
         val expected = """{"message":"[Mar 20 11:11:11] INFO some/file/name:10 - Test",
             | "location" : {"line" : 10}, "dash" : "-"}""".trimMargin()
 
-        val mapper = jacksonObjectMapper()
+        val mapper = ObjectMapper()
 
         val treeExpected = mapper.readTree(expected)
         val treeActual = mapper.readTree(extract(input, config))
@@ -40,7 +40,7 @@ class ExtractTests {
         val expected = """{"message":"[Mar 20 11:11:11] INFO some/file/name:10 3 Test",
             | "location" : {"line" : 10}, "dash" : 3}""".trimMargin()
 
-        val mapper = jacksonObjectMapper()
+        val mapper = ObjectMapper()
 
         val treeExpected = mapper.readTree(expected)
         val treeActual = mapper.readTree(extract(input, config))
@@ -61,7 +61,7 @@ class ExtractTests {
         val expected = """{"message":"[Mar 20 11:11:11] INFO some/file/name:10 - Test",
             | "location" : {"line" : 10}, "dash" : "-"}""".trimMargin()
 
-        val mapper = jacksonObjectMapper()
+        val mapper = ObjectMapper()
 
         val treeExpected = mapper.readTree(expected)
         val treeActual = mapper.readTree(extract(input, config))
@@ -82,7 +82,7 @@ class ExtractTests {
         val expected = """{"message":"[Mar 20 11:11:11] INFO some/file/name:2.5 Test",
             | "location" : {"line" : 2.5}}""".trimMargin()
 
-        val mapper = jacksonObjectMapper()
+        val mapper = ObjectMapper()
 
         val treeExpected = mapper.readTree(expected)
         val treeActual = mapper.readTree(extract(input, config))
@@ -103,7 +103,7 @@ class ExtractTests {
         val expected = """{"message":"[Mar 20 11:11:11] INFO some/file/name:- Test",
             | "location" : "-"}""".trimMargin()
 
-        val mapper = jacksonObjectMapper()
+        val mapper = ObjectMapper()
 
         val treeExpected = mapper.readTree(expected)
         val treeActual = mapper.readTree(extract(input, config))
@@ -124,7 +124,7 @@ class ExtractTests {
         val expected = """{"message":"[Mar 20 11:11:11] INFO some/file/name:1934 Test",
             | "location" : 1934}""".trimMargin()
 
-        val mapper = jacksonObjectMapper()
+        val mapper = ObjectMapper()
 
         val treeExpected = mapper.readTree(expected)
         val treeActual = mapper.readTree(extract(input, config))
@@ -145,7 +145,7 @@ class ExtractTests {
         val expected = """{"message":"[Mar 20 11:11:11] INFO some/file/name:34.567 Test",
             | "location" : 34.567}""".trimMargin()
 
-        val mapper = jacksonObjectMapper()
+        val mapper = ObjectMapper()
 
         val treeExpected = mapper.readTree(expected)
         val treeActual = mapper.readTree(extract(input, config))
@@ -166,7 +166,7 @@ class ExtractTests {
         val expected = """{"message":"[Mar 20 11:11:11] INFO some/file/name:34.567 Test",
             | "location" : { "line" : "34.567"}}""".trimMargin()
 
-        val mapper = jacksonObjectMapper()
+        val mapper = ObjectMapper()
 
         val treeExpected = mapper.readTree(expected)
         val treeActual = mapper.readTree(extract(input, config))
@@ -187,7 +187,7 @@ class ExtractTests {
         val expected = """{"message":"[Mar 20 11:11:11] INFO some/file/name:34 - Test",
             | "location" : {"line" : { "numeric" : 34}}}""".trimMargin()
 
-        val mapper = jacksonObjectMapper()
+        val mapper = ObjectMapper()
 
         val treeExpected = mapper.readTree(expected)
         val treeActual = mapper.readTree(extract(input, config))
@@ -230,7 +230,7 @@ class ExtractTests {
                 }
         """.trimMargin()
 
-        val mapper = jacksonObjectMapper()
+        val mapper = ObjectMapper()
 
         val treeExpected = mapper.readTree(expected)
         val treeActual = mapper.readTree(extract(input, config))
@@ -272,7 +272,7 @@ class ExtractTests {
                 }
         """.trimMargin()
 
-        val mapper = jacksonObjectMapper()
+        val mapper = ObjectMapper()
 
         val treeExpected = mapper.readTree(expected)
         val treeActual = mapper.readTree(extract(input, config))
