@@ -20,10 +20,10 @@ class ConfigurationTest : TestWithoutLogging() {
         val temporaryFile = File.createTempFile("hyperion-aggregator-config", "yaml")
         Files.writeString(
             temporaryFile.toPath(), """
-                databaseUrl: "postgresql://localhost/postgres?user=postgres&password=mysecretpassword"
+                database-url: "postgresql://localhost/postgres?user=postgres&password=mysecretpassword"
                 port: 8081
                 granularity: 10 # 10 seconds
-                aggregationTtl: 604800 # 7 days
+                aggregation-ttl: 604800 # 7 days
             """.trimIndent()
         )
 
@@ -40,10 +40,10 @@ class ConfigurationTest : TestWithoutLogging() {
     @Test
     fun `Configuration should be able to load from a string`() {
         val content = """
-            databaseUrl: "postgresql://localhost/postgres?user=postgres&password=mysecretpassword"
+            database-url: "postgresql://localhost/postgres?user=postgres&password=mysecretpassword"
             port: 8081
             granularity: 10 # 10 seconds
-            aggregationTtl: 604800 # 7 days
+            aggregation-ttl: 604800 # 7 days
         """.trimIndent()
 
         val config = Configuration.parse(content)
@@ -65,13 +65,13 @@ class ConfigurationTest : TestWithoutLogging() {
             
             
             
-            databaseUrl: "postgresql://localhost/postgres?user=postgres&password=mysecretpassword"
+            database-url: "postgresql://localhost/postgres?user=postgres&password=mysecretpassword"
             # port: 8082
             port: 8081
             
             granularity: 10 # 10 seconds
             # 7 days
-            aggregationTtl: 604800
+            aggregation-ttl: 604800
         """.trimIndent()
 
         val config = Configuration.parse(content)
@@ -87,10 +87,10 @@ class ConfigurationTest : TestWithoutLogging() {
     @Test
     fun `Configuration should not support unknown settings`() {
         val content = """
-            databaseUrl: "postgresql://localhost/postgres?user=postgres&password=mysecretpassword"
+            database-url: "postgresql://localhost/postgres?user=postgres&password=mysecretpassword"
             port: 8081
             granularity: 10 # 10 seconds
-            aggregationTtl: 604800 # 7 days
+            aggregation-ttl: 604800 # 7 days
             unknown-property: true
         """.trimIndent()
 

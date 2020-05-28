@@ -47,11 +47,11 @@ class ZMQIntake(
                 throw ZMQIntakeInitializationException("ZMQIntake is already setup")
             }
 
-            logger.debug { "Requesting connection information from ${configuration.pluginManager}" }
+            logger.debug { "Requesting connection information from ${configuration.managerHost}" }
 
             ZContext().use {
                 val socket = it.createSocket(SocketType.REQ)
-                socket.connect("tcp://${configuration.pluginManager}")
+                socket.connect("tcp://${configuration.managerHost}")
 
                 socket.send("""{"id":"${configuration.id}","type":"pull"}""")
                 subInformation = PeerConnectionInformation.parse(socket.recvStr())
