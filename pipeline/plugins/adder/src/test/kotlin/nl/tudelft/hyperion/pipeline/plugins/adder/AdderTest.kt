@@ -1,11 +1,11 @@
 package nl.tudelft.hyperion.pipeline.plugins.adder
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions
 
 class AdderTest {
-    private val mapper = jacksonObjectMapper()
+    private val mapper = ObjectMapper()
 
     @Test
     fun `add one parent level field`() {

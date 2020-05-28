@@ -16,7 +16,6 @@ dependencies {
 
     // json parsing
     implementation("com.fasterxml.jackson.core", "jackson-databind", "2.10.2")
-    implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.10.2")
 
     implementation(project(":pipeline:common"))
 }
