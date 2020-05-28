@@ -1,7 +1,6 @@
 package nl.tudelft.hyperion.plugin.settings.ui;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.ToolbarDecorator;
 import nl.tudelft.hyperion.plugin.settings.HyperionSettings;
 
@@ -65,8 +64,6 @@ public class HyperionSettingsForm {
     }
 
     class IntervalListPanel extends JPanel {
-
-        private final String title = "Intervals";
 
         IntervalListPanel() {
             initPanel();
