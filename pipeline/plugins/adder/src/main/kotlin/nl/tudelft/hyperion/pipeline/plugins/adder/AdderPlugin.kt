@@ -33,6 +33,7 @@ class AdderPlugin(private var config: AdderConfiguration): AbstractPipelinePlugi
      * Uses the given mapper to convert the input string to a tree.
      * Returns the input when string cannot be parsed.
      */
+    @Suppress("TooGenericExceptionCaught")
     override suspend fun process(input: String): String {
         // parse json string
         val tree = try{
