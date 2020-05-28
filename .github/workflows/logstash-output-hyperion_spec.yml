@@ -1,0 +1,32 @@
+# Runs Gradle Check on the datasource common module and plugins
+# Will be triggered on every pull request and push to master
+# Only commences on check if the code changed
+name: Ruby spec logstash plugin
+
+on:
+  pull_request:
+  push:
+    paths:
+      - 'logstash-output-hyperion/**'
+    branches:
+      - master
+
+jobs:
+  ruby-spec:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: jruby-9.1.17.0
+
+      - run: gem install bundler -v '< 2'
+
+      - run: ci/build.sh
+        working-directory: ./logstash-output-hyperion

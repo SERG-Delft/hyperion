@@ -21,5 +21,5 @@ object Utils {
      * if the content was invalid.
      */
     inline fun <reified T : Any> readJSONContent(content: String): T =
-            objectMapper.readValue(content)
+        objectMapper.readValue(content)
 }

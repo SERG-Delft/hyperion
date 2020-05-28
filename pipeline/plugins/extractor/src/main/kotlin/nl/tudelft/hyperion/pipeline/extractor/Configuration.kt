@@ -12,7 +12,7 @@ class Extract(val to: String, val type: Type)
  * @param extract list of extraction schemes
  */
 data class Configuration(
-    val plugin: PipelinePluginConfiguration,
+    val pipeline: PipelinePluginConfiguration,
     val field: String,
     val match: String,
     val extract: List<Extract>

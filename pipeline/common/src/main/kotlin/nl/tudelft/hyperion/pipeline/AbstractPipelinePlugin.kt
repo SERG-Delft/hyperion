@@ -70,7 +70,7 @@ abstract class AbstractPipelinePlugin(
      * Sets up the ZMQ sockets needed to consume and send messages for this plugin.
      * Returns a job that, when cancelled, will automatically clean up after itself.
      */
-    fun run() = GlobalScope.launch {
+    open fun run() = GlobalScope.launch {
         runSuspend(this)
     }
 
@@ -98,7 +98,7 @@ abstract class AbstractPipelinePlugin(
      * Helper function that will create a new subroutine that is used to send the
      * results of computation to the next stage in the pipeline.
      */
-    private fun runSender(channel: Channel<String>) = senderScope.launch {
+    fun runSender(channel: Channel<String>) = senderScope.launch {
         sink.setupConnection(pubConnectionInformation)
 
         while (isActive) {
@@ -115,7 +115,7 @@ abstract class AbstractPipelinePlugin(
      * messages from the previous stage and push it to the process function.
      */
     @Suppress("TooGenericExceptionCaught")
-    private fun runReceiver(channel: Channel<String>) = receiverScope.launch {
+    fun runReceiver(channel: Channel<String>) = receiverScope.launch {
         source.setupConnection(subConnectionInformation)
 
         while (isActive) {

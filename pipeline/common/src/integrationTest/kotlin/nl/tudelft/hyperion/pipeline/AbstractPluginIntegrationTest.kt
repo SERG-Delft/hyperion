@@ -48,7 +48,9 @@ class AbstractPluginIntegrationTest {
         pushData(pluginPull, "testMessage")
         pushData(pluginPull, "message2")
 
-        // assert pushed data is recveid, processed and pused to pull port.
+        Thread.sleep(100)
+
+        // assert pushed data is received, processed and pushed to pull port.
         assertEquals(listOf("message2", "testMessage"), recvData)
     }
 

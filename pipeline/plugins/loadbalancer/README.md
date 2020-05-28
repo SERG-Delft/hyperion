@@ -11,14 +11,14 @@ The load balancer can be ran by providing the path to a `.yml` config file.
 
 ## Example config file
 ```yaml
-workerManagerHostname: localhost
-workerManagerPort: 5555
-ventilatorPort: 3000
-sinkPort: 4000
+worker-manager-hostname: localhost
+worker-manager-port: 5555
+ventilator-port: 3000
+sink-port: 4000
 
-zmq:
-  id: loadbalancer
-  pluginManager: "localhost:5000"
+pipeline:
+  plugin-id: LoadBalancer
+  manager-host: "localhost:5000"
 ```
 
 ## Overview of the architecture
