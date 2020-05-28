@@ -3,6 +3,7 @@ package nl.tudelft.hyperion.plugin.connection
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.intellij.openapi.project.Project
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import nl.tudelft.hyperion.plugin.metric.FileMetrics
@@ -17,9 +18,9 @@ object APIRequestor {
         mapper.registerModule(module)
     }
 
-    public suspend fun getMetricForFile(filePath: String): FileMetrics {
+    public suspend fun getMetricForFile(filePath: String, project: Project): FileMetrics {
         // TODO: Remove hardcoded intervals & project
-        val state = HyperionSettings.getInstance().state ?: return FileMetrics(emptyMap())
+        val state = HyperionSettings.getInstance(project).state ?: return FileMetrics(emptyMap())
         val intervals = state.intervals.joinToString(",")
         val project = "TestProject"
 

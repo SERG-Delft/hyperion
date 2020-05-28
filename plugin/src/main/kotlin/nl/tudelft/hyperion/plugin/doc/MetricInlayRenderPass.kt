@@ -82,7 +82,7 @@ class MetricInlayRenderPass(editor: Editor, file: PsiFile) : EditorBoundHighligh
             val filePath = root?.let { VfsUtilCore.getRelativePath(myFile.virtualFile, it) }
 
             if (filePath != null) {
-                APIRequestor.getMetricForFile(filePath)
+                APIRequestor.getMetricForFile(filePath, myProject)
             } else {
                 FileMetrics(mapOf())
             }
