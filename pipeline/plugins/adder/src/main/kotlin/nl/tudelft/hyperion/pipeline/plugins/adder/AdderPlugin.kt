@@ -1,6 +1,7 @@
 package nl.tudelft.hyperion.pipeline.plugins.adder
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.ObjectNode
 import nl.tudelft.hyperion.pipeline.AbstractPipelinePlugin
 
 /**
@@ -10,7 +11,50 @@ import nl.tudelft.hyperion.pipeline.AbstractPipelinePlugin
  * @param config: [AdderConfiguration] which specifies default plugin details and which fields to add.
  */
 class AdderPlugin(private var config: AdderConfiguration): AbstractPipelinePlugin(config.pipeline) {
-    private val mapper = ObjectMapper()
 
-    override suspend fun process(input: String): String? = adder(input, config.add, mapper)
+    private val mapper = ObjectMapper()
+    private val logger = mu.KotlinLogging.logger {}
+
+    /**
+     * Helper function that will get or create an object child
+     * of the current object node.
+     */
+    private fun ObjectNode.findOrCreateChild(name: String): ObjectNode {
+        if (this.get(name) != null) {
+            return this.get(name) as ObjectNode
+        }
+
+        return this.putObject(name)
+    }
+
+    /**
+     * Takes the input string and applies all [AddConfiguration] to it.
+     * Expects a json formatted string as input, returns a json formatted string.
+     * Uses the given mapper to convert the input string to a tree.
+     * Returns the input when string cannot be parsed.
+     */
+    override suspend fun process(input: String): String {
+        // parse json string
+        val tree = try{
+            mapper.readTree(input) as ObjectNode
+        } catch (ex: Exception) {
+            logger.error(ex) { "Adder plugin [${config.pipeline.id}] was not able to parse $input" }
+            return input
+        }
+
+        for (item in config.add) {
+            val parts = item.key.split(".")
+            val target = parts.subList(0, parts.size - 1).fold(tree, { p, c ->
+                p.findOrCreateChild(c)
+            })
+
+            if ((target.get(parts.last()) == null)) {
+                target.put(parts.last(), item.value)
+            } else if (item.overwriteNull && (target.get(parts.last()).toString() == "null")) {
+                target.put(parts.last(), item.value)
+            }
+        }
+
+        return tree.toString()
+    }
 }

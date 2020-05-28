@@ -17,6 +17,13 @@ dependencies {
     // json parsing
     implementation("com.fasterxml.jackson.core", "jackson-databind", "2.10.2")
 
+    // Logging
+    implementation("io.github.microutils", "kotlin-logging", "1.7.9")
+    implementation("org.slf4j", "slf4j-simple", "1.7.28")
+
+    // testing
+    implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-jdk8", "1.3.5")
+
     implementation(project(":pipeline:common"))
 }
 
