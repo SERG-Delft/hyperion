@@ -5,7 +5,7 @@ import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
 
 /**
  * Configuration for the extraction plugin
- * @param plugins the abstracted part of the configuration for a pipeline plugin
+ * @param plugin the abstracted part of the configuration for a pipeline plugin
  * @param fields the list of configurations for fields to be extracted
  */
 data class Configuration(
@@ -23,7 +23,11 @@ data class ExtractableFieldConfiguration(
     val field: String,
     val match: String,
     val extract: List<Extract>
-)
+) {
+    val regex: Regex by lazy {
+        Regex(match)
+    }
+}
 
 /**
  * Data class for a naming and typing scheme

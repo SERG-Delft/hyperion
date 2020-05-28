@@ -74,7 +74,7 @@ fun extract(input: String, config: Configuration): String {
 
     for (extractableField in config.fields) {
         val fieldValue = tree.findValue(extractableField.field).toString()
-        val pattern = Regex(extractableField.match)
+        val pattern = extractableField.regex
         val matches = pattern.find(fieldValue)
 
         val extracts = extractableField.extract
