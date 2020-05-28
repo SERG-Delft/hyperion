@@ -5,7 +5,7 @@ import java.util.List;
 
 class IntervalTableModel extends AbstractTableModel {
     private List<Row> data;
-    private final String[] columnNames = new String[]{"Interval", "Frequency"};
+    private final String[] columnNames = new String[]{"Interval", "Period"};
 
     IntervalTableModel(List<Row> data) {
         super();
