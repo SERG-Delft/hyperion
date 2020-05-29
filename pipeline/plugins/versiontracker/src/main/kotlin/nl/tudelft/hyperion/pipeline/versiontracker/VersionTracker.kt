@@ -131,7 +131,7 @@ class VersionTracker(config: Configuration) : AbstractPipelinePlugin(config.pipe
         val root: JsonNode = mapper.readTree(input)
 
         val projectNode = root.get("project") ?: return input
-        val projectName = projectNode.textValue()
+        val projectName = projectNode.textValue() ?: return input
 
         // Add commit hash if the project exists
         if (projectVersions.containsKey(projectName)) {
