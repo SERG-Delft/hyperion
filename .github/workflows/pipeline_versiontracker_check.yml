@@ -1,12 +1,12 @@
-# Runs Gradle Check on the Plugin module
+# Runs Gradle Check on the pipeline common module and plugins
 # Will be triggered on every pull request and push to master
 # Only commences on check if the code changed
-name: Gradle check Plugin
+name: Gradle check VersionTracker plugin
 
 on:
   pull_request:
     paths:
-      - 'plugin/**'
+      - "pipeline/plugins/versiontracker/**"
   push:
     branches:
       - master
@@ -21,7 +21,7 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 11
-          
+
       - uses: actions/cache@v1
         with:
           path: ~/.gradle/caches
@@ -29,7 +29,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: gradle check plugin
+      - name: gradle check pipeline versiontracker plugin
         uses: eskatos/gradle-command-action@v1
         with:
-          arguments: :plugin:check
+          arguments: :pipeline:plugins:versiontracker:check

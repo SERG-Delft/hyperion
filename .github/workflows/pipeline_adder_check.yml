@@ -1,13 +1,13 @@
-# Runs Gradle Check on the Plugin module
+# Runs Gradle Check on the pipeline adder plugin
 # Will be triggered on every pull request and push to master
 # Only commences on check if the code changed
-name: Gradle check Plugin
+name: Gradle check pipeline adder plugin
 
 on:
   pull_request:
-    paths:
-      - 'plugin/**'
   push:
+    paths:
+      - 'pipeline/plugins/adder/**'
     branches:
       - master
 
@@ -21,7 +21,7 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 11
-          
+
       - uses: actions/cache@v1
         with:
           path: ~/.gradle/caches
@@ -32,4 +32,4 @@ jobs:
       - name: gradle check plugin
         uses: eskatos/gradle-command-action@v1
         with:
-          arguments: :plugin:check
+          arguments: :pipeline:plugins:adder:check
