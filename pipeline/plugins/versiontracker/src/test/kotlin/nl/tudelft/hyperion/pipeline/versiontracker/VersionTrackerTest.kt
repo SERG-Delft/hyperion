@@ -51,7 +51,7 @@ class VersionTrackerTest {
     }
 
     @Test
-    fun `resolveCommitHash() should return null if not available for project`() {
+    fun `resolveCommitHash() should return same input if not available for project`() {
         val config = Configuration(
             PipelinePluginConfiguration("VersionTracker", "localhost:5555"),
             mapOf(
@@ -69,11 +69,11 @@ class VersionTrackerTest {
         val plugin = VersionTracker(config)
         val processedMessage = plugin.resolveCommitHash(message)
 
-        assertNull(processedMessage)
+        assertEquals(message, processedMessage)
     }
 
     @Test
-    fun `resolveCommitHash() should return null if project field does not exist`() {
+    fun `resolveCommitHash() should return same input if project field does not exist`() {
         val config = Configuration(
             PipelinePluginConfiguration("VersionTracker", "localhost:5555"),
             mapOf(
@@ -91,7 +91,7 @@ class VersionTrackerTest {
         val plugin = VersionTracker(config)
         val processedMessage = plugin.resolveCommitHash(message)
 
-        assertNull(processedMessage)
+        assertEquals(message, processedMessage)
     }
 
     @Test
