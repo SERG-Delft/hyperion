@@ -95,6 +95,28 @@ class VersionTrackerTest {
     }
 
     @Test
+    fun `resolveCommitHash() should return same input if project field is not a string`() {
+        val config = Configuration(
+            PipelinePluginConfiguration("VersionTracker", "localhost:5555"),
+            mapOf(
+                "sap" to ProjectConfig(
+                    "https://github.com/john/sap.git",
+                    "master",
+                    authentication = null
+                )
+            )
+        )
+
+        val message = """{"message":"INFO - Log", "project":null}"""
+
+        // process message
+        val plugin = VersionTracker(config)
+        val processedMessage = plugin.resolveCommitHash(message)
+
+        assertEquals(message, processedMessage)
+    }
+
+    @Test
     fun `updateRefs() should add a reference if one exists`() {
         mockkConstructor(LsRemoteCommand::class)
 
