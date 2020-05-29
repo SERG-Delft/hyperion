@@ -6,18 +6,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 /**
- * Function that extract information from a json log message from file
- * @param path The absolute path of the json to be extracted
- * @param config A extraction configuration for the messages
- * @return A string representation of the json with additional extracted fields
- */
-fun extract(path: Path, config: Configuration): String {
-    val input = Files.readString(path)
-
-    return extract(input, config)
-}
-
-/**
  * Function that checks whether a child exists and creates it otherwise
  * @param name The name of the child to be found or created
  * @return The child node as ObjectNode
