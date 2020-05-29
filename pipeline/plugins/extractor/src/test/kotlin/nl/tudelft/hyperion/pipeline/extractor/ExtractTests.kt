@@ -365,4 +365,25 @@ class ExtractTests {
 
         Assertions.assertEquals(treeExpected, treeActual)
     }
+
+    @Test
+    fun `on invalid message return input`() {
+        val config = Configuration(
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
+            ExtractableFieldConfiguration(
+                "message",
+                "(1)",
+                listOf(
+                    Extract("numeric.1", Type.NUMBER)
+                )
+            )
+        )
+        )
+
+        val input = """chicken"""
+
+        val ret = extract(input, config)
+
+        Assertions.assertEquals(input, ret)
+    }
 }
