@@ -19,8 +19,8 @@ object APIRequestor {
         mapper.registerModule(module)
     }
 
-    public suspend fun getMetricForFile(filePath: String, ideProject: Project): FileMetrics {
-        // TODO: Remove hardcoded intervals & project
+    suspend fun getMetricForFile(filePath: String, ideProject: Project): FileMetrics {
+        // TODO: Remove hardcoded project
         val state = HyperionSettings.getInstance(ideProject).state
         val intervals = state.intervals.joinToString(",")
         val project = "TestProject"
