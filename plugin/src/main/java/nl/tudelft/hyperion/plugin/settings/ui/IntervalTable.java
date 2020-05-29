@@ -26,7 +26,7 @@ public class IntervalTable extends JBTable {
      * @param data rows to display in the table.
      */
     public IntervalTable(List<Row> data) {
-        super(new IntervalTableModel(data));
+        super(new IntervalTableModel(cloneData(data)));
         TableColumn frequencyColumn = this.getColumnModel().getColumn(1);
 
         // We overwrite the CellEditor to display a dropdown menu containing all possible Periods {@link Period}
@@ -84,7 +84,7 @@ public class IntervalTable extends JBTable {
      * @param data data to clone.
      * @return Cloned data.
      */
-    private List<Row> cloneData(List<Row> data) {
+    private static List<Row> cloneData(List<Row> data) {
         return data.stream().map(Row::clone).collect(Collectors.toList());
     }
 }

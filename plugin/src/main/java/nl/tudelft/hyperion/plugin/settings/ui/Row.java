@@ -85,9 +85,8 @@ class Row implements Cloneable {
         try {
             return ((Row) super.clone());
         } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
+            return new Row(interval, period);
         }
-        return new Row(interval, period);
     }
 
     @Override
@@ -96,15 +95,5 @@ class Row implements Cloneable {
         if (o == null || getClass() != o.getClass()) return false;
         Row row = (Row) o;
         return interval == row.interval && period.equals(row.period);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(interval, period);
-    }
-
-    @Override
-    public String toString() {
-        return interval + " " + period;
     }
 }
