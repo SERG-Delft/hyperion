@@ -1,7 +1,6 @@
-package nl.tudelft.hyperion.pipeline.pathextractor.configuration
+package nl.tudelft.hyperion.pipeline.pathextractor
 
 import nl.tudelft.hyperion.pipeline.readYAMLConfig
-import nl.tudelft.hyperion.pipeline.pathextractor.Configuration
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.io.File

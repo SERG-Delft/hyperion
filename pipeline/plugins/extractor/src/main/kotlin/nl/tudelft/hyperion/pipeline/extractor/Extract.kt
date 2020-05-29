@@ -1,7 +1,7 @@
 package nl.tudelft.hyperion.pipeline.extractor
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -69,22 +69,20 @@ fun ObjectNode.put(type: Type, value: String, name: String): ObjectNode {
  * @return A JSON string with additional extracted information
  */
 fun extract(input: String, config: Configuration): String {
-    val mapper = jacksonObjectMapper()
+    val mapper = ObjectMapper()
     val tree = mapper.readTree(input)
 
-    val fieldValue = tree.findValue(config.field).toString()
-    val pattern = Regex(config.match)
-    val matches = pattern.find(fieldValue)
+    for (extractableField in config.fields) {
+        if (!tree.has(extractableField.field)) continue
 
-    val extracts = config.extract
-    var i = 0
-    matches?.groupValues?.forEach {
-        if (i > 0) {
-            val extract = extracts[i - 1]
-            (tree.findParent(config.field) as ObjectNode).put(extract.type, it, extract.to)
+        val fieldValue = tree.findValue(extractableField.field).toString()
+        val pattern = extractableField.regex
+        val matches = pattern.find(fieldValue)
+
+        matches?.groupValues?.drop(1)?.zip(extractableField.extract)?.forEach { (match, extract) ->
+            (tree.findParent(extractableField.field) as ObjectNode).put(extract.type, match, extract.to)
         }
-        i++
     }
 
-    return tree.toString();
+    return tree.toString()
 }
