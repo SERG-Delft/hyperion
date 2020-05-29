@@ -34,12 +34,12 @@ The following projects are in this repository:
 - [datasource/plugins/elasticsearch](datasource/plugins/elasticsearch): A data source for Hyperion that pulls data from an ElasticSearch instance.
 - [logstash-output-hyperion](logstash-output-hyperion): A plugin for logstash that allows it to output to the Hyperion pipeline. This plugin should be prefered over the ElasticSearch data source if you have a typical ELK stack.
 - [pipeline/common](pipeline/common): A common set of Java/Kotlin APIs for implementing Hyperion pipeline transformation plugins.
-- [pipeline/plugins/adder](pipeline/plugins/adder): A simple pipeline plugin that adds static values to incoming messages.
-- [pipeline/plugins/extractor](pipeline/plugins/extractor): A simple pipeline plugin that extracts values from string fields into separate fields.
+- [pipeline/plugins/adder](pipeline/plugins/adder): A simple pipeline plugin that adds static values to incoming JSON messages.
+- [pipeline/plugins/extractor](pipeline/plugins/extractor): A simple pipeline plugin that extracts values from string JSON fields into separate fields.
 - [pipeline/plugins/loadbalancer](pipeline/plugins/loadbalancer): A pipeline plugin that allows for multiple instances of Hyperion pipeline plugins to be load-balanced transparently.
 - [pipeline/plugins/pathextractor](pipeline/plugins/pathextractor): A simple pipeline plugin that transforms Java package names into their appropriate file path.
-- [pipeline/plugins/renamer](pipeline/plugins/renamer): A simple pipeline plugin that renames field names.
-- [pipeline/plugins/versiontracker](pipeline/plugins/versiontracker): A simple pipeline plugin that attaches a version tag to incoming data based on the latest commit in a Git repository.
+- [pipeline/plugins/renamer](pipeline/plugins/renamer): A simple pipeline plugin that renames JSON field names.
+- [pipeline/plugins/versiontracker](pipeline/plugins/versiontracker): A simple pipeline plugin that attaches a version tag to incoming JSON data based on the latest commit in a Git repository.
 - [plugin](plugin): An IntelliJ IDEA plugin that integrates with the aggregator to show metrics in the IDE.
 - [pluginmanager](pluginmanager): A central server that manages the pipeline order and orchestrates communication between pipeline parts.
 
