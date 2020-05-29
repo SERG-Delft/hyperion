@@ -9,7 +9,9 @@ pipeline/
        addtext/
             src/
                 main/
+                    packageName/
                 test/
+                    packageName/
             build.gradle.kts
             config.yml
             Dockerfile
@@ -26,10 +28,13 @@ plugins {
 }
 
 application {
-    mainClassName = "nl.tudelft.hyperion.pipeline.addtext.Main"
+    mainClassName = "addtext.Main"
 }
 
 dependencies {
+    // testing
+    implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-jdk8", "1.3.5")
+
     // load AbstractPipelinePlugin
     implementation(project(":pipeline:common"))
 }
@@ -57,7 +62,7 @@ tasks.jacocoTestCoverageVerification {
 
             limit {
                 counter = "LINE"
-                minimum = "0.6.toBigDecimal()
+                minimum = "0.6".toBigDecimal()
             }
         }
     }
@@ -76,7 +81,7 @@ tasks.shadowJar {
     destinationDir = File("./build/addtext-all.jar");
 }
 ```
-This configuration will load Kotlin, [Jacoco](https://www.eclemma.org/jacoco/) for testing, [Detekt](https://detekt.github.io/detekt/) for checkstyle and [shadowJar](https://github.com/johnrengelman/shadow) for building a jar with all dependencies included.
+This configuration will load Kotlin, [Jacoco](https://www.eclemma.org/jacoco/) for testing, [Detekt](https://detekt.github.io/detekt/) for checkstyle and [shadowJar](https://github.com/johnrengelman/shadow) for building jars.
 Do not forget to register your module in the top-level `settings.gradle.kts` file by adding: `pipeling:plugins:addfoo` at the end of the file.
 
 ### config.yml
@@ -97,6 +102,7 @@ ENV CONFIGPATH ${configpath}
 COPY addtext-all.jar .
 CMD java -jar addtext-all.jar ${CONFIGPATH}
 ```
+
 
 ### 2. plugin configuration
 ### 3. plugin logic
