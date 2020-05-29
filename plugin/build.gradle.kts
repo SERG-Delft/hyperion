@@ -7,10 +7,6 @@ plugins {
     id("com.github.johnrengelman.shadow").version("5.2.0")
 }
 
-application {
-    mainClassName = "nl.tudelft.hyperion.plugin.Main"
-}
-
 intellij {
     setPlugins("git4idea")
 }
