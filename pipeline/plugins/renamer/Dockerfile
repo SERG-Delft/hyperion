@@ -1,4 +1,4 @@
 FROM openjdk:14
 ENV CONFIGPATH ${configpath}
-COPY renamer-all.jar .
+COPY build/renamer-all.jar .
 CMD java -jar renamer-all.jar ${CONFIGPATH}

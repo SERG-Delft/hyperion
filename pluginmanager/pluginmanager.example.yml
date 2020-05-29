@@ -1,8 +1,0 @@
-host: "tcp://localhost:5560"
-plugins:
-  - id: "Datasource"
-    host: "tcp://localhost:1200"
-  - id: "Renamer"
-    host: "tcp://localhost:1201"
-  - id: "Aggregator"
-    host: "tcp://localhost:1202"
