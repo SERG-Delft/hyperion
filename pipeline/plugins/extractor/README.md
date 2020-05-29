@@ -1,6 +1,6 @@
 # Hyperion - Extractor Plugin
 
-TODO: Status badge
+![Gradle check pipeline extractor plugin](https://github.com/SERG-Delft/monitoring-aware-ides/workflows/Gradle%20check%20pipeline%20extractor%20plugin/badge.svg)
 
 This package provides an extractor pipeline plugin that is able to execute a regular expression on a field and extract the results to separate fields. It can be used to extract values from a single log line.
 
@@ -124,7 +124,7 @@ pipeline:
     # manager. Used to identify which plugins are inputs/outputs of this step. Please
     # note that the plugin will crash at launch if the plugin manager does not recognize
     # this plugin ID.
-    plugin-id: "MyPlugin"
+    plugin-id: "Extractor"
   
     # The size of the internal buffer used for storing data that has not yet been processed
     # locally. Increasing this will allow for more messages to be buffered, at the cost of

@@ -73,5 +73,5 @@ tasks.build {
 }
 
 tasks.shadowJar {
-    destinationDir = File("./")
+    destinationDirectory.set(File("./build"))
 }
