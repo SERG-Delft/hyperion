@@ -13,7 +13,6 @@ pipeline/
                 test/
                     packageName/
             build.gradle.kts
-            config.yml
             Dockerfile
 ```
 ### build.gradle.kts
@@ -83,16 +82,6 @@ tasks.shadowJar {
 ```
 This configuration will load Kotlin, [Jacoco](https://www.eclemma.org/jacoco/) for testing, [Detekt](https://detekt.github.io/detekt/) for checkstyle and [shadowJar](https://github.com/johnrengelman/shadow) for building jars.
 Do not forget to register your module in the top-level `settings.gradle.kts` file by adding: `pipeling:plugins:addfoo` at the end of the file.
-
-### config.yml
-This is where you will specify the required configurations for your module. It is meant as an example configuration for developers which want to use your plugin. We will cover configuration in detail in step 2. Our example config.yml will look like:"
-```
-pipeline :
-  manager-host: "1.2.3.4:4567"
-  plugin-id : "myplugin"
-
-add: "foo"
-```
 
 ### Dockerfile
 To enable ease of use, every plugin should include a Dockerfile. This Dockerfile should launch the plugin with the given path to the configuration as environment variable. For our plugin it will look like":
