@@ -1,86 +1,92 @@
-# Logstash Plugin
+# Hyperion - Logstash Output Plugin
 
-This is a plugin for [Logstash](https://github.com/elastic/logstash).
+![Ruby spec logstash plugin](https://github.com/SERG-Delft/monitoring-aware-ides/workflows/Ruby%20spec%20logstash%20plugin/badge.svg)
+
+This is an output plugin for [Logstash](https://github.com/elastic/logstash), allowing it to send data to Hyperion. If you have a typical ELK logging stack, this output can be used to push data to the Hyperion pipeline as it arrives in LogStash.
 
 It is fully free and fully open source. The license is Apache 2.0, meaning you are pretty much free to use it however you want in whatever way.
 
-## Documentation
+## Dependencies & Installation
 
-Logstash provides infrastructure to automatically generate documentation for this plugin. We use the asciidoc format to write documentation so any comments in the source code will be first converted into asciidoc and then into html. All plugin documentation are placed under one [central location](http://www.elastic.co/guide/en/logstash/current/).
+Using the Logstash output plugin requires you to have libzmq installed. On Debian-based distributions, this can be done using
 
-- For formatting code or config example, you can use the asciidoc `[source,ruby]` directive
-- For more asciidoc formatting tips, see the excellent reference here https://github.com/elastic/docs#asciidoc-guide
-
-## Need Help?
-
-Need help? Try #logstash on freenode IRC or the https://discuss.elastic.co/c/logstash discussion forum.
-
-## Developing
-
-### 1. Plugin Developement and Testing
-
-#### Code
-- To get started, you'll need JRuby with the Bundler gem installed.
-
-- Create a new plugin or clone and existing from the GitHub [logstash-plugins](https://github.com/logstash-plugins) organization. We also provide [example plugins](https://github.com/logstash-plugins?query=example).
-
-- Install dependencies
-```sh
-bundle install
+```shell script
+$ sudo apt install libzmq3-dev
 ```
 
-#### Test
+After installing dependencies, the output plugin can be installed into Logstash using the `bin/logstash-plugin` binary bundled with Logstash as follows:
 
-- Update your dependencies
-
-```sh
-bundle install
+```shell script
+$ bin/logstash-plugin install <path to .gem file>
 ```
 
-- Run tests
+The `.gem` file needed for install can be found in the releases or by manually building the plugin, as per the next section.
 
-```sh
-bundle exec rspec
+## Usage and Documentation
+
+For a full documentation, please see the [asciidoc](docs/index.asciidoc). This document also discusses all the configuration options for the plugin.
+
+In general, simply installing the plugin and adding the following section to your Logstash configuration should work:
+
+```
+output {
+    hyperion {
+        id => "<id of this plugin within the pipeline>"
+        pm_host => "<hostname of the plugin manager>"
+        pm_port => 12345
+    }
+}
 ```
 
-### 2. Running your unpublished Plugin in Logstash
+## Building & Testing
 
-#### 2.1 Run in a local Logstash clone
+To get started, you'll need JRuby with the Bundler gem installed. The JRuby version used for development is `9.1.12.0`. We recommend using [RVM](https://rvm.io/) to manage your Ruby versions.
+
+Install all required dependencies using the following command:
+
+```shell script
+$ bundle install
+```
+
+The tests can be ran using the following command:
+
+```shell script
+$ bundle exec rspec
+```
+
+---
+
+If you want to test your plugin in a local Logstash clone, follow the following instructions:
 
 - Edit Logstash `Gemfile` and add the local plugin path, for example:
 ```ruby
-gem "logstash-filter-awesome", :path => "/your/local/logstash-filter-awesome"
+gem "logstash-output-hyperion", :path => "/your/local/logstash-output-hyperion"
 ```
+
 - Install plugin
 ```sh
 bin/logstash-plugin install --no-verify
 ```
-- Run Logstash with your plugin
+
+- Run Logstash with the plugin
 ```sh
-bin/logstash -e 'filter {awesome {}}'
+bin/logstash -e 'output { hyperion { ... } }'
 ```
+
 At this point any modifications to the plugin code will be applied to this local Logstash setup. After modifying the plugin, simply rerun Logstash.
 
-#### 2.2 Run in an installed Logstash
+---
 
-You can use the same **2.1** method to run your plugin in an installed Logstash by editing its `Gemfile` and pointing the `:path` to your local plugin development directory or you can build the gem and install it using:
+If you want to build/install the plugin in an installed Logstash, follow the following instructions:
 
 - Build your plugin gem
 ```sh
-gem build logstash-filter-awesome.gemspec
+gem build logstash-output-hyperion.gemspec
 ```
+
 - Install the plugin from the Logstash home
 ```sh
-bin/logstash-plugin install /your/local/plugin/logstash-filter-awesome.gem
+bin/logstash-plugin install /your/local/plugin/logstash-output-hyperion.gem
 ```
+
 - Start Logstash and proceed to test the plugin
-
-## Contributing
-
-All contributions are welcome: ideas, patches, documentation, bug reports, complaints, and even something you drew up on a napkin.
-
-Programming is not a required skill. Whatever you've seen about open source and maintainers or community members  saying "send patches or die" - you will not see that here.
-
-It is more important to the community that you are able to contribute.
-
-For more information about contributing, see the [CONTRIBUTING](https://github.com/elastic/logstash/blob/master/CONTRIBUTING.md) file.
