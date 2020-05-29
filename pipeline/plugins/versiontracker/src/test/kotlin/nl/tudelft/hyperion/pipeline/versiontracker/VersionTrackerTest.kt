@@ -252,7 +252,7 @@ class VersionTrackerTest {
             anyConstructed<LsRemoteCommand>().callAsMap()
         } returns mapOf(branch to newReference)
 
-        delay(3000)
+        delay(4000)
 
         // assert that the hash is updated
         assertEquals(newCommitHash, plugin.projectVersions["sap"])

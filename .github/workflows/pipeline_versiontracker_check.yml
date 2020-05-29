@@ -6,7 +6,7 @@ name: Gradle check VersionTracker plugin
 on:
   pull_request:
     paths:
-      - "pipeline/plugins/versiontracker"
+      - "pipeline/plugins/versiontracker/**"
   push:
     branches:
       - master
