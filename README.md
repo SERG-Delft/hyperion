@@ -61,4 +61,4 @@ Contributions are welcome! Simply create a PR outlining your changes and your mo
 
 ## License
 
-TODO
+[Apache 2](/LICENSE)
