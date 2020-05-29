@@ -68,9 +68,14 @@ fun ObjectNode.put(type: Type, value: String, name: String): ObjectNode {
  * @param config The extraction configuration
  * @return A JSON string with additional extracted information
  */
+@Suppress("TooGenericExceptionCaught")
 fun extract(input: String, config: Configuration): String {
     val mapper = ObjectMapper()
-    val tree = mapper.readTree(input)
+    val tree = try {
+        mapper.readTree(input) as ObjectNode
+    } catch (ex: Exception) {
+        return input
+    }
 
     for (extractableField in config.fields) {
         if (!tree.has(extractableField.field)) continue
