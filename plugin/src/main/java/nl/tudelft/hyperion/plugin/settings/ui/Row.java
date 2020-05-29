@@ -1,7 +1,5 @@
 package nl.tudelft.hyperion.plugin.settings.ui;
 
-import java.util.Objects;
-
 /**
  * Class that represents a Row in the IntervalTable {@link IntervalTable}.
  */
@@ -32,16 +30,16 @@ class Row implements Cloneable {
      * @return a Row with given interval, clipped to greatest possible Period.
      */
     static Row parse(int inSeconds) {
-        if (inSeconds % Period.Weeks.inSeconds == 0)
-            return new Row(inSeconds / Period.Weeks.inSeconds, Period.Weeks);
-        if (inSeconds % Period.Days.inSeconds == 0)
-            return new Row(inSeconds / Period.Days.inSeconds, Period.Days);
-        if (inSeconds % Period.Hours.inSeconds == 0)
-            return new Row(inSeconds / Period.Hours.inSeconds, Period.Hours);
-        if (inSeconds % Period.Minutes.inSeconds == 0)
-            return new Row(inSeconds / Period.Minutes.inSeconds, Period.Minutes);
+        if (inSeconds % Period.WEEKS.inSeconds == 0)
+            return new Row(inSeconds / Period.WEEKS.inSeconds, Period.WEEKS);
+        if (inSeconds % Period.DAYS.inSeconds == 0)
+            return new Row(inSeconds / Period.DAYS.inSeconds, Period.DAYS);
+        if (inSeconds % Period.HOURS.inSeconds == 0)
+            return new Row(inSeconds / Period.HOURS.inSeconds, Period.HOURS);
+        if (inSeconds % Period.MINUTES.inSeconds == 0)
+            return new Row(inSeconds / Period.MINUTES.inSeconds, Period.MINUTES);
 
-        return new Row(inSeconds, Period.Seconds);
+        return new Row(inSeconds, Period.SECONDS);
     }
 
     /**

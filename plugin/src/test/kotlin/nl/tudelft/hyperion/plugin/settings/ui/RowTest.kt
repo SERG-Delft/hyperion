@@ -11,12 +11,12 @@ import org.junit.jupiter.api.Assertions.assertNotEquals
 class RowTest {
     @Test
     fun `Test constructor and getColumn & setColumn methods`() {
-        val row = Row(1, Period.Seconds);
+        val row = Row(1, Period.SECONDS)
         assertEquals(1, row.getColumn(0))
-        assertEquals(Period.Seconds, row.getColumn(1))
-        assertEquals(Period.Seconds, row.getColumn(-1))
-        assertEquals(Period.Seconds, row.getColumn(2))
-        assertEquals(Period.Seconds, row.getColumn(5000))
+        assertEquals(Period.SECONDS, row.getColumn(1))
+        assertEquals(Period.SECONDS, row.getColumn(-1))
+        assertEquals(Period.SECONDS, row.getColumn(2))
+        assertEquals(Period.SECONDS, row.getColumn(5000))
 
         row.setColumn(0, 5)
 
@@ -27,28 +27,28 @@ class RowTest {
         // Values are incompatible, thus nothing should change
         assertEquals(5, row.getColumn(0))
 
-        row.setColumn(1, Period.Weeks)
+        row.setColumn(1, Period.WEEKS)
 
-        assertEquals(Period.Weeks, row.getColumn(1))
+        assertEquals(Period.WEEKS, row.getColumn(1))
 
         row.setColumn(1, 42)
 
         // Values are incompatible, thus nothing should change
-        assertEquals(Period.Weeks, row.getColumn(1))
+        assertEquals(Period.WEEKS, row.getColumn(1))
     }
 
     @TestFactory
     fun `Test various row parses`() = listOf(
-            2*7*24*3600 to Row(2, Period.Weeks),
-            7*24*3600 to Row(1, Period.Weeks),
-            8*24*3600 to Row(8, Period.Days),
-            24*3600 to Row(1, Period.Days),
-            25*3600 to Row(25, Period.Hours),
-            3600 to Row(1, Period.Hours),
-            3660 to Row(61, Period.Minutes),
-            60 to Row(1, Period.Minutes),
-            61 to Row(61, Period.Seconds),
-            1 to Row(1, Period.Seconds)
+            2*7*24*3600 to Row(2, Period.WEEKS),
+            7*24*3600 to Row(1, Period.WEEKS),
+            8*24*3600 to Row(8, Period.DAYS),
+            24*3600 to Row(1, Period.DAYS),
+            25*3600 to Row(25, Period.HOURS),
+            3600 to Row(1, Period.HOURS),
+            3660 to Row(61, Period.MINUTES),
+            60 to Row(1, Period.MINUTES),
+            61 to Row(61, Period.SECONDS),
+            1 to Row(1, Period.SECONDS)
     ).map {
         DynamicTest.dynamicTest("${it.first} should return a Row with interval ${it.second.getColumn(0)}" +
             " and period ${it.second.getColumn(1)}") {
@@ -64,7 +64,7 @@ class RowTest {
 
     @Test
     fun `Test clone() and equals() method`() {
-        val original = Row(1, Period.Weeks)
+        val original = Row(1, Period.WEEKS)
         var clone = original.clone()
 
         assertEquals(original, clone)
@@ -75,7 +75,7 @@ class RowTest {
 
         clone = original.clone()
 
-        clone.setColumn(1, Period.Hours)
+        clone.setColumn(1, Period.HOURS)
 
         assertNotEquals(original, clone)
     }

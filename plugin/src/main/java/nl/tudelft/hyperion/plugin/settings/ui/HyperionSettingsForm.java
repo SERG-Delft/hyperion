@@ -149,7 +149,7 @@ public class HyperionSettingsForm {
         }
 
         private void addRow() {
-            intervalTable.getIntervalTableModel().addRow(new Row(1, Period.Seconds));
+            intervalTable.getIntervalTableModel().addRow(new Row(1, Period.SECONDS));
         }
     }
 }
