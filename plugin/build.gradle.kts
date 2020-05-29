@@ -20,6 +20,7 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:1.3.2")
     implementation("com.fasterxml.jackson.core", "jackson-databind", "2.10.2")
     implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.10.2")
+    // To easily format different
     implementation("joda-time", "joda-time", "2.10.6")
 
     testImplementation("org.junit.jupiter", "junit-jupiter-params", "5.6.2")
@@ -65,7 +66,7 @@ tasks.build {
 }
 
 tasks.shadowJar {
-    destinationDir = File("./")
+    destinationDirectory.set(File("./build"))
 }
 
 detekt {
