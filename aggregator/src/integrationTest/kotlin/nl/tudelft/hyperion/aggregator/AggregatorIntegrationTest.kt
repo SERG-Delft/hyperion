@@ -37,13 +37,13 @@ class AggregatorIntegrationTest {
         val temporaryFile = File.createTempFile("hyperion-aggregator-config", "yaml")
         Files.writeString(
             temporaryFile.toPath(), """
-                databaseUrl: "$postgresUrl"
+                database-url: "$postgresUrl"
                 port: 38173
                 granularity: 1 # 1 second
-                aggregationTtl: 604800 # 7 days
-                zmq:
-                    pluginManager: localhost:39181
-                    id: Aggregator
+                aggregation-ttl: 604800 # 7 days
+                pipeline:
+                    manager-host: localhost:39181
+                    plugin-id: Aggregator
             """.trimIndent()
         )
 

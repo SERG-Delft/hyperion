@@ -1,7 +1,7 @@
 package nl.tudelft.hyperion.pipeline.renamer
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
 /**
  * Helper function that will get or create an object child
@@ -23,7 +23,7 @@ fun ObjectNode.findOrCreateChild(name: String): ObjectNode {
  * @return A JSON string with renamed fields
  */
 fun rename(json: String, config: Configuration): String {
-    val mapper = jacksonObjectMapper()
+    val mapper = ObjectMapper()
     val tree = mapper.readTree(json) as ObjectNode
 
     for (i in config.rename.indices) {

@@ -5,9 +5,9 @@ name: Gradle check Aggregator
 
 on:
   pull_request:
-  push:
     paths:
       - 'aggregator/**'
+  push:
     branches:
       - master
 

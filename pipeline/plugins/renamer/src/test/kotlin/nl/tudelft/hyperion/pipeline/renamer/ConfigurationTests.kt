@@ -1,7 +1,6 @@
-package nl.tudelft.hyperion.pipeline.renamer.configuration
+package nl.tudelft.hyperion.pipeline.renamer
 
 import nl.tudelft.hyperion.pipeline.readYAMLConfig
-import nl.tudelft.hyperion.pipeline.renamer.Configuration
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.io.File

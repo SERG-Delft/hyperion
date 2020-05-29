@@ -1,0 +1,9 @@
+pipeline :
+  manager-host: "1.2.3.4:4567"
+  plugin-id : "adder"
+
+add:
+  - key: "animals.chicken"
+    value: "egg"
+  - key: "low"
+    value: "high"

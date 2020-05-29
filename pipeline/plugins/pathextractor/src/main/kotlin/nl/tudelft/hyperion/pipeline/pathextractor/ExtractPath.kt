@@ -1,7 +1,7 @@
 package nl.tudelft.hyperion.pipeline.pathextractor
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
 /**
  * Function that replaces the value of a package field with the actual java class path
@@ -10,7 +10,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
  * @return A JSON string with the new value
  */
 fun extractPath(input: String, config: Configuration): String {
-    val mapper = jacksonObjectMapper()
+    val mapper = ObjectMapper()
     val tree = mapper.readTree(input)
 
     val parent = tree.findParent(config.field)
