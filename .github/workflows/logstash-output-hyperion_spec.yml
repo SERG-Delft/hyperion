@@ -5,9 +5,9 @@ name: Ruby spec logstash plugin
 
 on:
   pull_request:
-  push:
     paths:
       - 'logstash-output-hyperion/**'
+  push:
     branches:
       - master
 

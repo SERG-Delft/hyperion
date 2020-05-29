@@ -5,9 +5,9 @@ name: Gradle check PluginManager
 
 on:
   pull_request:
-  push:
     paths:
       - 'pluginmanager/**'
+  push:
     branches:
       - master
 
