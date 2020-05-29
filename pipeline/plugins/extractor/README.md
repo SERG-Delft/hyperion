@@ -130,7 +130,7 @@ pipeline:
     # locally. Increasing this will allow for more messages to be buffered, at the cost of
     # more memory usage. Messages incoming while the buffer is full will be thrown away. If
     # this happens often, consider using the load balancer plugin to shard this plugin across
-    # multiple instances.
+    # multiple instances. Defaults to 20,000.
     buffer-size: 20000
 ```
 

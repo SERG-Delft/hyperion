@@ -1,49 +1,61 @@
-# Hyperion - Path Extractor Plugin
+# Hyperion - Rename Plugin
 
-![Gradle check pipeline pathextractor plugin](https://github.com/SERG-Delft/monitoring-aware-ides/workflows/Gradle%20check%20pipeline%20pathextractor%20plugin/badge.svg)
+![Gradle check pipeline renamer plugin](https://github.com/SERG-Delft/monitoring-aware-ides/workflows/Gradle%20check%20pipeline%20renamer%20plugin/badge.svg)
 
-This package provides a path extractor plugin that is able to rename fields with `java.style.package.Names` into their appropriate `src/main/java/style/package/Names.java` file name. It does this in a dumb manner, simply replacing periods and prefixing a configurable path. If you need a more complex renaming strategy, consider [making your own plugin](/docs/writing-java-kotlin-plugin.md). 
+This package provides a renamer plugin that is able to rename (nested) JSON fields in incoming messages.
 
 ## Usage
 
 _For full details on the supported configuration format, please see the [configuration section](#Configuration) of this document_.
 
-The path extractor plugin is very simple and only has two relevant fields:
+Using the rename plugin is very simple. Simply specify the list of fields that you want to rename:
 
 ```yaml
-field: "log4j_file"
-relative-source-path: "src/main/java"
-postfix: ".java"
+rename:
+  - from: "log_line"
+    to: "location.line"
+
+  - from: "log_file"
+    to: "location.file"
+
+  - from: "does_not_exist"
+    to: "exists"
 ```
 
-As should already be clear from the naming, in this configuration the plugin will convert an incoming message like
+When receiving a JSON input, this plugin will rename appropriately and leave any extra fields untouched. For example, given the following input:
 
 ```json
 {
-  "log4j_file": "com.foo.Bar"
+  "log_line": 10,
+  "log_file": "MyFile.java",
+  "extra": "Foo"
 }
 ```
 
-into
+The renaming plugin will transform it into the following output:
 
 ```json
 {
-  "log4j_file": "src/main/java/com/foo/Bar.java"
+  "location": {
+    "line": 10,
+    "file": "MyFile.java"
+  },
+  "extra": "Foo"
 }
 ```
 
-> *Note*: If you use Kotlin, this plugin will automatically take care of removing any Kt suffixes added.
+The value of the field will remain intact, and as such any value can be renamed.
 
 ## Building & Running
 
-To build the library, run `gradle pipeline:pathextractor:shadowJar`. The result will be located in `build/pathextractor-all.jar`.
+To build the library, run `gradle pipeline:renamer:shadowJar`. The result will be located in `build/renamer-all.jar`.
 
-To execute the tests and linting, run `gradle pipeline:pathextractor:check`.
+To execute the tests and linting, run `gradle pipeline:renamer:check`.
 
-To run a compiled version of the path extractor plugin, simply launch it using Java:
+To run a compiled version of the renamer plugin, simply launch it using Java:
 
 ```shell script
-java -jar build/pathextractor-all.jar [path to config]
+java -jar build/renamer-all.jar [path to config]
 ```
 
 ## Docker
@@ -57,16 +69,19 @@ Please note that the docker container for this plugin will load the configuratio
 This plugin accepts configuration in a YAML file supplied as a command line argument. The following options are accepted:
 
 ```yaml
-# The field that contains a Java package and should be transformed into
-# a field name. This may be a nested path using periods.
-field: "log4j_file"
-
-# The base relative path that should be prepended to the transformed package
-# name. If using Gradle or Maven, this is usually src/main/java or src/main/kotlin.
-relative-source-path: "src/main/java"
-
-# The postfix to be added to the log file. Usually `.java` or `.kt`.
-postfix: ".java"
+# The list of fields to rename. Fields that are listed here but are not in the
+# input are ignored, without throwing an error.
+rename:
+  -
+    # The field that should be renamed. Can be a nested path using periods.
+    from: "log_line"
+    # The target location of the value. Can be a nested path using periods.
+    to: "location.line"
+  
+  # Other rename entries...
+  -
+    from: "log_file"
+    # etc...
 
 # Various settings needed for the plugin to interact with the pipeline,
 # such as it's unique ID and the hostname and port of the Hyperion plugin manager.
@@ -84,7 +99,7 @@ pipeline:
     # manager. Used to identify which plugins are inputs/outputs of this step. Please
     # note that the plugin will crash at launch if the plugin manager does not recognize
     # this plugin ID.
-    plugin-id: "PathExtractor"
+    plugin-id: "Renamer"
   
     # The size of the internal buffer used for storing data that has not yet been processed
     # locally. Increasing this will allow for more messages to be buffered, at the cost of
@@ -100,16 +115,20 @@ This plugin accepts any type of JSON value as input. If the input is not valid J
 
 ```json
 {
-    "log4j_file": "com.foo.Bar"
+    "log_line": 10,
+    "log_file": "MyFile.java"
 }
 ```
 
 ## Output Format
 
-This plugin will transform the incoming JSON message according to the configuration and output a new JSON object that strictly contains an equal amount of fields as the input. For the example given in the usage section, the output is as follows:
+This plugin will transform the incoming JSON message according to the configuration and output a new JSON object that strictly contains an equal amount of fields as the input, although their structure might be different. For the example given in the usage section, the output is as follows:
 
 ```json
 {
-    "log4j_file": "src/main/java/com/foo/Bar.java"
+    "location": {
+        "line": 10,
+        "file": "MyFile.java"
+    }
 }
 ```
