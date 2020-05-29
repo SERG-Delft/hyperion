@@ -8,8 +8,6 @@ on:
     paths:
       - 'pipeline/plugins/renamer/**'
   push:
-    paths:
-      - 'pipeline/plugins/renamer/**'
     branches:
       - master
 

@@ -8,8 +8,6 @@ on:
     paths:
       - 'pipeline/plugins/pathextractor/**'
   push:
-    paths:
-      - 'pipeline/plugins/pathextractor/**'
     branches:
       - master
 

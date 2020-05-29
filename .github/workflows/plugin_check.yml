@@ -5,9 +5,9 @@ name: Gradle check Plugin
 
 on:
   pull_request:
-  push:
     paths:
       - 'plugin/**'
+  push:
     branches:
       - master
 

@@ -5,8 +5,8 @@ name: Gradle check pipeline common
 
 on:
   pull_request:
-  paths:
-    - 'pipeline/common/**'
+    paths:
+      - 'pipeline/common/**'
   push:
     branches:
       - master

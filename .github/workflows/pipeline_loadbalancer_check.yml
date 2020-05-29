@@ -8,8 +8,6 @@ on:
     paths:
       - 'pipeline/plugins/loadbalancer/**'
   push:
-    paths:
-      - 'pipeline/plugins/loadbalancer/**'
     branches:
       - master
 
