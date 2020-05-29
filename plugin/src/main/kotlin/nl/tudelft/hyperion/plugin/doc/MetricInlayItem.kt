@@ -68,7 +68,7 @@ fun createInlayForLine(editor: Editor, line: Int, counts: Map<Int, Int>): Metric
         inlayOffset,
         inlayOffset + 1,
         HighlighterLayer.HYPERLINK,
-        TextAttributes().also { it.backgroundColor = Color.RED },
+        TextAttributes(),
         HighlighterTargetArea.EXACT_RANGE
     )
 
