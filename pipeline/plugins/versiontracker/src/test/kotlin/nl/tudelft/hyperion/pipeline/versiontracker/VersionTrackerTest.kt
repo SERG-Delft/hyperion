@@ -282,6 +282,8 @@ class VersionTrackerTest {
 
         VersionTracker(config)
 
+        Thread.sleep(250)
+
         verify {
             anyConstructed<LsRemoteCommand>().setCredentialsProvider(any())
         }
@@ -310,6 +312,8 @@ class VersionTrackerTest {
         )
 
         VersionTracker(config)
+
+        Thread.sleep(250)
 
         verify {
             anyConstructed<LsRemoteCommand>().setTransportConfigCallback(any())
