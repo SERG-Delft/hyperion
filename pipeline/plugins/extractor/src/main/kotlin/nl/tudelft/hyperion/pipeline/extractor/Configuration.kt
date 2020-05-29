@@ -5,7 +5,7 @@ import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
 
 /**
  * Configuration for the extraction plugin
- * @param plugin the abstracted part of the configuration for a pipeline plugin
+ * @param pipeline the abstracted part of the configuration for a pipeline plugin
  * @param fields the list of configurations for fields to be extracted
  */
 data class Configuration(
