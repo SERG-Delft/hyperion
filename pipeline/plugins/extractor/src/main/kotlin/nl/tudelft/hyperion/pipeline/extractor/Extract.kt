@@ -2,8 +2,6 @@ package nl.tudelft.hyperion.pipeline.extractor
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
-import java.nio.file.Files
-import java.nio.file.Path
 
 /**
  * Function that checks whether a child exists and creates it otherwise
@@ -35,8 +33,8 @@ fun ObjectNode.put(type: Type, value: String, name: String): ObjectNode {
             Type.STRING -> this.put(parts[0], value)
         }
     } else {
-        val target = parts.subList(1, parts.size - 1).fold(this.findOrCreateChild(parts[0]), {
-            p, c -> p.findOrCreateChild(c)
+        val target = parts.subList(1, parts.size - 1).fold(this.findOrCreateChild(parts[0]), { p, c ->
+            p.findOrCreateChild(c)
         })
 
         val leafName = parts.last()
@@ -50,6 +48,8 @@ fun ObjectNode.put(type: Type, value: String, name: String): ObjectNode {
     return this
 }
 
+private val mapper = ObjectMapper()
+
 /**
  * Function that extracts information from a JSON string according to a configuration
  * @param input The json string
@@ -58,7 +58,6 @@ fun ObjectNode.put(type: Type, value: String, name: String): ObjectNode {
  */
 @Suppress("TooGenericExceptionCaught")
 fun extract(input: String, config: Configuration): String {
-    val mapper = ObjectMapper()
     val tree = try {
         mapper.readTree(input) as ObjectNode
     } catch (ex: Exception) {
