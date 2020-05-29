@@ -1,6 +1,7 @@
 package nl.tudelft.hyperion.plugin.doc
 
 import com.intellij.codeHighlighting.EditorBoundHighlightingPass
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ex.util.EditorScrollingPositionKeeper
 import com.intellij.openapi.progress.ProgressIndicator
@@ -10,6 +11,7 @@ import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.psi.PsiFile
 import kotlinx.coroutines.runBlocking
 import nl.tudelft.hyperion.plugin.connection.APIRequestor
+import nl.tudelft.hyperion.plugin.doc.MetricInlayRenderPassFactory.Companion.modificationStamp
 import nl.tudelft.hyperion.plugin.metric.FileMetrics
 import nl.tudelft.hyperion.plugin.metric.ResolvedFileMetrics
 import nl.tudelft.hyperion.plugin.util.KeyedProperty
@@ -109,5 +111,12 @@ class MetricInlayRenderPass(editor: Editor, file: PsiFile) : EditorBoundHighligh
         var Editor.resolvedMetrics by KeyedProperty(RESOLVED_METRICS)
         var Editor.items by KeyedProperty(ITEMS)
         var Editor.needsRedraw by KeyedProperty(NEEDS_REDRAW)
+
+        fun forceRefresh(editor: Editor, file: PsiFile) {
+            editor.resolvedMetrics = null
+            editor.fileMetrics = null
+            editor.modificationStamp = null
+            DaemonCodeAnalyzer.getInstance(editor.project).restart(file)
+        }
     }
 }

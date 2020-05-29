@@ -1,7 +1,6 @@
 package nl.tudelft.hyperion.plugin.settings
 
 import com.intellij.openapi.components.PersistentStateComponent
-import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.openapi.project.Project
@@ -34,7 +33,7 @@ class HyperionSettings : PersistentStateComponent<HyperionSettings.State> {
          * This always returns an instance.
          */
         fun getInstance(project: Project): HyperionSettings {
-            return ServiceManager.getService(project, HyperionSettings::class.java)
+            return project.getService(HyperionSettings::class.java)
         }
     }
 
