@@ -57,7 +57,7 @@ tasks.jacocoTestCoverageVerification {
 
             limit {
                 counter = "LINE"
-                minimum = "0.6".toBigDecimal()
+                minimum = "0.6.toBigDecimal()
             }
         }
     }
@@ -101,12 +101,89 @@ CMD java -jar addtext-all.jar ${CONFIGPATH}
 ### 2. plugin configuration
 ### 3. plugin logic
 ### 4. plugin entry point
+## 5. testing your plugin
+The `build.gradle.kts` provides support for both static and dynamic analysis. [Detekt](https://detekt.github.io/detekt/) is a static analysis tool for Kotlin and makes sure that your functions aren't too long, too complex or weirdly named. Detekt requires no further setup, if you want to change which rules Detekt applies to check your code add a  [detekt-config.yml](https://arturbosch.github.io/detekt/configurations.html) file. You can run the checkstyle analysis by running the Gradle plugins:addtext:detekt task.
 
-## Create your own plugin for any programming language
-TODO
+To ensure reliability and correctness of the working of our plugin we should add some unit tests. Unit tests aim to test for correctness of code while executing it (more info about [Software Testing](https://en.wikipedia.org/wiki/Software_testing)). For our plugin we will simple test whether the string we want is added to an incoming message. Create the `AddTextPluginTest.kt` file in `src/test/addtext/` and copy in the following code:
+```Kotlin
+package plugins.textadder
 
-## Included plugins
-### Adder
-### Extractor
-### Pathextractor
-### Renamer
+import kotlinx.coroutines.runBlocking
+import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Assertions
+
+class AddTextPluginTest {
+    private val pipeline = PipelinePluginConfiguration("addfoo", "localhost") // default pipeline plugin configuration
+    
+    @Test
+    fun `add foo to message`() {
+        val addFooConfig = Configuration(pipeline, "foo") // configer our AddTextPlugin to add "foo"
+        val addFoo = AddTextPlugin(addFooConfig) // create an instance of the AddTextPlugin
+
+        val input = """Hey, I am """ // input for the process method
+        val expected = """Hey, I am foo""" // expected output
+
+        val ret = runBlocking { adder.process(input) } // run the process method on the input
+        Assertions.assertEquals(expected, ret) // checks if the output equals the expected input
+    }
+}
+```
+This simple test will check if the string "foo"is added to our test input "Hey, I am ". Test can be executed using the pre-loaded `jUnitPlatform` (or `JUnit5`) by running the Gradle task `pipeline:plugins:addtext:test`. [Jacoco](https://www.eclemma.org/jacoco/) is a tool which can run all the tests for a specific module and creates a nice report with coverage details. The coverage report can be created by running the Gradle task `pipeline:plugins:addtext:jacocoTestReport`.
+
+Automatic testing is a must when the codebase grows larger. To setup [Github Actions](https://github.com/features/actions) CI add `pipeline_addtext_check.yml` in the `.github/workflows/` directory located in the top directory of the Hyperion project with the following contents:
+```workflow
+# Runs Gradle Check on the pipeline addtext plugin
+# Will be triggered on every pull request and push to master
+# Only commences on check if the code changed
+name: Gradle check pipeline addtext plugin
+
+on:
+  pull_request:
+    paths:
+      - 'pipeline/plugins/addtext/**'
+  push:
+    branches:
+      - master
+
+jobs:
+  gradle-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: gradle check plugin
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: :pipeline:plugins:addtext:check
+```
+This script will trigger the Gradle check task for the addtext plugin everytime a new pull request is made and the code changed in this plugin. It will additionally run on every push to the master branch as well. The Gradle check task will run static anaylis and the tests. It will make sure the coverage of the unit tests is at least 70% Branch coverage and 60% line coverage. When this level of coverage is not reached, the CI will fail. Aiming for a higher amount of coverage will generally improve the region for errors in your code. I some situation however achieving these coverage numbers is infeasible and should therefore be adjusted. You can do this by editing the `jacocoTestCoverageVerification` task in the `build.gradle.kts` file. The code fragment below shows the default settings for code coverage, you can lower these by adjusting the `minimum` numbers.
+```Kotlin
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                counter = "BRANCH"
+                minimum = "0.7".toBigDecimal()
+            }
+
+            limit {
+                counter = "LINE"
+                minimum = "0.6".toBigDecimal()
+            }
+        }
+    }
+}
+```
