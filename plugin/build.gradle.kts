@@ -16,11 +16,16 @@ intellij {
 }
 
 dependencies {
+    // To establish a connection and make a get request to the API.
     implementation("io.ktor:ktor-client-core:1.3.2")
+    // CIO is the HttpClient we use for the connection.
     implementation("io.ktor:ktor-client-cio:1.3.2")
+
+    // To deserialize incoming JSON from the API.
     implementation("com.fasterxml.jackson.core", "jackson-databind", "2.10.2")
     implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.10.2")
-    // To easily format different
+
+    // To easily format different intervals when displaying Metrics.
     implementation("joda-time", "joda-time", "2.10.6")
 
     testImplementation("org.junit.jupiter", "junit-jupiter-params", "5.6.2")
