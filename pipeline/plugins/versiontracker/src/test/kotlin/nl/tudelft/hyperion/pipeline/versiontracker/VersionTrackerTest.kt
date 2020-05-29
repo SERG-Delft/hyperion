@@ -5,7 +5,6 @@ import io.mockk.mockk
 import io.mockk.mockkConstructor
 import io.mockk.unmockkAll
 import io.mockk.verify
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
 import nl.tudelft.hyperion.pipeline.readJSONContent
@@ -52,7 +51,7 @@ class VersionTrackerTest {
     }
 
     @Test
-    fun `resolveCommitHash() should return null if not available for project`() {
+    fun `resolveCommitHash() should return same input if not available for project`() {
         val config = Configuration(
             PipelinePluginConfiguration("VersionTracker", "localhost:5555"),
             mapOf(
@@ -70,11 +69,11 @@ class VersionTrackerTest {
         val plugin = VersionTracker(config)
         val processedMessage = plugin.resolveCommitHash(message)
 
-        assertNull(processedMessage)
+        assertEquals(message, processedMessage)
     }
 
     @Test
-    fun `resolveCommitHash() should return null if project field does not exist`() {
+    fun `resolveCommitHash() should return same input if project field does not exist`() {
         val config = Configuration(
             PipelinePluginConfiguration("VersionTracker", "localhost:5555"),
             mapOf(
@@ -92,7 +91,7 @@ class VersionTrackerTest {
         val plugin = VersionTracker(config)
         val processedMessage = plugin.resolveCommitHash(message)
 
-        assertNull(processedMessage)
+        assertEquals(message, processedMessage)
     }
 
     @Test
@@ -123,9 +122,6 @@ class VersionTrackerTest {
         )
 
         val plugin = VersionTracker(config)
-
-        // project versions must be empty to begin
-        assertTrue(plugin.projectVersions.isEmpty())
 
         plugin.updateRefs(projectName, projectConfig)
 
@@ -236,10 +232,7 @@ class VersionTrackerTest {
 
         val plugin = VersionTracker(config)
 
-        // project versions must be empty to begin
-        assertTrue(plugin.projectVersions.isEmpty())
-
-        delay(100)
+        plugin.updateRefs(projectName, projectConfig)
 
         // assert that the hash is added to the plugin's .projectVersions map
         assertEquals(commitHash, plugin.projectVersions["sap"])
@@ -252,7 +245,7 @@ class VersionTrackerTest {
             anyConstructed<LsRemoteCommand>().callAsMap()
         } returns mapOf(branch to newReference)
 
-        delay(4000)
+        plugin.updateRefs(projectName, projectConfig)
 
         // assert that the hash is updated
         assertEquals(newCommitHash, plugin.projectVersions["sap"])
@@ -282,6 +275,8 @@ class VersionTrackerTest {
 
         VersionTracker(config)
 
+        Thread.sleep(250)
+
         verify {
             anyConstructed<LsRemoteCommand>().setCredentialsProvider(any())
         }
@@ -310,6 +305,8 @@ class VersionTrackerTest {
         )
 
         VersionTracker(config)
+
+        Thread.sleep(250)
 
         verify {
             anyConstructed<LsRemoteCommand>().setTransportConfigCallback(any())
