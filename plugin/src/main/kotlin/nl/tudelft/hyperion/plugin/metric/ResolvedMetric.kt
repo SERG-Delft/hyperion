@@ -9,7 +9,7 @@ import nl.tudelft.hyperion.plugin.git.GitLineTracker
  * line numbers in the local version of the file, then aggregated by summing all
  * versions that are still relevant in this file.
  */
-class ResolvedFileMetrics(
+data class ResolvedFileMetrics(
     val metrics: FileMetrics,
     val lineSums: Map<Int, Map<Int, Int>>
 ) {

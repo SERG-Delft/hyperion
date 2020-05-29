@@ -10,7 +10,6 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.TextRange
 import org.joda.time.Period
 import org.joda.time.format.PeriodFormatterBuilder
-import java.awt.Color
 
 class MetricInlayItem(
     var inlay: Inlay<MetricTooltipRenderer>,

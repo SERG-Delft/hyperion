@@ -23,6 +23,7 @@ dependencies {
     implementation("joda-time", "joda-time", "2.10.6")
 
     testImplementation("org.junit.jupiter", "junit-jupiter-params", "5.6.2")
+    testImplementation("io.mockk", "mockk", "1.9.3")
 }
 
 jacoco {
