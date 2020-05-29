@@ -23,15 +23,37 @@ data class AddConfiguration(
     val key: String,
     val value: String,
     @JsonProperty("overwrite-null")
-    val overwriteNull:Boolean = true
-)
+    val overwriteNull: Boolean = true
+) {
+    /**
+     * Lazily caching list of [key] delimited by '.'.
+     */
+    val parts by lazy {
+        key.split(".")
+    }
+
+    /**
+     * Lazily computed list of [parts] with the exception
+     * of the last item.
+     */
+    val path by lazy {
+        parts.subList(0, parts.size - 1)
+    }
+
+    /**
+     * Lazily computed last item of [parts].
+     */
+    val fieldName by lazy {
+        parts.last()
+    }
+}
 
 /**
  * Configuration for the adder pipeline plugin.
  * @param pipeline: General configuration for a pipeline plugin
  * @param add: list of [AddConfiguration] which will be applied to every incoming message
  */
-data class AdderConfiguration (
+data class AdderConfiguration(
     val pipeline: PipelinePluginConfiguration,
     val add: List<AddConfiguration>
 )

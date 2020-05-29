@@ -1,6 +1,7 @@
 package nl.tudelft.hyperion.pipeline.plugins.adder
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import nl.tudelft.hyperion.pipeline.AbstractPipelinePlugin
 
@@ -10,7 +11,7 @@ import nl.tudelft.hyperion.pipeline.AbstractPipelinePlugin
  *
  * @param config: [AdderConfiguration] which specifies default plugin details and which fields to add.
  */
-class AdderPlugin(private var config: AdderConfiguration): AbstractPipelinePlugin(config.pipeline) {
+class AdderPlugin(private var config: AdderConfiguration) : AbstractPipelinePlugin(config.pipeline) {
 
     private val mapper = ObjectMapper()
     private val logger = mu.KotlinLogging.logger {}
@@ -36,7 +37,7 @@ class AdderPlugin(private var config: AdderConfiguration): AbstractPipelinePlugi
     @Suppress("TooGenericExceptionCaught")
     override suspend fun process(input: String): String {
         // parse json string
-        val tree = try{
+        val tree = try {
             mapper.readTree(input) as ObjectNode
         } catch (ex: Exception) {
             logger.error(ex) { "Adder plugin [${config.pipeline.id}] was not able to parse $input" }
@@ -44,15 +45,13 @@ class AdderPlugin(private var config: AdderConfiguration): AbstractPipelinePlugi
         }
 
         for (item in config.add) {
-            val parts = item.key.split(".")
-            val target = parts.subList(0, parts.size - 1).fold(tree, { p, c ->
+            val target = item.path.fold(tree, { p, c ->
                 p.findOrCreateChild(c)
             })
 
-            if ((target.get(parts.last()) == null)) {
-                target.put(parts.last(), item.value)
-            } else if (item.overwriteNull && (target.get(parts.last()).toString() == "null")) {
-                target.put(parts.last(), item.value)
+            // If the property does not exist, or if it is `null` and we have overwriting null enabled...
+            if (target.get(item.fieldName) == null || (target.get(item.fieldName) is NullNode && item.overwriteNull)) {
+                target.put(item.fieldName, item.value)
             }
         }
 
