@@ -20,10 +20,9 @@ object APIRequestor {
     }
 
     suspend fun getMetricForFile(filePath: String, ideProject: Project): FileMetrics {
-        // TODO: Remove hardcoded project
         val state = HyperionSettings.getInstance(ideProject).state
         val intervals = state.intervals.joinToString(",")
-        val project = "TestProject"
+        val project = state.project
 
         val json: String = client.get("${state.address}?project=$project&file=$filePath&intervals=$intervals")
 
