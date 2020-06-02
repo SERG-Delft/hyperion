@@ -1,5 +1,6 @@
 package nl.tudelft.hyperion.pipeline.pathextractor
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
 
 /**
@@ -10,8 +11,9 @@ import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
  * @Param pipeline configuration for the abstract plugin
  */
 data class Configuration(
-        val field: String,
-        val relativePathFromSource: String,
-        val postfix: String,
-        val pipeline: PipelinePluginConfiguration
+    val field: String,
+    @JsonProperty("relative-source-path")
+    val relativePathFromSource: String,
+    val postfix: String,
+    val pipeline: PipelinePluginConfiguration
 )

@@ -69,4 +69,47 @@ class RenameTest {
 
         Assertions.assertEquals(treeBefore, treeAfter)
     }
+
+    @Test
+    fun testInputNotJSON() {
+        val config = Configuration(
+            listOf(
+                Rename(
+                    "log_line",
+                    "location.line"
+                )
+            ),
+            PipelinePluginConfiguration("renamer", "1.2.3.4:4567")
+        )
+
+        val input = "true"
+        val output = rename(input, config)
+
+        Assertions.assertEquals(input, output)
+    }
+
+    @Test
+    fun testRenameTargetExistsAndIsNotObject() {
+        val config = Configuration(
+            listOf(
+                Rename(
+                    "log_line",
+                    "location.line"
+                )
+            ),
+            PipelinePluginConfiguration("renamer", "1.2.3.4:4567")
+        )
+
+        val input = """{
+          "location": "not an object",
+          "log_line": 10
+        }""".trimIndent()
+
+        val mapper = ObjectMapper()
+
+        val treeBefore = mapper.readTree(input)
+        val treeAfter = mapper.readTree(rename(input, config))
+
+        Assertions.assertEquals(treeBefore, treeAfter)
+    }
 }

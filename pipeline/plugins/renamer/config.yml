@@ -1,7 +1,0 @@
-pipeline:
-  manager-host: "1.2.3.4:4567"
-  plugin-id: "plugin1"
-
-rename :
-  - from : "log_line"
-    to : "location.line"

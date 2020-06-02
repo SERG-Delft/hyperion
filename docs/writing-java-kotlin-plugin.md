@@ -1,4 +1,5 @@
 # Writing a new pipeline plugin in Java/Kotlin
+
 Creating a pipeline plugin in a JVM language is done by extending on the shipped `AbstractPipelinePlugin` written in [Kotlin](https://kotlinlang.org/). This abstract class allows for easy creation of your own pipeline plugins for any languages running on the JVM. In this example we will guide you through creating a simple `addtext` plugin, written in Kotlin. The `addtext` plugin will append a configurable string to every message it receives.
 
 ## 1. initial files

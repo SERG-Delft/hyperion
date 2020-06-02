@@ -5,9 +5,9 @@ name: Gradle check pipeline adder plugin
 
 on:
   pull_request:
-  push:
     paths:
       - 'pipeline/plugins/adder/**'
+  push:
     branches:
       - master
 

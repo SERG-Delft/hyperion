@@ -13,7 +13,7 @@ class ConfigurationTests {
               plugin-id : "plugin1"
             
             field: "log4j_file"
-            relativePathFromSource: "src/main/java"
+            relative-source-path: "src/main/java"
             postfix: .java
         """.trimIndent()
 

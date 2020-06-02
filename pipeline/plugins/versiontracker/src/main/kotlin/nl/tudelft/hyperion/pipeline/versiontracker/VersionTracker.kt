@@ -130,8 +130,8 @@ class VersionTracker(config: Configuration) : AbstractPipelinePlugin(config.pipe
     fun resolveCommitHash(input: String): String? {
         val root: JsonNode = mapper.readTree(input)
 
-        val projectNode = root.get("project") ?: return null
-        val projectName = projectNode.textValue()
+        val projectNode = root.get("project") ?: return input
+        val projectName = projectNode.textValue() ?: return input
 
         // Add commit hash if the project exists
         if (projectVersions.containsKey(projectName)) {
@@ -142,7 +142,7 @@ class VersionTracker(config: Configuration) : AbstractPipelinePlugin(config.pipe
 
         logger.warn { "Project with $projectName is not defined as a known project" }
 
-        return null
+        return input
     }
 
     override suspend fun process(input: String): String? = resolveCommitHash(input)

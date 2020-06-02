@@ -9,7 +9,6 @@ Hyperion compatible front-end plugin. Hyperion ships with a plugin for
 [Intellij IDEA](https://www.jetbrains.com/idea/) which can be used with this pipeline.
 Execute the steps below to run the pipeline.
  
-
 ## 1. Configure the datasource
 Change the `hostname` and `port` fields in `datasource.yml` to point to your server. 
 It might be necessary to set authentication and headers for your setup as well. 
@@ -27,7 +26,7 @@ elasticsearch:
 
 ## 2. Build all jars using docker
 ```shell script
-$ cd src/systemTest/elasticsearch-pipeline/
+$ cd system-test/elasticsearch-pipeline/
 $ docker-compose -f docker-compose.build.yml up
 ```
 
