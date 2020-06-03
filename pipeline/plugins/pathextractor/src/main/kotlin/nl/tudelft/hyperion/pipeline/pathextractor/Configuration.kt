@@ -16,4 +16,18 @@ data class Configuration(
     val relativePathFromSource: String,
     val postfix: String,
     val pipeline: PipelinePluginConfiguration
-)
+) {
+    /**
+     * Lazily computed list field name
+     */
+    val fieldName by lazy {
+        field.split(".").last()
+    }
+
+    /**
+     * Lazily computed list parts of a path
+     */
+    val toPath by lazy {
+        field.split(".").subList(0, field.split(".").size - 1)
+    }
+}

@@ -73,10 +73,9 @@ class ExtractTests {
 
         val input = """true"""
 
-        val expected = input
         val actual = extractPath(input, config)
 
-        Assertions.assertEquals(expected, actual)
+        Assertions.assertEquals(input, actual)
     }
 
     @Test
