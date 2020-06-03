@@ -25,10 +25,11 @@ data class MetricsResult(
 /**
  * Represents an element as the result of an /api/v1/metrics API call.
  * Contains the aggregated log counts starting from [startTime] until
- * the next metrics result.
+ * [startTime] plus the interval time.
  */
 data class BinnedMetricsResult(
     val startTime: Long,
+    val intervalLength: Int,
     val versions: Map<String, List<Metric>>
 )
 
@@ -54,13 +55,13 @@ fun computeMetrics(
     project: String,
     file: String,
     intervals: List<Int>
-): List<MetricsResult> {
-    return intervals.map {
-        // Clamp to values within bounds.
-        val interval = max(min(it, configuration.aggregationTtl), configuration.granularity)
-        val startTime = DateTime.now().minusSeconds(interval)
-        val endTime = DateTime.now()
+): List<MetricsResult> = intervals.map {
+    // Clamp to values within bounds.
+    val interval = max(min(it, configuration.aggregationTtl), configuration.granularity)
+    val startTime = DateTime.now().minusSeconds(interval)
+    val endTime = DateTime.now()
 
+    transaction {
         val grouped = computeMetricsQuery(file, project, startTime, endTime)
 
         // Convert to expected format.
@@ -102,18 +103,23 @@ fun computePeriodicMetrics(
     val startTimes = (0 until (clampedTime / interval)).map { startTime.plusSeconds(it * interval) }
 
     return startTimes.map { start ->
-        val grouped = computeMetricsQuery(file, project, start, start.plusSeconds(interval))
+        transaction {
+            val grouped = computeMetricsQuery(file, project, start, start.plusSeconds(interval))
 
-        // Convert to expected format.
-        BinnedMetricsResult(start.millis / 1000, grouped.mapValues { (_, rows) ->
-            rows.map {
-                Metric(
-                    it[AggregationEntries.line],
-                    it[AggregationEntries.severity],
-                    it[AggregationEntries.numTriggers.sum()]!!
-                )
-            }
-        })
+            // Convert to expected format.
+            BinnedMetricsResult(
+                start.millis / 1000,
+                interval,
+                grouped.mapValues { (_, rows) ->
+                    rows.map {
+                        Metric(
+                            it[AggregationEntries.line],
+                            it[AggregationEntries.severity],
+                            it[AggregationEntries.numTriggers.sum()]!!
+                        )
+                    }
+                })
+        }
     }
 }
 
@@ -131,7 +137,7 @@ fun computeMetricsQuery(
     project: String,
     startTime: DateTime,
     endTime: DateTime
-): Map<String, List<ResultRow>> = transaction {
+): Map<String, List<ResultRow>> =
     // Group on version
     AggregationEntries
         // SELECT version, line, severity, SUM(num_triggers)
@@ -161,4 +167,3 @@ fun computeMetricsQuery(
         .groupBy(AggregationEntries.version, AggregationEntries.severity, AggregationEntries.line)
         // group by version string
         .groupBy { it[AggregationEntries.version] }
-}
