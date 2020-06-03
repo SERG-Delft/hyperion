@@ -1,0 +1,9 @@
+projects:
+  mock-logging:
+    repository: https://github.com/nickyu42/mock-elastic-logging
+    branch: refs/heads/master
+    update-interval: 60
+
+pipeline:
+  manager-host: "localhost:3000"
+  plugin-id: "VersionTracker"

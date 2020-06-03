@@ -69,8 +69,8 @@ fun coMain(configPath: String) = GlobalScope.launch {
 /**
  * Actual main function. Simply runs the coroutine version of main blocking.
  */
-fun main() {
+fun main(vararg args: String) {
     runBlocking {
-        coMain(System.getenv("HYPERION_AGGREGATOR_CONFIG") ?: "./aggregator.yaml").join()
+        coMain(System.getenv("HYPERION_AGGREGATOR_CONFIG") ?: args.getOrNull(0) ?: "./aggregator.yaml").join()
     }
 }

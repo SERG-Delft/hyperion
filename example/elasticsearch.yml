@@ -1,0 +1,14 @@
+poll-interval: 5
+
+elasticsearch:
+  hostname: elk.njkyu.com
+  port: 9200
+  index: logs
+  scheme: http
+  timestamp-field: "@timestamp"
+  authentication: false
+  response-hit-count: 10000
+
+pipeline:
+  manager-host: "localhost:3000"
+  plugin-id: "ElasticSearch"
