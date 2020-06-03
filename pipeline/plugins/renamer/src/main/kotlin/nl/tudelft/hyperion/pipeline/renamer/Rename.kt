@@ -33,10 +33,10 @@ fun rename(json: String, config: Configuration): String {
     }
 
     for (rename in config.rename) {
-        val parent = tree.findParent(rename.from)
+        val parent = findParent(tree, rename.from)
 
         if (parent != null) {
-            val value = tree.findPath(rename.from)
+            val value = findValue(tree, rename.from)
 
             val target = rename.toPath.fold(tree as ObjectNode?, { p, c ->
                 p?.findOrCreateChild(c)
@@ -48,4 +48,16 @@ fun rename(json: String, config: Configuration): String {
     }
 
     return tree.toString()
+}
+
+fun findParent(root: ObjectNode, field: String): ObjectNode {
+    val path = "/" + field.split(".").dropLast(1).joinToString("/")
+
+    return root.at(path) as ObjectNode
+}
+
+fun findValue(root: ObjectNode, field: String): Int {
+    val path = "/" + field.split(".").joinToString("/")
+
+    return root.at(path).asInt()
 }

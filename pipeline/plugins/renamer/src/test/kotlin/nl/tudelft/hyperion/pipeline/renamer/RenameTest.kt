@@ -130,7 +130,37 @@ class RenameTest {
         }""".trimIndent()
 
         val expected = """{
+          "location": {},
           "log_line" : 10
+        }""".trimIndent()
+
+        val mapper = ObjectMapper()
+
+        val treeExpected = mapper.readTree(expected)
+        val treeActual = mapper.readTree(rename(input, config))
+
+        Assertions.assertEquals(treeExpected, treeActual)
+    }
+
+    @Test
+    fun testNestedFieldToNestedField() {
+        val config = Configuration(
+            listOf(
+                Rename(
+                    "location.line",
+                    "log.line"
+                )
+            ),
+            PipelinePluginConfiguration("renamer", "1.2.3.4:4567")
+        )
+
+        val input = """{
+          "location": { "line" : 10}
+        }""".trimIndent()
+
+        val expected = """{
+          "location": {},
+          "log" : { "line" : 10}
         }""".trimIndent()
 
         val mapper = ObjectMapper()
