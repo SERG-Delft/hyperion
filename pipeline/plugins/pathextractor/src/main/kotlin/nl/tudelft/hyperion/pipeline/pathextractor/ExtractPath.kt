@@ -24,7 +24,7 @@ fun ObjectNode.findOrCreateChild(name: String): ObjectNode? {
  * @param config The path renaming configuration
  * @return A JSON string with the new value
  */
-@Suppress("TooGenericExceptionCaught")
+@Suppress("TooGenericExceptionCaught", "TooGenericExceptionThrown")
 fun extractPath(input: String, config: Configuration): String {
 
 
@@ -44,7 +44,7 @@ fun extractPath(input: String, config: Configuration): String {
 
             val target = config.toPath.fold(tree as ObjectNode?, { p, c ->
                 p?.findOrCreateChild(c)
-            }) ?: return input
+            }) ?: throw Exception()
 
             target.put(config.fieldName, newValue)
         }
@@ -61,6 +61,7 @@ fun extractPath(input: String, config: Configuration): String {
  * @param field the path
  * @return The found node
  */
+@Suppress("TooGenericExceptionThrown")
 fun findParent(root: ObjectNode, field: String): ObjectNode {
     val parts = field.split(".")
 

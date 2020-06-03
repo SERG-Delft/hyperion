@@ -90,6 +90,7 @@ fun extract(input: String, config: Configuration): String {
  * @param field the path
  * @return The found node
  */
+@Suppress("TooGenericExceptionThrown")
 fun findParent(root: ObjectNode, field: String): ObjectNode {
     val parts = field.split(".")
 
