@@ -11,13 +11,6 @@ application {
 }
 
 dependencies {
-    // Kotlin class reflection
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.3.70")
-
-    // Logging
-    implementation("io.github.microutils", "kotlin-logging", "1.7.9")
-    implementation("org.slf4j", "slf4j-simple", "1.7.28")
-
     // testing
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-jdk8", "1.3.5")
 
@@ -47,7 +40,7 @@ tasks.jacocoTestCoverageVerification {
 
             limit {
                 counter = "LINE"
-                minimum = "0.4".toBigDecimal()
+                minimum = "0.1".toBigDecimal()
             }
         }
     }
