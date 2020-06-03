@@ -98,4 +98,25 @@ class ExtractTests {
 
         Assertions.assertEquals(treeExpected, treeActual)
     }
+
+    @Test
+    fun testNestedField() {
+        val config = Configuration(
+            "location.file",
+            "src/main/kotlin",
+            ".java",
+            PipelinePluginConfiguration("pathExtractor", "1.2.3.4:4567")
+        )
+
+        val input = """{ "location" :  { "file" : "com.sap.enterprises.server.impl.TransportationService" } }"""
+        val expected = """{"location": { "file" : 
+            |"src/main/kotlin/com/sap/enterprises/server/impl/TransportationService.java"} }""".trimMargin()
+
+        val mapper = ObjectMapper()
+
+        val treeExpected = mapper.readTree(expected)
+        val treeActual = mapper.readTree(extractPath(input, config))
+
+        Assertions.assertEquals(treeExpected, treeActual)
+    }
 }

@@ -112,4 +112,32 @@ class RenameTest {
 
         Assertions.assertEquals(treeBefore, treeAfter)
     }
+
+    @Test
+    fun testRenameNestedField() {
+        val config = Configuration(
+            listOf(
+                Rename(
+                    "location.line",
+                    "log_line"
+                )
+            ),
+            PipelinePluginConfiguration("renamer", "1.2.3.4:4567")
+        )
+
+        val input = """{
+          "location": { "line" : 10}
+        }""".trimIndent()
+
+        val expected = """{
+          "log_line" : 10
+        }""".trimIndent()
+
+        val mapper = ObjectMapper()
+
+        val treeExpected = mapper.readTree(expected)
+        val treeActual = mapper.readTree(rename(input, config))
+
+        Assertions.assertEquals(treeExpected, treeActual)
+    }
 }

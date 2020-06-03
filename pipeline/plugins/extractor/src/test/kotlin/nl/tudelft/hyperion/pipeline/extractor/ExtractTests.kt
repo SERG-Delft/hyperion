@@ -386,4 +386,28 @@ class ExtractTests {
 
         Assertions.assertEquals(input, ret)
     }
+
+    @Test
+    fun `nested extract field`() {
+        val config = Configuration(
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
+            ExtractableFieldConfiguration(
+                "message.line",
+                "(1)",
+                listOf(
+                    Extract("numeric.1", Type.NUMBER)
+                )
+            )
+        )
+        )
+
+
+        val input = """{ "message" : { "line" : "1"} }"""
+        val expected = """{ "message" : { "line" : "1"}, "numeric" : { "1" : 1}}""".trimMargin()
+
+        val treeExpected = mapper.readTree(expected)
+        val treeActual = mapper.readTree(extract(input, config))
+
+        Assertions.assertEquals(treeExpected, treeActual)
+    }
 }
