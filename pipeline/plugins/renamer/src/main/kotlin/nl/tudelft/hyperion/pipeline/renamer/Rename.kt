@@ -24,7 +24,7 @@ private val mapper = ObjectMapper()
  * @param config the renaming configuration
  * @return A JSON string with renamed fields
  */
-@Suppress("TooGenericExceptionCaught")
+@Suppress("TooGenericExceptionCaught", "LoopWithTooManyJumpStatements")
 fun rename(json: String, config: Configuration): String {
     val tree = try {
         mapper.readTree(json) as ObjectNode
@@ -57,6 +57,7 @@ fun rename(json: String, config: Configuration): String {
  * @param field the path
  * @return The found node
  */
+@Suppress("TooGenericExceptionThrown")
 fun findParent(root: ObjectNode, field: String): ObjectNode {
     val parts = field.split(".")
 
