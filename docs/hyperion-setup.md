@@ -1,10 +1,14 @@
 # Installing and configuring your first Hyperion pipeline
 
+> This document assumes that you have a basic understanding of what Hyperion is and isn't. See [What is Hyperion?](/README.md#what-is-hyperion) for an overview of Hyperion and its core features.
+
 This document will show you the core concepts behind the Hyperion pipeline and detail how to set up a simple pipeline that takes your logs from your logging source and aggregate them for later visualization in the IDE.
 
 For this tutorial, we will be using [mock-elastic-logging](https://github.com/nickyu42/mock-elastic-logging/) as the project whose logs we will aggregate. It is a simple Java project that will continuously print various dummy logs. It also contains some docker-compose setups for creating a simple ELK stack that aggregates those logs.
 
 To get started, clone the repository and follow the README to setup the ELK instance and logger. If everything is working, you should be able to open the Kibana interface at http://localhost:5601 and see the dummy logs appearing in the log tab.
+
+The final configuration files of the pipeline we will set up in this tutorial can be found in the [example](/example/) folder. If you're having issues with setup, you can reference those files for a working version.
 
 Without further ado, let's have a look at how the Hyperion pipeline works and how we can configure one ourselves.
 
@@ -400,6 +404,6 @@ So what have we actually created? Let's revisit the diagram from the beginning o
 
 This may seem like a complex setup, but the protocol that underlies the plugins is very optimized and allows thousands of messages handled per second on commodity hardware. By using a pipeline setup you can customize Hyperion for your own usecases, and even [write your own plugin](/docs/writing-java-kotlin-plugin.md) if needed.
 
-The [example](example/) folder in this repository contains the files used in this tutorial. If you want to refer to the final working setup, you can reference that folder.
+The [example](/example/) folder in this repository contains the files used in this tutorial. If you want to refer to the final working setup, you can reference that folder.
 
 Want more information on how to use the default pipeline plugins bundled with Hyperion to configure your own pipeline? Check out the [example pipeline configurations](/doc/advanced-examples.md) documentation article for a list of plugins and the situations in which they can be used.

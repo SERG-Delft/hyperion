@@ -4,11 +4,25 @@ This repository contains the source code for the various official parts of the H
 
 ## What is Hyperion?
 
-Hyperion at it's core is a very simple system that integrates logging metrics directly with your IDE. By showing the amount of times a log triggered over a certain time frame, developers are able to make informed decisions about their code based on how that code runs in production. By eliminating the need to manually query Grafana or Kibana, developers can get useful data without needing to seek this data out themselves. For more information, please see [this paper](https://pure.tudelft.nl/portal/files/62265924/fse19.pdf) by Winter et al. describing the original system that Hyperion is based on.
+Hyperion integrates your current logging and devops systems directly with your IDE. During editing, you get live metrics on how often your logs trigger, how they trend over time and get warned of any outliers. By directly integrating these metrics into your editor, it becomes easier for developers to act on data without needing to actively request the metrics in a system such as Grafana or Kibana. For more information, please see [this paper](https://pure.tudelft.nl/portal/files/62265924/fse19.pdf) by Winter et al. describing the original system that Hyperion is based on.
 
 Since every logging and monitoring stack is different, Hyperion is designed to be very flexible in the way it processes data. Data is ingested from sources such as LogStash, ElasticSearch or raw files and can flow through a configurable pipeline that adds metadata to the logs. Finally, these logs are aggregated and stored for a configurable interval, such that IDE integrations can query the metrics on-demand.
 
 Hyperion is designed to be robust and fast. The initial release is able to handle up to 15 thousand log messages per second using commodity hardware. Additionally, the pipeline can scale horizontally by balancing load between different instances. Depending on the exact setup, logs can be aggregated within minutes of them occuring in production.
+
+Hyperion **is**:
+- A composable pipeline allowing any kind of logging setup to interface with it.
+- A database of partially aggregated metrics detailing log behavior of your system.
+- A system for showing metrics in your IDE.
+
+Hyperion **is not**:
+- A replacement for ElasticSearch, Loggly, your favorite log storage.
+- A monitoring system for key performance metrics.
+- A complete devops monitoring solution.
+
+## Screenshots
+
+![](https://cdn.discordapp.com/attachments/701776474285277226/710481421806075985/unknown.png)
 
 ## Documentation
 
