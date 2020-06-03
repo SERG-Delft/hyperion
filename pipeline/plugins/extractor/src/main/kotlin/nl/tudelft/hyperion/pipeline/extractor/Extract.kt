@@ -65,16 +65,43 @@ fun extract(input: String, config: Configuration): String {
     }
 
     for (extractableField in config.fields) {
-        if (!tree.has(extractableField.field)) continue
+        try {
 
-        val fieldValue = tree.findValue(extractableField.field).toString()
-        val pattern = extractableField.regex
-        val matches = pattern.find(fieldValue)
+            val parent = findParent(tree, extractableField.field)
+            val value = parent.findValue(extractableField.fieldName).toString()
+            val pattern = extractableField.regex
+            val matches = pattern.find(value)
 
-        matches?.groupValues?.drop(1)?.zip(extractableField.extract)?.forEach { (match, extract) ->
-            (tree.findParent(extractableField.field) as ObjectNode).put(extract.type, match, extract.to)
+            matches?.groupValues?.drop(1)?.zip(extractableField.extract)?.forEach { (match, extract) ->
+                tree.put(extract.type, match, extract.to)
+            }
+        } catch (ex: Exception) {
+            println(ex)
+            continue
         }
     }
 
     return tree.toString()
+}
+
+/**
+ * Function that finds a path in a json tree
+ * @param root the root of the tree
+ * @param field the path
+ * @return The found node
+ */
+fun findParent(root: ObjectNode, field: String): ObjectNode {
+    val parts = field.split(".")
+
+    if (parts.size > 1) {
+        val path = "/" + field.split(".").dropLast(1).joinToString("/")
+
+        return root.at(path) as ObjectNode
+    } else {
+        if (root.has(field)) {
+            return root
+        } else {
+            throw Exception()
+        }
+    }
 }

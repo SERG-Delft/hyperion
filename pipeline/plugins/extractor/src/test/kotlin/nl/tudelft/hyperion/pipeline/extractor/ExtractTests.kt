@@ -370,14 +370,14 @@ class ExtractTests {
     fun `on invalid message return input`() {
         val config = Configuration(
             PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
-            ExtractableFieldConfiguration(
-                "message",
-                "(1)",
-                listOf(
-                    Extract("numeric.1", Type.NUMBER)
+                ExtractableFieldConfiguration(
+                    "message",
+                    "(1)",
+                    listOf(
+                        Extract("numeric.1", Type.NUMBER)
+                    )
                 )
             )
-        )
         )
 
         val input = """chicken"""
@@ -396,16 +396,37 @@ class ExtractTests {
                 "(1)",
                 listOf(
                     Extract("numeric.1", Type.NUMBER)
+                    )
                 )
             )
         )
-        )
-
 
         val input = """{ "message" : { "line" : "1"} }"""
         val expected = """{ "message" : { "line" : "1"}, "numeric" : { "1" : 1}}""".trimMargin()
 
         val treeExpected = mapper.readTree(expected)
+        val treeActual = mapper.readTree(extract(input, config))
+
+        Assertions.assertEquals(treeExpected, treeActual)
+    }
+
+    @Test
+    fun `int type while not being int type`() {
+        val config = Configuration(
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
+                ExtractableFieldConfiguration(
+                    "message.line",
+                    "(n)",
+                    listOf(
+                        Extract("numeric.1", Type.NUMBER)
+                    )
+                )
+            )
+        )
+
+        val input = """{ "message" : { "line" : "1"} }"""
+
+        val treeExpected = mapper.readTree(input)
         val treeActual = mapper.readTree(extract(input, config))
 
         Assertions.assertEquals(treeExpected, treeActual)
