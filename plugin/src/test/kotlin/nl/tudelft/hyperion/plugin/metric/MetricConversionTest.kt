@@ -20,12 +20,11 @@ class MetricConversionTest {
 
     init {
         mockkObject(GitLineTracker)
-
-
     }
 
     @Test
     fun `Test conversion methods for simple case`() {
+        // Set necessary return value for line resolving.
         every { GitLineTracker.resolveCurrentLine(any(), any(), any(), any()) } returns 0
 
         val apiMetricsResults = arrayOf(APIMetricsResult(1, mapOf(
@@ -54,6 +53,7 @@ class MetricConversionTest {
 
     @Test
     fun `Test conversion methods with unresolved line`() {
+        // Set necessary return value for line resolving, in this case we return null as if no line could be resolved.
         every { GitLineTracker.resolveCurrentLine(any(), any(), any(), any()) } returns null
 
         val fileMetrics = FileMetrics(mapOf(
