@@ -8,23 +8,21 @@ import io.mockk.mockkObject
 import nl.tudelft.hyperion.plugin.git.GitLineTracker
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import kotlin.test.assertEquals
 
 /**
  * Test class that tests various conversion methods in the metric package.
  */
-class MetricTest {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class MetricConversionTest {
     private val project = mockk<Project>()
     private val file = mockk<VirtualFile>()
 
-    companion object {
-        @BeforeAll
-        @JvmStatic
-        fun beforeClass() {
-            mockkObject(GitLineTracker)
+    init {
+        mockkObject(GitLineTracker)
 
-            every { GitLineTracker.resolveCurrentLine(any(), any(), any(), any()) } returns 0
-        }
+        every { GitLineTracker.resolveCurrentLine(any(), any(), any(), any()) } returns 0
     }
 
     @Test
@@ -41,10 +39,14 @@ class MetricTest {
         val fileMetricsActual = FileMetrics.fromMetricsResults(apiMetricsResults)
         assertEquals(fileMetricsExpected, fileMetricsActual)
 
-        val resolvedFileMetricsExpected = ResolvedFileMetrics(fileMetricsExpected, mapOf(
+        val lineSumsExpected = mapOf(
                 0 to mapOf(1 to 20)
-        ))
+        )
+        val resolvedFileMetricsExpected = ResolvedFileMetrics(fileMetricsExpected, lineSumsExpected)
         val resolvedFileMetricsActual = ResolvedFileMetrics.resolve(fileMetricsActual, project, file)
+
+        assertEquals(fileMetricsExpected, resolvedFileMetricsActual.metrics)
+        assertEquals(lineSumsExpected, resolvedFileMetricsActual.lineSums)
         assertEquals(resolvedFileMetricsExpected, resolvedFileMetricsActual)
 
     }
