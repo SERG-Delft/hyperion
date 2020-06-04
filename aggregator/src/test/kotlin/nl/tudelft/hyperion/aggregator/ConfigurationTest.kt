@@ -44,6 +44,7 @@ class ConfigurationTest : TestWithoutLogging() {
             port: 8081
             granularity: 10 # 10 seconds
             aggregation-ttl: 604800 # 7 days
+            verify-timestamp: false
         """.trimIndent()
 
         val config = Configuration.parse(content)
@@ -51,7 +52,8 @@ class ConfigurationTest : TestWithoutLogging() {
             "postgresql://localhost/postgres?user=postgres&password=mysecretpassword",
             8081,
             10,
-            604800
+            604800,
+            false
         )
         assertEquals(config, expected)
     }
