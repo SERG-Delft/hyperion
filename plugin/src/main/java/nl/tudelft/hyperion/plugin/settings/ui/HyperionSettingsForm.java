@@ -87,7 +87,6 @@ public class HyperionSettingsForm {
         List<Integer> intervals = hyperionSettings.getState().getIntervals();
         List<Row> data = new ArrayList<>();
         for (int interval : intervals) {
-
             data.add(Row.parse(interval));
         }
         return data;
@@ -106,8 +105,8 @@ public class HyperionSettingsForm {
 
     /**
      * Applies (saves) settings.
-     * It converts values from {@link IntervalTable} to seconds {@link Row#toSeconds()} and saves the
-     * API address.
+     * It converts values from {@link IntervalTable} to seconds {@link Row#toSeconds()}, saves the
+     * API address and the Project name.
      */
     public void apply() {
         hyperionSettings.setAddress(addressField.getText());
