@@ -219,4 +219,101 @@ For full documentation on the load balancing plugin, please see the [load balanc
 
 This section will show some examples of input formats originating from your data source and how to transform them to the expected aggregator format. If you think an example is missing and could be useful to document, pull requests are welcome!
 
-TODO
+List of current examples:
+- [Integrating Hyperion with a LogStash pipeline that already extracts fields](#example-logstash-and-hyperion)
+- [Manually extracting metadata from a string field](#example-extracting-from-strings)
+
+### Example: Logstash and Hyperion
+
+Hyperion shines the brightest when you already have a proper LogStash pipeline that is able to separate your fields for you. This way, setting up the Hyperion pipeline is as simple as combining a few of the base [plugins](#plugin-index).
+
+For example, assume that you've already set up your pipeline to extract key information from the log messages (likely by using the [grok](https://www.elastic.co/guide/en/logstash/current/plugins-filters-grok.html) or [dissect](https://www.elastic.co/guide/en/logstash/current/plugins-filters-dissect.html) plugin). Your logstash messages may look something like this:
+
+```json
+{
+    "@version": "1",
+    "message": "[04 30 11:33:32] INFO com.sap.enterprises.server.impl.TransportationService:37 - Move service successful",
+    "received_at": "2020-05-01T08:32:18.324Z",
+    "log4j_file": "com.sap.enterprises.server.impl.TransportationService",
+    "log4j_line": "27",
+    "log4j_level": "INFO",
+    "log4j_message": "Move service successful",
+    "ecs": {
+        "version": "1.4.0"
+    },
+    "log": {
+        "file": {
+            "path": "/var/log/mock/sap.log"
+        },
+        "offset": 698007
+    },
+    "fields": {
+        "service": "log4j"
+    },
+    "tags": [
+        "beats_input_codec_plain_applied"
+    ],
+    "agent": {
+        "version": "7.6.2",
+        "hostname": "e6bcc5f205c8",
+        "type": "filebeat",
+        "id": "c7636920-45a1-4855-8819-a8adfeffe154",
+        "ephemeral_id": "b3f2836f-0f68-4db5-a0aa-3d8e2b4f43be"
+    },
+    "host": {
+        "name": "e6bcc5f205c8"
+    },
+    "received_from": "{\"name\":\"e6bcc5f205c8\"}",
+    "input": {
+        "type": "log"
+    },
+    "@timestamp": "2020-05-01T08:32:18.324Z"
+}
+```
+
+Here, earlier transformations in the logstash pipeline have already extracted `log4j_file`, `log4j_line`, `log4j_level` and the appropriate timestamp from the input. Therefore, the only things we need to do to integrate the result with Hyperion is to get the data into the pipeline and shuffle a few fields around.
+
+An example pipeline setup may therefore be:
+- [logstash-output-hyperion](/logstash-output-hyperion), for exporting logstash events to Hyperion.
+- [renamer](/pipeline/plugins/renamer), for moving `@timestamp`, `log4j_file` and `log4j_line` to `timestamp`, `location.file`. and `location.line` respectively.
+- [pathextractor](/pipeline/plugins/pathextractor), for converting the Java package in `location.file` to a file path.
+- Either [renamer](/pipeline/plugins/renamer) for moving `fields.service` to `project`, or [adder](/pipeline/plugins/adder) for statically adding a `project` field. This depends on whether you want to pull the service from logstash or have it assigned a constant value.
+- Either [renamer](/pipeline/plugins/renamer) or [versiontracker](/pipeline/plugins/versiontracker), depending on whether code version data is stored in logstash or needs to be manually queried.
+- [aggregator](/aggregator), for aggregating the final values.
+
+Incidentally, the [main tutorial](/docs/hyperion-setup.md) describes a setup similar to this. For more information, we recommend you check out the tutorial.
+
+### Example: Extracting from strings
+
+Depending on your configuration, you may not be able to run a system such as logstash to pre-extract values from log messages before they enter the pipeline. Luckily however, the Hyperion pipeline supports this.
+
+As an example, assume you're using a logging system such as `log4j` and that you have configured it to use the following pattern:
+
+```
+[%d{MMM dd HH:mm:ss}] %p %c:%L - %m%n
+```
+
+This pattern outputs lines that look like this:
+
+```
+[Mar 30 11:33:32] INFO com.sap.enterprises.server.impl.TransportationService:37 - Move service successful
+```
+
+Let's also assume that we have messages coming into the Hyperion pipeline that are simply JSON payloads with a single `message` field, like this:
+
+```json
+{
+    "message": "[Mar 30 11:33:32] INFO com.sap.enterprises.server.impl.TransportationService:37 - Move service successful"
+}
+```
+
+Note that since the Hyperion pipeline currently has no unified method for date parsing, we will instead be ignoring the timestamp entirely. This will require setting the `verify-timestamp` setting of the aggregator to `false`.
+
+To process these messages, we can set up the following pipeline:
+- Some data source able to provide messages as per the documented format.
+- The [extractor](/pipeline/plugins/extractor) plugin, using the following regular expression: `\[.+?\] (.+?) ([^:]+):(\d+) - (.+)`. Note that you may need to escape this expression.
+- The [adder](/pipeline/plugins/adder) plugin, for adding a constant `project` field to the payload.
+- The [versiontracker](/pipeline/plugins/versiontracker) plugin, for attaching the correct git version to the payload.
+- The [aggregator](/aggregator), for aggregating the final values.
+
+The documentation pages for each relevant plugin contain examples on how to set the plugins up individually. The [main tutorial](/docs/hyperion-setup.md) describes how to set up a pipeline as a whole.

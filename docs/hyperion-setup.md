@@ -357,6 +357,8 @@ pipeline:
     plugin-id: "Aggregator"
 ```
 
+With this configuration, we will be storing an intermediate sum of logs that occurred every 10 seconds, with those entries expiring after 7 days. That means that the minimum granularity we will be able to query from the IDE will be 10 seconds, and that metrics may lag up to 10 seconds behind. It goes without saying that decreasing this value will allow for more granular querying, at the cost of more storage required.
+
 Finally, add the aggregator to the list of plugins in the plugin manager config. Your final plugin manager configuration should now look something like this:
 
 ```yaml
