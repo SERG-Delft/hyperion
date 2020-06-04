@@ -12,6 +12,7 @@ import nl.tudelft.hyperion.pipeline.connection.ConfigType
 import nl.tudelft.hyperion.pipeline.connection.ConfigZMQ
 import nl.tudelft.hyperion.pipeline.connection.PipelinePullZMQ
 import nl.tudelft.hyperion.pipeline.connection.PipelinePushZMQ
+import java.lang.IllegalStateException
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -28,7 +29,7 @@ abstract class AbstractPipelinePlugin(
     private val sink: PipelinePushZMQ = PipelinePushZMQ(),
     private val source: PipelinePullZMQ = PipelinePullZMQ()
 ) {
-    private val logger = mu.KotlinLogging.logger {}
+    protected val logger = mu.KotlinLogging.logger {}
     private val processThreadPool = CoroutineScope(
         Executors
             .newFixedThreadPool(4)
@@ -41,6 +42,16 @@ abstract class AbstractPipelinePlugin(
     lateinit var subConnectionInformation: PeerConnectionInformation
     lateinit var pubConnectionInformation: PeerConnectionInformation
 
+    protected val canReceive
+        get() = hasConnectionInformation && subConnectionInformation.host != null
+
+    protected val canSend
+        get() = hasConnectionInformation && pubConnectionInformation.host != null
+
+    protected val isPassthrough
+        get() = canReceive && canSend
+
+    private val senderChannel = Channel<String>(20_000)
     private val packetBufferCount = AtomicInteger()
 
     /**
@@ -79,9 +90,8 @@ abstract class AbstractPipelinePlugin(
             throw PipelinePluginInitializationException("Cannot run plugin without connection information")
         }
 
-        val channel = Channel<String>(capacity = 20_000)
-        val sender = runSender(channel)
-        val receiver = runReceiver(channel)
+        val sender = runSender(senderChannel)
+        val receiver = runReceiver()
 
         // Sleep infinitely
         try {
@@ -95,15 +105,47 @@ abstract class AbstractPipelinePlugin(
     }
 
     /**
+     * Queues the specified message for sending to the next step. If [canSend]
+     * is false, will throw an error. Note that this will queue the message in
+     * a channel with limited capacity, so sending a large amount of messages
+     * at once may discard some.
+     *
+     * This function exists such that Java plugins can interact with it without
+     * needing to know how suspended functions work.
+     */
+    protected fun sendQueued(message: String) {
+        if (!canSend) {
+            throw IllegalStateException("Cannot invoke sendQueued on a pipeline plugin that cannot send.")
+        }
+
+        senderChannel.offer(message)
+    }
+
+    /**
+     * Similar to [sendQueued], but instead suspends until the queue is able
+     * to accept the specified message.
+     */
+    protected suspend fun send(message: String) {
+        if (!canSend) {
+            throw IllegalStateException("Cannot invoke send on a pipeline plugin that cannot send.")
+        }
+
+        senderChannel.send(message)
+    }
+
+    /**
      * Helper function that will create a new subroutine that is used to send the
      * results of computation to the next stage in the pipeline.
      */
     fun runSender(channel: Channel<String>) = senderScope.launch {
+        if (!canSend) {
+            return@launch
+        }
+
         sink.setupConnection(pubConnectionInformation)
 
         while (isActive) {
             val msg = channel.receive()
-            packetBufferCount.decrementAndGet()
             sink.push(msg)
         }
 
@@ -114,48 +156,46 @@ abstract class AbstractPipelinePlugin(
      * Helper function that will create a new subroutine that is used to receive
      * messages from the previous stage and push it to the process function.
      */
-    @Suppress("TooGenericExceptionCaught")
-    fun runReceiver(channel: Channel<String>) = receiverScope.launch {
+    fun runReceiver() = receiverScope.launch {
+        if (!canReceive) {
+            return@launch
+        }
+
         source.setupConnection(subConnectionInformation)
 
         while (isActive) {
             val msg = source.pull()
 
-            // Drop this message if our internal buffer is full
-            val inQueue = packetBufferCount.incrementAndGet()
-            if (inQueue > config.bufferSize) {
-                packetBufferCount.decrementAndGet()
-                continue
+            // Check for buffer limits if this is passthrough.
+            if (isPassthrough) {
+                // Drop this message if our internal buffer is full
+                val inQueue = packetBufferCount.incrementAndGet()
+                if (inQueue > config.bufferSize) {
+                    packetBufferCount.decrementAndGet()
+                    continue
+                }
             }
 
-            processThreadPool.launch processLaunch@{
-                val result = try {
-                    this@AbstractPipelinePlugin.process(msg)
-                } catch (ex: Exception) {
-                    logger.warn(ex) { "Error processing message: '$msg'" }
-                    null
-                } ?: run {
-                    // We're done here, decrement.
-                    packetBufferCount.decrementAndGet()
-                    return@processLaunch
-                }
+            // Within the thread pool, handle the message and decrement the counter.
+            processThreadPool.launch {
+                onMessageReceived(msg)
 
-                channel.send(result)
+                packetBufferCount.decrementAndGet()
             }
         }
     }
 
     /**
-     * Method that performs the plugin transform on the specified input.
-     * This method can suspend, thus it can perform asynchronous transformations
-     * before returning a result.
+     * Method invoked when a message is received. Note that this method will
+     * only be invoked if [canReceive] is true. In other cases (such as when
+     * implementing a data source), this method can simply be stubbed out. If
+     * you want to perform transformation on the input and then send it out,
+     * consider subclassing [TransformingPipelinePlugin] instead.
      *
-     * If this method throws, its result is discarded. Since this will cause
-     * data loss, it is recommended to only throw if no other options exist.
-     * Returning null will also discard the result, but without the performance
-     * cost of throwing/handling an exception.
+     * This function is invoked on a thread pool, so multiple messages are able
+     * to be handled in parallel.
      */
-    abstract suspend fun process(input: String): String?
+    abstract suspend fun onMessageReceived(msg: String)
 }
 
 /**
@@ -170,8 +210,12 @@ class PipelinePluginInitializationException(
  * Represents the information needed for this plugin to connect to any
  * future elements in the pipeline. Contains the host, port and whether
  * it needs to bind or connect to that specific element.
+ *
+ * If the host is null, it means that the plugin manager has no
+ * adjacent plugin available for that direction (i.e. this is either
+ * the first or the last plugin).
  */
 data class PeerConnectionInformation(
-    val host: String,
+    val host: String?,
     val isBind: Boolean
 )
