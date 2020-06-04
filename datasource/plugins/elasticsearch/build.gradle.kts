@@ -109,7 +109,7 @@ tasks.build {
 }
 
 tasks.shadowJar {
-    destinationDirectory.set(File("./"))
+    destinationDirectory.set(File("./build"))
 }
 
 detekt {

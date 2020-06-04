@@ -1,21 +1,7 @@
 package nl.tudelft.hyperion.pipeline.extractor
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import java.nio.file.Files
-import java.nio.file.Path
-
-/**
- * Function that extract information from a json log message from file
- * @param path The absolute path of the json to be extracted
- * @param config A extraction configuration for the messages
- * @return A string representation of the json with additional extracted fields
- */
-fun extract(path: Path, config: Configuration): String {
-    val input = Files.readString(path)
-
-    return extract(input, config)
-}
 
 /**
  * Function that checks whether a child exists and creates it otherwise
@@ -47,8 +33,8 @@ fun ObjectNode.put(type: Type, value: String, name: String): ObjectNode {
             Type.STRING -> this.put(parts[0], value)
         }
     } else {
-        val target = parts.subList(1, parts.size - 1).fold(this.findOrCreateChild(parts[0]), {
-            p, c -> p.findOrCreateChild(c)
+        val target = parts.subList(1, parts.size - 1).fold(this.findOrCreateChild(parts[0]), { p, c ->
+            p.findOrCreateChild(c)
         })
 
         val leafName = parts.last()
@@ -62,29 +48,33 @@ fun ObjectNode.put(type: Type, value: String, name: String): ObjectNode {
     return this
 }
 
+private val mapper = ObjectMapper()
+
 /**
  * Function that extracts information from a JSON string according to a configuration
  * @param input The json string
  * @param config The extraction configuration
  * @return A JSON string with additional extracted information
  */
+@Suppress("TooGenericExceptionCaught")
 fun extract(input: String, config: Configuration): String {
-    val mapper = jacksonObjectMapper()
-    val tree = mapper.readTree(input)
-
-    val fieldValue = tree.findValue(config.field).toString()
-    val pattern = Regex(config.match)
-    val matches = pattern.find(fieldValue)
-
-    val extracts = config.extract
-    var i = 0
-    matches?.groupValues?.forEach {
-        if (i > 0) {
-            val extract = extracts[i - 1]
-            (tree.findParent(config.field) as ObjectNode).put(extract.type, it, extract.to)
-        }
-        i++
+    val tree = try {
+        mapper.readTree(input) as ObjectNode
+    } catch (ex: Exception) {
+        return input
     }
 
-    return tree.toString();
+    for (extractableField in config.fields) {
+        if (!tree.has(extractableField.field)) continue
+
+        val fieldValue = tree.findValue(extractableField.field).toString()
+        val pattern = extractableField.regex
+        val matches = pattern.find(fieldValue)
+
+        matches?.groupValues?.drop(1)?.zip(extractableField.extract)?.forEach { (match, extract) ->
+            (tree.findParent(extractableField.field) as ObjectNode).put(extract.type, match, extract.to)
+        }
+    }
+
+    return tree.toString()
 }

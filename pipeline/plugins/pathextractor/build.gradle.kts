@@ -2,7 +2,6 @@ plugins {
     application
     jacoco
     kotlin("jvm")
-    id("org.jetbrains.intellij") version "0.4.18"
     id("io.gitlab.arturbosch.detekt").version("1.8.0")
     id("com.github.johnrengelman.shadow").version("5.2.0")
 }
@@ -16,6 +15,9 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.3.70")
 
     implementation(project(":pipeline:common"))
+
+    // JSON deserialization & serialization
+    implementation("com.fasterxml.jackson.core", "jackson-databind", "2.9.4")
 }
 
 jacoco {
@@ -57,5 +59,5 @@ tasks.build {
 }
 
 tasks.shadowJar {
-    destinationDir = File("./")
+    destinationDirectory.set(File("./build"))
 }

@@ -1,7 +1,10 @@
 package nl.tudelft.hyperion.pipeline.pathextractor
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.databind.node.TextNode
+
+private val mapper = ObjectMapper()
 
 /**
  * Function that replaces the value of a package field with the actual java class path
@@ -9,24 +12,27 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
  * @param config The path renaming configuration
  * @return A JSON string with the new value
  */
+@Suppress("TooGenericExceptionCaught")
 fun extractPath(input: String, config: Configuration): String {
-    val mapper = jacksonObjectMapper()
     val tree = mapper.readTree(input)
 
-    val parent = tree.findParent(config.field)
+    // Return value unmodified if not valid JSON or not an object
+    val parent = try {
+        tree.findParent(config.field) as ObjectNode
+    } catch (ex: Exception) {
+        return input
+    }
 
-    if (parent != null) {
-        val packageName = tree.findValue(config.field).toString().drop(1).dropLast(1).split(".")
+    val packageNode = tree.findValue(config.field)
 
-        var path = config.relativePathFromSource
-        for (subfolder in packageName) {
-            path += "/"
-            path += subfolder
+    if (packageNode is TextNode) {
+        // Drop Kt suffix for kotlin support.
+        val packageFields = packageNode.textValue().split(".").map {
+            if (it.endsWith("Kt")) it.dropLast(2) else it
         }
-        path += config.postfix
 
-        (parent as ObjectNode).remove(config.field)
-        parent.put(config.field, path)
+        val newValue = "${config.relativePathFromSource}/${packageFields.joinToString("/")}${config.postfix}"
+        parent.put(config.field, newValue)
     }
 
     return tree.toString()

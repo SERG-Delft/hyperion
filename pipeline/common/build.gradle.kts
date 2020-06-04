@@ -23,9 +23,17 @@ dependencies {
     // ZeroMQ
     implementation("org.zeromq", "jeromq", "0.5.2")
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-jdk8", "1.3.5")
+
+    // Testing
+    testImplementation("io.mockk", "mockk", "1.10.0")
 }
 
 tasks.jacocoTestReport {
+    executionData(
+        tasks.test.get(),
+        tasks.integrationTest.get()
+    )
+
     reports {
         xml.isEnabled = false
         csv.isEnabled = false
@@ -34,16 +42,21 @@ tasks.jacocoTestReport {
 }
 
 tasks.jacocoTestCoverageVerification {
+    executionData(
+        tasks.test.get(),
+        tasks.integrationTest.get()
+    )
+
     violationRules {
         rule {
             limit {
                 counter = "BRANCH"
-                minimum = "0.8".toBigDecimal()
+                minimum = "0.5".toBigDecimal()
             }
 
             limit {
                 counter = "LINE"
-                minimum = "0.8".toBigDecimal()
+                minimum = "0.7".toBigDecimal()
             }
         }
     }
@@ -53,11 +66,22 @@ tasks.check {
     dependsOn(tasks.jacocoTestCoverageVerification)
 }
 
+tasks.integrationTest {
+    jacoco {
+        enabled = true
+    }
+}
+
 tasks.build {
     dependsOn(tasks.jacocoTestReport)
     dependsOn(tasks.shadowJar)
 }
 
 tasks.shadowJar {
-    destinationDir = File("./");
+    destinationDirectory.set(File("./build"))
 }
+
+detekt {
+    config = files("detekt-config.yml")
+}
+
