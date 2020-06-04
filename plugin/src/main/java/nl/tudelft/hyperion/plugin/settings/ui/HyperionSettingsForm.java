@@ -58,16 +58,23 @@ public class HyperionSettingsForm {
         hyperionSettings = HyperionSettings.Companion.getInstance(project);
     }
 
+    private void createTable() {
+        List<Row> data = getIntervalRows();
+        intervalTable = new IntervalTable(data);
+    }
+
+    private void createPanel() {
+        intervalPanel = new IntervalListPanel();
+    }
+
     /**
      * Initialize any custom created UI Components here.
      * In our case this is only intervalTable and intervalPanel.
      */
     private void createUIComponents() {
         createSettings();
-
-        List<Row> data = getIntervalRows();
-        intervalTable = new IntervalTable(data);
-        intervalPanel = new IntervalListPanel();
+        createTable();
+        createPanel();
     }
 
     /**
