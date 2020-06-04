@@ -9,12 +9,14 @@ import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
  * @param config: [PipelinePluginConfiguration] configuration for the abstract plugin.
  */
 class PrinterPlugin(private var config: PipelinePluginConfiguration) : AbstractPipelinePlugin(config) {
+    private val logger = mu.KotlinLogging.logger {}
+
     /**
      * Takes the input string and prints it.
      * Returns the input.
      */
     override suspend fun process(input: String): String {
-        println(input)
+        logger.info(input)
 
         return input
     }

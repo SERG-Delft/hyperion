@@ -14,6 +14,10 @@ dependencies {
     // testing
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-jdk8", "1.3.5")
 
+    // Logging
+    implementation("io.github.microutils", "kotlin-logging", "1.7.9")
+    implementation("org.slf4j", "slf4j-simple", "1.7.28")
+
     implementation(project(":pipeline:common"))
 }
 
