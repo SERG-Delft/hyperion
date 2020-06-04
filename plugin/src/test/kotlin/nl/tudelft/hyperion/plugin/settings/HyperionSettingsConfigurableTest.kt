@@ -40,12 +40,12 @@ class HyperionSettingsConfigurableTest {
     }
 
     @Test
-    fun `Test getId()`() {
+    fun `Test getId`() {
         assertEquals("hyperion.settings", configurable.id)
     }
 
     @Test
-    fun `Test getDisplayName()`() {
+    fun `Test getDisplayName`() {
         assertEquals("Hyperion", configurable.displayName)
     }
 
