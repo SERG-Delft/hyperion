@@ -92,5 +92,6 @@ fun handlePeriodicMetrics(configuration: Configuration, ctx: Context) {
     // Query statistics of entire project if file is not given.
     val file = ctx.queryParam("file")
 
-    ctx.json(computePeriodicMetrics(configuration, project, file, relativeTime.toInt(), steps.toInt()))
+    val (interval, results) = computePeriodicMetrics(configuration, project, file, relativeTime.toInt(), steps.toInt())
+    ctx.json(mapOf("interval" to interval, "results" to results))
 }

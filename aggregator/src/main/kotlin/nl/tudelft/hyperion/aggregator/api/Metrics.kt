@@ -108,7 +108,7 @@ fun computeMetrics(
  * @param relativeTime the relative time from current time to get metrics of.
  * @param steps the amount of steps to split the relative time in.
  *
- * @return map of interval and binned log metrics.
+ * @return pair of interval and results.
  */
 fun computePeriodicMetrics(
     configuration: Configuration,
@@ -116,7 +116,7 @@ fun computePeriodicMetrics(
     file: String? = null,
     relativeTime: Int,
     steps: Int
-): Map<String, Any> {
+): Pair<Int, List<BinnedMetricsResult>> {
     // Clamp to values within bounds.
     val clampedTime = min(relativeTime, configuration.aggregationTtl)
     val startTime = DateTime.now().minusSeconds(clampedTime)
@@ -130,8 +130,7 @@ fun computePeriodicMetrics(
     // Create the start time of each interval
     val startTimes = (0 until (clampedTime / interval)).map { startTime.plusSeconds(it * interval) }
 
-    val result = mutableMapOf<String, Any>("interval" to interval)
-    result["results"] = startTimes.map { start ->
+    val results = startTimes.map { start ->
         transaction {
             val metrics = if (file == null) {
                 // Retrieve project wide statistics
@@ -170,7 +169,7 @@ fun computePeriodicMetrics(
         }
     }
 
-    return result
+    return Pair(interval, results)
 }
 
 /**

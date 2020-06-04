@@ -49,6 +49,11 @@ class MetricsTest : TestWithoutLogging() {
     fun `Reset timestamp and database`() {
         DateTimeUtils.setCurrentMillisSystem()
 
+        transaction {
+            // Drop table after finishing
+            SchemaUtils.drop(AggregationEntries)
+        }
+
         transaction.commit()
     }
 
@@ -82,18 +87,18 @@ class MetricsTest : TestWithoutLogging() {
         )
 
         Assertions.assertEquals(
-            results,
             listOf(
                 MetricsResult(
                     interval = 20, versions = mapOf(
-                        "v1.0.0" to listOf(
-                            Metric(line = 11, severity = "INFO", count = 15),
-                            Metric(line = 20, severity = "WARN", count = 3),
-                            Metric(line = 37, severity = "INFO", count = 3)
-                        )
+                    "v1.0.0" to listOf(
+                        Metric(line = 11, severity = "INFO", count = 5),
+                        Metric(line = 20, severity = "WARN", count = 1),
+                        Metric(line = 37, severity = "INFO", count = 1)
                     )
                 )
-            )
+                )
+            ),
+            results
         )
     }
 
@@ -111,29 +116,29 @@ class MetricsTest : TestWithoutLogging() {
         )
 
         Assertions.assertEquals(
-            results,
             listOf(
                 MetricsResult(
                     interval = 20, versions = mapOf(
-                        "v1.0.0" to listOf(
-                            Metric(line = 11, severity = "INFO", count = 20),
-                            Metric(line = 20, severity = "WARN", count = 4),
-                            Metric(line = 37, severity = "INFO", count = 4)
-                        )
+                    "v1.0.0" to listOf(
+                        Metric(line = 11, severity = "INFO", count = 5),
+                        Metric(line = 20, severity = "WARN", count = 1),
+                        Metric(line = 37, severity = "INFO", count = 1)
                     )
+                )
                 ),
                 MetricsResult(
                     interval = 120, versions = mapOf(
-                        "v1.0.0" to listOf(
-                            Metric(line = 11, severity = "INFO", count = 144),
-                            Metric(line = 20, severity = "WARN", count = 36),
-                            Metric(line = 23, severity = "ERROR", count = 16),
-                            Metric(line = 34, severity = "ERROR", count = 28),
-                            Metric(line = 37, severity = "INFO", count = 84)
-                        )
+                    "v1.0.0" to listOf(
+                        Metric(line = 11, severity = "INFO", count = 36),
+                        Metric(line = 20, severity = "WARN", count = 9),
+                        Metric(line = 23, severity = "ERROR", count = 4),
+                        Metric(line = 34, severity = "ERROR", count = 7),
+                        Metric(line = 37, severity = "INFO", count = 21)
                     )
                 )
-            )
+                )
+            ),
+            results
         )
     }
 
@@ -160,5 +165,121 @@ class MetricsTest : TestWithoutLogging() {
         )
 
         Assertions.assertTrue(results[0].versions.isEmpty())
+    }
+
+    @Test
+    fun `computePeriodicMetrics should correctly bin log metrics for a single file`() {
+        val config = Configuration("a", 1, 1, 1000)
+
+        val relTime = 12
+        val steps = 3
+
+        val results = computePeriodicMetrics(
+            config,
+            "TestProject",
+            "com.sap.enterprises.server.impl.TransportationService",
+            relTime,
+            steps
+        )
+
+        // The relative time of 12s is split into intervals of 4s
+        // the current time is 1588844616 and the most recent log
+        // for this file starts at 1588844615
+        Assertions.assertEquals(relTime / steps, results.first)
+        Assertions.assertEquals(
+            listOf(
+                BinnedMetricsResult(
+                    startTime = 1588844604,
+                    versions = mapOf(
+                        "v1.0.0" to listOf(
+                            Metric(11, "INFO", 3),
+                            Metric(20, "WARN", 1),
+                            Metric(37, "INFO", 1)
+                        )
+                    )
+                ),
+                BinnedMetricsResult(1588844608, mapOf()),
+                BinnedMetricsResult(
+                    startTime = 1588844612,
+                    versions = mapOf(
+                        "v1.0.0" to listOf(
+                            Metric(11, "INFO", 2)
+                        )
+                    )
+                )
+            ),
+            results.second
+        )
+    }
+
+    @Test
+    fun `computePeriodicMetrics should correctly bin log metrics of all files`() {
+        val config = Configuration("a", 1, 1, 1000)
+
+        val relTime = 10
+        val steps = 2
+
+        val results = computePeriodicMetrics(
+            config,
+            "TestProject",
+            null,
+            relTime,
+            steps
+        )
+
+        // The relative time of 10s is split into intervals of 5s
+        // the current time is 1588844616 and the most recent logs
+        // for this project start at 1588844615
+        Assertions.assertEquals(relTime / steps, results.first)
+        Assertions.assertEquals(
+            listOf(
+                BinnedMetricsResult(1588844606, mapOf()),
+                BinnedMetricsResult(
+                    startTime = 1588844611,
+                    versions = mapOf(
+                        "v1.0.0" to listOf(
+                            FileMetric(11, "INFO", 2, "com.sap.enterprises.server.impl.TransportationService"),
+                            FileMetric(13, "INFO", 1, "com.sap.enterprises.server.impl.math.IntegerFactory"),
+                            FileMetric(24, "INFO", 1, "com.sap.enterprises.server.impl.math.ArithmeticAbstracter")
+                        )
+                    )
+                )
+            ),
+            results.second
+        )
+    }
+
+    @Test
+    fun `computePeriodicMetrics should properly clamp time`() {
+        val config = Configuration("a", 1, 5, 1000)
+
+        val relTime = 10
+        // The intervals would be expected to be 2s
+        // due to granularity, this value should be clamped to 5s
+        val steps = 5
+
+        val results = computePeriodicMetrics(
+            config,
+            "TestProject",
+            "com.sap.enterprises.server.impl.TransportationService",
+            relTime,
+            steps
+        )
+
+        Assertions.assertEquals(5, results.first)
+        Assertions.assertEquals(
+            listOf(
+                BinnedMetricsResult(1588844606, mapOf()),
+                BinnedMetricsResult(
+                    startTime = 1588844611,
+                    versions = mapOf(
+                        "v1.0.0" to listOf(
+                            Metric(11, "INFO", 2)
+                        )
+                    )
+                )
+            ),
+            results.second
+        )
     }
 }
