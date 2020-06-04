@@ -34,7 +34,7 @@ Secondly, the (example pipelines)[#example-pipelines] section contains a set of 
 I want to...
 
 - [Inspect the current messages going through the pipeline](#plugin-printer)
-- [Measure the rate of messages going through the pipeline](#plugin-todo)
+- [Measure the rate of messages going through the pipeline](#plugin-rate)
 - [Rename or move a field](#plugin-renamer)
 - [Add a statically known value to the payload](#plugin-adder)
 - [Extract string values from a field into their own fields](#plugin-extractor)
@@ -46,11 +46,23 @@ Want to do something not listed here? You might be able to do it by combining mu
 
 ### Plugin: Printer
 
-TODO
+The [printer](/pipeline/plugins/printer) plugin is a useful tool for anyone that wishes to debug the messages going through their pipeline. As the name suggests, it simply prints any incoming messages to stdout before forwarding it to the next plugin. Use it to get an idea of the type of data flowing through your pipeline.
 
-### Plugin: TODO
+Due to its simplicity, the printer plugin has no additional configuration. If needed though, you can find the documentation [here](/pipeline/plugins/printer/README.md).
 
-TODO: Niet vergeten om TOC aan te passen.
+### Plugin: Rate
+
+The [rate](/pipeline/plugins/rate) plugin is useful for getting an idea of how many messages are flowing through the Hyperion pipeline. Just like the printer plugin, it is mainly intended for debugging and benchmarking the Hyperion stack.
+
+The rate plugin has a single configuration option:
+
+```yaml
+rate: 10
+```
+
+The `rate` option controls how often the plugin prints a summary of the amount of messages that passed through it. All messages received will additionally be forwarded to the next plugin.
+
+For more information and the full set of configuration options, please see the [rate documentation](/pipeline/plugins/rate).
 
 ### Plugin: Renamer
 
