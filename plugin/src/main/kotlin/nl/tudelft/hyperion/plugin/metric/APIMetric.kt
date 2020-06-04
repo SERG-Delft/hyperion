@@ -7,6 +7,10 @@ package nl.tudelft.hyperion.plugin.metric
  */
 data class APIMetricsResult(
     val interval: Int,
+    /**
+     * A mapping of version to a List of Metrics (all metrics relative to this version).
+     * The version is represented by a String.
+     */
     val versions: Map<String, List<APIMetric>>
 )
 
