@@ -29,7 +29,7 @@ abstract class AbstractPipelinePlugin(
     private val sink: PipelinePushZMQ = PipelinePushZMQ(),
     private val source: PipelinePullZMQ = PipelinePullZMQ()
 ) {
-    protected val logger = mu.KotlinLogging.logger {}
+    protected open val logger = mu.KotlinLogging.logger {}
     private val processThreadPool = CoroutineScope(
         Executors
             .newFixedThreadPool(4)
