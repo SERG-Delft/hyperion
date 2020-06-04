@@ -151,8 +151,10 @@ class APITest : TestWithoutLogging() {
     @ParameterizedTest
     @MethodSource("handlePeriodicMetricsInvalidQueries")
     fun `handlePeriodicMetrics should fail on invalid queries`(
-        project: String?, file: String?, relativeTime:
-        String?, steps: String?
+        project: String?,
+        file: String?,
+        relativeTime: String?,
+        steps: String?
     ) {
         val config = Configuration("a", 1, 1, 1)
         val ctx = mockk<Context>(relaxed = true)

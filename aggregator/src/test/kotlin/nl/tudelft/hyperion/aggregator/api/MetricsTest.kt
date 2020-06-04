@@ -90,12 +90,12 @@ class MetricsTest : TestWithoutLogging() {
             listOf(
                 MetricsResult(
                     interval = 20, versions = mapOf(
-                    "v1.0.0" to listOf(
-                        Metric(line = 11, severity = "INFO", count = 5),
-                        Metric(line = 20, severity = "WARN", count = 1),
-                        Metric(line = 37, severity = "INFO", count = 1)
+                        "v1.0.0" to listOf(
+                            Metric(line = 11, severity = "INFO", count = 5),
+                            Metric(line = 20, severity = "WARN", count = 1),
+                            Metric(line = 37, severity = "INFO", count = 1)
+                        )
                     )
-                )
                 )
             ),
             results
@@ -119,23 +119,23 @@ class MetricsTest : TestWithoutLogging() {
             listOf(
                 MetricsResult(
                     interval = 20, versions = mapOf(
-                    "v1.0.0" to listOf(
-                        Metric(line = 11, severity = "INFO", count = 5),
-                        Metric(line = 20, severity = "WARN", count = 1),
-                        Metric(line = 37, severity = "INFO", count = 1)
+                        "v1.0.0" to listOf(
+                            Metric(line = 11, severity = "INFO", count = 5),
+                            Metric(line = 20, severity = "WARN", count = 1),
+                            Metric(line = 37, severity = "INFO", count = 1)
+                        )
                     )
-                )
                 ),
                 MetricsResult(
                     interval = 120, versions = mapOf(
-                    "v1.0.0" to listOf(
-                        Metric(line = 11, severity = "INFO", count = 36),
-                        Metric(line = 20, severity = "WARN", count = 9),
-                        Metric(line = 23, severity = "ERROR", count = 4),
-                        Metric(line = 34, severity = "ERROR", count = 7),
-                        Metric(line = 37, severity = "INFO", count = 21)
+                        "v1.0.0" to listOf(
+                            Metric(line = 11, severity = "INFO", count = 36),
+                            Metric(line = 20, severity = "WARN", count = 9),
+                            Metric(line = 23, severity = "ERROR", count = 4),
+                            Metric(line = 34, severity = "ERROR", count = 7),
+                            Metric(line = 37, severity = "INFO", count = 21)
+                        )
                     )
-                )
                 )
             ),
             results
