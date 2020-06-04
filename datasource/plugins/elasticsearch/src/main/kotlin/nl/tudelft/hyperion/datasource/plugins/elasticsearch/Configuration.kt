@@ -4,25 +4,24 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import java.lang.IllegalArgumentException
 import java.nio.file.Files
 import java.nio.file.Path
 
 /**
  * Configuration for communication with the manager.
  *
+ * @property id id of this plugin
  * @property host hostname of PluginManager
- * @property port port of PluginManager
+ * @property bufferSize buffer size of the queues
  */
-data class ManagerConfig(
-        val host: String,
-        val port: Int,
-        @JsonProperty("buffer_size")
-        val bufferSize: Int = 20_000
-) {
-    val address
-        get() = "$host:$port"
-}
+data class PipelineConfig(
+    @JsonProperty("plugin-id")
+    val id: String,
+    @JsonProperty("manager-host")
+    val host: String,
+    @JsonProperty("buffer-size")
+    val bufferSize: Int = 20_000
+)
 
 /**
  * Configuration for Elasticsearch communication.
@@ -38,17 +37,17 @@ data class ManagerConfig(
  * @property password password to pass if authentication is set to true
  */
 data class ElasticsearchConfig(
-        val hostname: String,
-        val index: String,
-        var port: Int = 9200,
-        var scheme: String = "http",
-        var authentication: Boolean,
-        @JsonProperty("timestamp_field")
-        val timestampField: String,
-        @JsonProperty("response_hit_count")
-        var responseHitCount: Int,
-        var username: String?,
-        var password: String?
+    val hostname: String,
+    val index: String,
+    var port: Int = 9200,
+    var scheme: String = "http",
+    var authentication: Boolean,
+    @JsonProperty("timestamp-field")
+    val timestampField: String,
+    @JsonProperty("response-hit-count")
+    var responseHitCount: Int,
+    var username: String?,
+    var password: String?
 ) {
     /**
      * Verifies that the configuration is correct.
@@ -84,12 +83,11 @@ data class ElasticsearchConfig(
  * @property es Elasticsearch configuration
  */
 data class Configuration(
-        @JsonProperty("poll_interval")
-        var pollInterval: Int,
-        val zmq: ManagerConfig,
-        @JsonProperty("elasticsearch")
-        val es: ElasticsearchConfig,
-        val id: String
+    @JsonProperty("poll-interval")
+    var pollInterval: Int,
+    val pipeline: PipelineConfig,
+    @JsonProperty("elasticsearch")
+    val es: ElasticsearchConfig
 ) {
 
     /**
@@ -131,7 +129,7 @@ data class Configuration(
             mapper.registerModule(KotlinModule())
 
             return mapper.readValue(content, Configuration::class.java)
-                    .also(Configuration::verify)
+                .also(Configuration::verify)
         }
     }
 }

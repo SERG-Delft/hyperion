@@ -1,8 +1,0 @@
-databaseUrl: "postgresql://postgres/postgres?user=postgres&password=mysecretpassword"
-port: 8081
-granularity: 10 # 10 seconds
-aggregationTtl: 604800 # 7 days
-
-zmq:
-  pluginManager: pluginmanager:30001
-  id: Aggregator

@@ -32,6 +32,8 @@ public class HyperionSettingsForm {
     private JTextField addressField;
     private JLabel addressTitle;
     private JLabel intervalsTitle;
+    private JTextField projectField;
+    private JLabel projectLabel;
 
     /**
      * Other data needed.
@@ -52,16 +54,27 @@ public class HyperionSettingsForm {
         return root;
     }
 
+    private void createSettings() {
+        hyperionSettings = HyperionSettings.Companion.getInstance(project);
+    }
+
+    private void createTable() {
+        List<Row> data = getIntervalRows();
+        intervalTable = new IntervalTable(data);
+    }
+
+    private void createPanel() {
+        intervalPanel = new IntervalListPanel();
+    }
+
     /**
      * Initialize any custom created UI Components here.
      * In our case this is only intervalTable and intervalPanel.
      */
     private void createUIComponents() {
-        hyperionSettings = HyperionSettings.Companion.getInstance(project);
-
-        List<Row> data = getIntervalRows();
-        intervalTable = new IntervalTable(data);
-        intervalPanel = new IntervalListPanel();
+        createSettings();
+        createTable();
+        createPanel();
     }
 
     /**
@@ -74,7 +87,6 @@ public class HyperionSettingsForm {
         List<Integer> intervals = hyperionSettings.getState().getIntervals();
         List<Row> data = new ArrayList<>();
         for (int interval : intervals) {
-
             data.add(Row.parse(interval));
         }
         return data;
@@ -86,16 +98,19 @@ public class HyperionSettingsForm {
      * @return true if any editable values were changed compared to last {@link #apply()} call.
      */
     public boolean isModified() {
-        return intervalTable.isModified() || !addressField.getText().equals(hyperionSettings.getState().address);
+        return intervalTable.isModified()
+                || !addressField.getText().equals(hyperionSettings.getState().address)
+                || !projectField.getText().equals(hyperionSettings.getState().project);
     }
 
     /**
      * Applies (saves) settings.
-     * It converts values from {@link IntervalTable} to seconds {@link Row#toSeconds()} and saves the
-     * API address.
+     * It converts values from {@link IntervalTable} to seconds {@link Row#toSeconds()}, saves the
+     * API address and the Project name.
      */
     public void apply() {
         hyperionSettings.setAddress(addressField.getText());
+        hyperionSettings.setProject(projectField.getText());
 
         List<Row> data = intervalTable.updateData();
         // Intervals in seconds
@@ -116,6 +131,7 @@ public class HyperionSettingsForm {
      */
     public void reset() {
         addressField.setText(hyperionSettings.getState().address);
+        projectField.setText(hyperionSettings.getState().project);
 
         intervalTable.reset();
     }

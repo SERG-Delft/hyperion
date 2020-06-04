@@ -1,6 +1,0 @@
-plugin :
-  pluginManager: "1.2.3.4:4567"
-  id : "plugin1"
-
-field: "log4j_file"
-relativePathFromSource: "src/main/java"

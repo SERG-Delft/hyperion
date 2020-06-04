@@ -12,11 +12,12 @@ import com.intellij.openapi.project.Project
         name = "HyperionProjectSettings",
         storages = [Storage("/hyperion.xml")]
 )
-class HyperionSettings : PersistentStateComponent<HyperionSettings.State> {
+class HyperionSettings(private val relatedProject: Project) : PersistentStateComponent<HyperionSettings.State> {
     private var currentState = State().apply {
         // Set default values.
         intervals = listOf(3600, 86400, 2592000)
-        address = "/api/v1/metrics"
+        address = "hyperion.internal.yourcompany.com"
+        project = relatedProject.name
     }
 
     /**
@@ -25,6 +26,7 @@ class HyperionSettings : PersistentStateComponent<HyperionSettings.State> {
     class State {
         lateinit var intervals: List<Int>
         lateinit var address: String
+        lateinit var project: String
     }
 
     companion object {
@@ -52,6 +54,10 @@ class HyperionSettings : PersistentStateComponent<HyperionSettings.State> {
      */
     fun setAddress(address: String) {
         currentState.address = address
+    }
+
+    fun setProject(project: String) {
+        currentState.project = project
     }
 
     /**

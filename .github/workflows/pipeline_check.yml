@@ -1,0 +1,39 @@
+# Runs Gradle Check on the pipeline common module
+# Will be triggered on every pull request and push to master
+# Only commences on check if the code changed
+name: Gradle check pipeline common
+
+on:
+  pull_request:
+    paths:
+      - 'pipeline/common/**'
+  push:
+    branches:
+      - master
+
+jobs:
+  gradle-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 100
+
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: gradle check pipeline common
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: :pipeline:common:check
+
+
