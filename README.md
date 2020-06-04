@@ -40,6 +40,8 @@ The following projects are in this repository:
 - [pipeline/plugins/pathextractor](pipeline/plugins/pathextractor): A simple pipeline plugin that transforms Java package names into their appropriate file path.
 - [pipeline/plugins/renamer](pipeline/plugins/renamer): A simple pipeline plugin that renames JSON field names.
 - [pipeline/plugins/versiontracker](pipeline/plugins/versiontracker): A simple pipeline plugin that attaches a version tag to incoming JSON data based on the latest commit in a Git repository.
+- [pipeline/plugins/versiontracker](pipeline/plugins/printer): A simple pipeline plugin that prints all messages passing through.
+- [pipeline/plugins/versiontracker](pipeline/plugins/rate): A simple pipeline plugin that logs the rate at which messages pass through the pipeline.
 - [plugin](plugin): An IntelliJ IDEA plugin that integrates with the aggregator to show metrics in the IDE.
 - [pluginmanager](pluginmanager): A central server that manages the pipeline order and orchestrates communication between pipeline parts.
 
