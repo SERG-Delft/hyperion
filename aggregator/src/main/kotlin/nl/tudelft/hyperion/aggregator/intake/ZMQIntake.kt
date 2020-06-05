@@ -8,6 +8,7 @@ import nl.tudelft.hyperion.pipeline.AbstractPipelinePlugin
 import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
 import org.joda.time.DateTime
 import org.joda.time.Seconds
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Central class that manages intake from the ZeroMQ command channel. Will
@@ -22,7 +23,7 @@ class ZMQIntake(
     override val logger = mu.KotlinLogging.logger {}
 
     // Ensure that we're a receiver.
-    override fun run(): Job {
+    override fun run(context: CoroutineContext): Job {
         if (!canReceive) {
             throw IllegalStateException(
                 "Cannot run ZMQ intake if it cannot receive. Ensure that the aggregator is the last step in the " +
@@ -30,7 +31,7 @@ class ZMQIntake(
             )
         }
 
-        return super.run()
+        return super.run(context)
     }
 
     // Handle messages coming form the pipeline.

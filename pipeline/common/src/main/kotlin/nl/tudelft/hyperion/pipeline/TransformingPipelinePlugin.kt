@@ -4,6 +4,7 @@ import kotlinx.coroutines.Job
 import nl.tudelft.hyperion.pipeline.connection.ConfigZMQ
 import nl.tudelft.hyperion.pipeline.connection.PipelinePullZMQ
 import nl.tudelft.hyperion.pipeline.connection.PipelinePushZMQ
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Subclass of [AbstractPipelinePlugin] that abstracts some of the logic
@@ -20,14 +21,14 @@ abstract class TransformingPipelinePlugin(
 ) : AbstractPipelinePlugin(config, pmConn, sink, source) {
 
     // Ensure that this plugin is passthrough.
-    override fun run(): Job {
+    override fun run(context: CoroutineContext): Job {
         if (!isPassthrough) {
             throw IllegalStateException(
                 "Cannot run a transforming pipeline plugin if it does not both have a push and a pull."
             )
         }
 
-        return super.run()
+        return super.run(context)
     }
 
     // Handle the message by transforming it.

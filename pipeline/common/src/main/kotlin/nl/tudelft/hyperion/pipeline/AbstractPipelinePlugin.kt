@@ -1,6 +1,7 @@
 package nl.tudelft.hyperion.pipeline
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancelAndJoin
@@ -12,9 +13,9 @@ import nl.tudelft.hyperion.pipeline.connection.ConfigType
 import nl.tudelft.hyperion.pipeline.connection.ConfigZMQ
 import nl.tudelft.hyperion.pipeline.connection.PipelinePullZMQ
 import nl.tudelft.hyperion.pipeline.connection.PipelinePushZMQ
-import java.lang.IllegalStateException
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Represents an abstract pipeline plugin that receives some JSON
@@ -81,7 +82,8 @@ abstract class AbstractPipelinePlugin(
      * Sets up the ZMQ sockets needed to consume and send messages for this plugin.
      * Returns a job that, when cancelled, will automatically clean up after itself.
      */
-    open fun run() = GlobalScope.launch {
+    @JvmOverloads
+    open fun run(context: CoroutineContext = Dispatchers.Default) = GlobalScope.launch(context) {
         runSuspend(this)
     }
 
