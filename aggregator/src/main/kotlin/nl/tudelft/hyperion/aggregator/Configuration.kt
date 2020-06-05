@@ -33,6 +33,12 @@ data class Configuration(
     @JsonProperty("aggregation-ttl")
     val aggregationTtl: Int,
     /**
+     * Whether or not timestamp fields should be validated for being
+     * in the correct granularity when a message is received.
+     */
+    @JsonProperty("verify-timestamp")
+    val verifyTimestamp: Boolean = true,
+    /**
      * The connection information for the ZMQ plugin manager.
      */
     val pipeline: ZMQConfiguration = ZMQConfiguration("localhost:30101", "Aggregator")
