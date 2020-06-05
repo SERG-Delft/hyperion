@@ -12,11 +12,21 @@ import javax.swing.JPanel
 import kotlin.math.PI
 import kotlin.math.round
 
+/**
+ * Short alias for 2D arrays.
+ */
 typealias Array2D<T> = Array<Array<T>>
 
+/**
+ * Represents and x, y tuple of coordinates.
+ */
 typealias Index2D = Pair<Int, Int>
 
-typealias HistogramParameters = Triple<Array2D<Int>, Array<String>, Array2D<Color>>
+/**
+ * Represents all data necessary for a histogram, is composed of the counts for
+ * each box, the list of timestamps and the color of each box
+ */
+typealias HistogramData = Triple<Array2D<Int>, Array<String>, Array2D<Color>>
 
 class InteractiveHistogram(
     initialVals: Array2D<Int>,
@@ -29,22 +39,22 @@ class InteractiveHistogram(
     var timestamps: Array<String>
 ) : JPanel(true) {
 
-    var boxes: Array2D<Box> = initialVals.map { it.map { Box() }.toTypedArray() }.toTypedArray()
-    // var bars: Array<Bar> = initialVals.map { Bar(it.size) }.toTypedArray()
+    var bars: Array<Bar> = initialVals.map { Bar(it.size) }.toTypedArray()
     var boxCollisions: List<Index2D> = listOf()
     var isCurrentlyColored = false
+
     private val rotatedFont: Font
 
     /**
      * A 2D array of the histogram values.
-     * Change array size of [boxes] if this value changes.
+     * Change array size of [bars] if this value changes.
      */
     var vals = initialVals
         set(value) {
             field = value
 
             // Create array of uninitialized boxes
-            boxes = vals.map { it.map { Box() }.toTypedArray() }.toTypedArray()
+            bars = value.map { Bar(it.size) }.toTypedArray()
         }
 
     init {
@@ -79,7 +89,7 @@ class InteractiveHistogram(
         val OVERLAY_COLOR = Color(0.8F, 0.8F, 0.8F, 0.6F)
     }
 
-    fun update(parameters: HistogramParameters) {
+    fun update(parameters: HistogramData) {
         vals = parameters.first
         timestamps = parameters.second
         colors = parameters.third
@@ -93,17 +103,18 @@ class InteractiveHistogram(
         val maxBarTotal = vals.map(Array<Int>::sum).max()
         val barHeightScale = (startY - endY) / maxBarTotal!!.toDouble()
 
-        for (i in vals.indices) {
+        for ((i, bar) in bars.withIndex()) {
             var prevY = 0
             val leftMargin = xMargin + i * barWidth
 
-            for (j in vals[i].indices) {
+            bar.startX = leftMargin + barSpacing / 2
+            bar.width = barWidth - barSpacing
+
+            for ((j, box) in bar.boxes.withIndex()) {
                 val currentY = round(vals[i][j] * barHeightScale).toInt()
 
-                boxes[i][j].startX = leftMargin + barSpacing / 2
-                boxes[i][j].startY = startY - (prevY + currentY)
-                boxes[i][j].width = barWidth - barSpacing
-                boxes[i][j].height = currentY
+                box.startY = startY - (prevY + currentY)
+                box.height = currentY
 
                 prevY += currentY
             }
@@ -139,22 +150,21 @@ class InteractiveHistogram(
         // TODO: change to some sort of Bar data class to track individual bars
         val barWidth = width / vals.size
 
-        for ((i, bar) in boxes.withIndex()) {
+        for ((i, bar) in bars.withIndex()) {
 
             // Draw timestamps
-            val firstBox = bar.first()
             val xLabelFontMetrics = g.getFontMetrics(font)
             g.color = Color.GRAY
             g.drawString(
                 timestamps[i],
-                firstBox.startX + firstBox.width - xLabelFontMetrics.stringWidth(timestamps[i]) / 2,
+                bar.startX + bar.width - xLabelFontMetrics.stringWidth(timestamps[i]) / 2,
                 startY + xLabelFontMetrics.height
             )
 
             // Draw bars
-            for ((j, box) in bar.withIndex()) {
+            for ((j, box) in bar.boxes.withIndex()) {
                 g.color = colors[i][j]
-                g.fillRect(box.startX, box.startY, box.width, box.height)
+                g.fillRect(bar.startX, box.startY, bar.width, box.height)
 
                 // Draw relevant information if the user is hovering over this box
                 if (boxCollisions.filter { it.first == i && it.second == j }.any()) {
@@ -165,22 +175,22 @@ class InteractiveHistogram(
     }
 
     @SuppressWarnings("MagicNumber")
-    private fun drawBoxOverlay(g: Graphics, bar: Array<Box>, box: Box, label: String, labelVal: String) {
+    private fun drawBoxOverlay(g: Graphics, bar: Bar, box: Box, label: String, labelVal: String) {
         // Color the overlay with a transparent gray
         g.color = OVERLAY_COLOR
-        g.fillRect(box.startX, box.startY, box.width, box.height)
+        g.fillRect(bar.startX, box.startY, bar.width, box.height)
 
         g.color = Color.GRAY
-        g.drawString(label, bar.last().startX, bar.last().startY - 20)
-        g.drawString("$Y_LABEL=$labelVal", bar.last().startX, bar.last().startY - 10)
+        g.drawString(label, bar.startX, bar.boxes.last().startY - 20)
+        g.drawString("$Y_LABEL=$labelVal", bar.startX, bar.boxes.last().startY - 10)
     }
 
     private fun checkCollide(x: Int, y: Int): List<Index2D> {
         val results = mutableListOf<Index2D>()
 
-        for ((i, bar) in boxes.withIndex()) {
-            for ((j, box) in bar.withIndex()) {
-                if (x > box.startX && x <= box.startX + box.width &&
+        for ((i, bar) in bars.withIndex()) {
+            for ((j, box) in bar.boxes.withIndex()) {
+                if (x > bar.startX && x <= bar.startX + bar.width &&
                     y > box.startY && y <= box.startY + box.height) {
                     results.add(Pair(i, j))
                 }
@@ -191,19 +201,26 @@ class InteractiveHistogram(
     }
 }
 
+/**
+ * Represents a single bar in a histogram composed of multiple levels of boxes.
+ * Stores the X parameters and the child [Box]-s.
+ */
 data class Bar(
     var startX: Int = 0,
     var width: Int = 0,
     var boxes: List<Box>
 ) {
-    constructor(boxCount: Int) {
-        boxes = (0 until boxCount).map { Box() }
-    }
+    /**
+     * Fills [boxes] with [boxCount] of default boxes.
+     */
+    constructor(boxCount: Int) : this(boxes = (0 until boxCount).map { Box() })
 }
 
+/**
+ * Represents a single box which tracks the Y coordinate and height, the X
+ * parameters are tracked by the parent [Bar].
+ */
 data class Box(
-    var startX: Int = 0,
     var startY: Int = 0,
-    var width: Int = 0,
     var height: Int = 0
 )

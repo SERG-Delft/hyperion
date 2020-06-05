@@ -9,7 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import nl.tudelft.hyperion.plugin.connection.APIRequestor
-import nl.tudelft.hyperion.plugin.graphs.HistogramParameters
+import nl.tudelft.hyperion.plugin.graphs.HistogramData
 import nl.tudelft.hyperion.plugin.graphs.InteractiveHistogram
 import nl.tudelft.hyperion.plugin.metric.APIBinMetricsResponse
 import nl.tudelft.hyperion.plugin.metric.BaseAPIMetric
@@ -60,7 +60,7 @@ class VisWindow {
         fun parseAPIBinResponse(
             version: String,
             response: APIBinMetricsResponse<out BaseAPIMetric>
-        ): HistogramParameters {
+        ): HistogramData {
             // TODO: also add parsing for the severity label
             val bins = mutableListOf<Array<Int>>()
             val timestamps = mutableListOf<String>()
@@ -109,13 +109,23 @@ class VisWindow {
         statusLabel = JLabel()
         refreshButton = JButton()
 
+        refreshButton.addActionListener {
+            runBlocking {
+                launch(Dispatchers.IO) {
+                    val params = queryBinAPI("v1.0.0", 2400, 12)
+                    val hist = (main as InteractiveHistogram)
+                    hist.update(params)
+                }
+            }
+        }
+
         main = createHistogramComponent()
 
         runBlocking {
             launch(Dispatchers.IO) {
                 val params = queryBinAPI("v1.0.0", 2400, 12)
                 val hist = (main as InteractiveHistogram)
-                // hist.setAllParameters(params)
+                hist.update(params)
             }
         }
     }
@@ -124,41 +134,21 @@ class VisWindow {
         version: String,
         relativeTime: Int,
         steps: Int
-    ): HistogramParameters {
+    ): HistogramData {
         val project = ProjectManager.getInstance().openProjects[0]
         val data = APIRequestor.getBinnedMetrics(project, relativeTime, steps)
 
         return parseAPIBinResponse(version, data)
     }
 
-    private fun createHistogramComponent(): InteractiveHistogram {
-
-        return InteractiveHistogram(
-            arrayOf(
-                arrayOf(10),
-                arrayOf(40, 10, 30, 5),
-                arrayOf(20, 20, 10, 5),
-                arrayOf(20, 15, 40, 5),
-                arrayOf(20, 15, 30, 5),
-                arrayOf(20, 15, 50, 5),
-                arrayOf(20, 15, 50, 5),
-                arrayOf(20, 15, 60, 5)
-            ),
-            50,
-            200, 100,
-            10,
-            arrayOf(
-                arrayOf(Color.RED),
-                arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
-                arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
-                arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
-                arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
-                arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
-                arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
-                arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE)
-            ),
-            arrayOf("ERROR", "WARN", "INFO", "DEBUG"),
-            arrayOf("10:00:00", "10:00:05", "10:00:10", "10:00:15", "10:00:20", "10:00:25", "10:00:30", "10:00:35")
+    private fun createHistogramComponent(): InteractiveHistogram =
+        InteractiveHistogram(
+            arrayOf(arrayOf()),
+            HISTOGRAM_X_MARGIN,
+            HISTOGRAM_Y_START, HISTOGRAM_Y_END,
+            HISTOGRAM_BAR_SPACING,
+            arrayOf(arrayOf()),
+            arrayOf(),
+            arrayOf()
         )
-    }
 }
