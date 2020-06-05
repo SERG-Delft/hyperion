@@ -8,6 +8,7 @@ import nl.tudelft.hyperion.pipeline.AbstractPipelinePlugin
 import nl.tudelft.hyperion.pipeline.PipelinePluginInitializationException
 import org.zeromq.SocketType
 import org.zeromq.ZContext
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Basic load balancer that acts as both a plugin and plugin manager.
@@ -20,7 +21,7 @@ class LoadBalancer(
     private val config: LoadBalancerPluginConfiguration
 ) : AbstractPipelinePlugin(config.pipeline) {
 
-    override fun run() = CoroutineScope(Dispatchers.Default).launch {
+    override fun run(context: CoroutineContext) = CoroutineScope(Dispatchers.Default).launch {
         if (!hasConnectionInformation) {
             throw PipelinePluginInitializationException("Cannot run plugin without connection information")
         }

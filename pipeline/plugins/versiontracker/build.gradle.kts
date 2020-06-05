@@ -14,9 +14,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.3.5")
 
     // Yaml/JSON deserialization
-    implementation("com.fasterxml.jackson.core", "jackson-databind", "2.10.2")
-    implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.10.2")
-    implementation("com.fasterxml.jackson.dataformat", "jackson-dataformat-yaml", "2.10.2")
+    implementation("com.fasterxml.jackson.core", "jackson-databind", "2.9.4")
+    implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.9.4")
+    implementation("com.fasterxml.jackson.dataformat", "jackson-dataformat-yaml", "2.9.4")
 
     // Used for testing
     testImplementation("org.junit.jupiter", "junit-jupiter-params", "5.6.2")
