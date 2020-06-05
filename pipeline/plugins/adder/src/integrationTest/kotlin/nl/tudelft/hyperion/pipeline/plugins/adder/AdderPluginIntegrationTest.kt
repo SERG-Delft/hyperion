@@ -113,7 +113,6 @@ class AdderPluginIntegrationTest {
 class AdderPluginRunnable(private val path: String) : Runnable {
 
     override fun run() {
-        println("${Thread.currentThread()} has run.")
         main(path)
     }
 }
