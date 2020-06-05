@@ -1,6 +1,7 @@
 package nl.tudelft.hyperion.pluginmanager
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.zeromq.SocketType
 import org.zeromq.ZMQ
 
@@ -96,7 +97,10 @@ class PluginManager(config: Configuration) {
         }
 
         // check whether the plugin that tries to register is in the config
-        getPlugin(map["id"].toString())
+        getPlugin(map["id"].toString()) ?: throw IllegalArgumentException(
+            "Plugin ${map["id"]} does not exist in current pipeline"
+        )
+
         return map
     }
 
@@ -104,28 +108,65 @@ class PluginManager(config: Configuration) {
      * Creates the return message for a plugin which registers as a push plugin.
      */
     private fun registerPush(pluginName: String): String {
-        return """{"isBind":"true","host":"${getPlugin(pluginName).host}"}"""
+        val plugin = getPlugin(pluginName)
+        val isLastPlugin = plugin != null && plugins.last() == plugin
+
+        // Return null if plugin doesn't exist or if this is the last in the pipeline.
+        return PeerConnectionInformation(
+            if (plugin != null && !isLastPlugin) plugin.host else null,
+            true
+        ).serialize()
     }
 
     /**
      * Creates the return message for a plugin which registers as a pull plugin.
      */
     private fun registerPull(pluginName: String): String {
-        return """{"isBind":"false","host":"${previousPlugin(pluginName).host}"}"""
+        return PeerConnectionInformation(
+            previousPlugin(pluginName)?.host,
+            false
+        ).serialize()
     }
 
-    private fun getPlugin(pluginName: String): PipelinePluginConfig {
-        return plugins.find { it.id == pluginName } ?: throw IllegalArgumentException(
-            "Plugin $pluginName does not exist in current pipeline"
-        )
+    /**
+     * @returns the plugin with the specified ID, or null if unknown
+     */
+    private fun getPlugin(pluginName: String): PipelinePluginConfig? {
+        return plugins.find { it.id == pluginName }
     }
 
-    private fun previousPlugin(pluginName: String): PipelinePluginConfig {
-        for ((index, plugin) in plugins.withIndex()) {
-            if (plugin.id == pluginName) {
-                return plugins[index - 1]
-            }
+    /**
+     * @returns the plugin before the specified plugin, or null if unknown or the first entry
+     */
+    private fun previousPlugin(pluginName: String): PipelinePluginConfig? {
+        val plugin = getPlugin(pluginName) ?: return null
+        val pluginIdx = plugins.indexOf(plugin)
+
+        return if (pluginIdx == 0) {
+            null
+        } else {
+            plugins.getOrNull(pluginIdx - 1)
         }
-        throw IllegalArgumentException("Plugin $pluginName does not exist in current pipeline")
     }
+}
+
+/**
+ * Represents the information needed for this plugin to connect to any
+ * future elements in the pipeline. Contains the host, port and whether
+ * it needs to bind or connect to that specific element.
+ *
+ * Host may optionally be null if the specified plugin does not
+ * have an connection on the end that it requested (i.e. if the plugin
+ * requests pull and host is null, it means that it is the first step
+ * in the pipeline).
+ */
+data class PeerConnectionInformation(
+    val host: String?,
+    val isBind: Boolean
+) {
+    companion object {
+        val mapper = jacksonObjectMapper()
+    }
+
+    fun serialize() = mapper.writeValueAsString(this)
 }

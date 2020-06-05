@@ -43,7 +43,7 @@ class RatePluginIntegrationTest {
             anyConstructed<RatePlugin>().launchReporter()
         }
         coVerify(exactly = 10) {
-            anyConstructed<RatePlugin>().process("message")
+            anyConstructed<RatePlugin>().onMessageReceived("message")
         }
 
     }

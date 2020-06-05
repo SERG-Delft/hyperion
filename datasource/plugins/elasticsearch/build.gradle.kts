@@ -18,8 +18,8 @@ dependencies {
     // Used for command line parsing
     implementation("com.github.ajalt", "clikt", "2.6.0")
 
-    // ZeroMQ
-    implementation("org.zeromq", "jeromq", "0.5.2")
+    // Pipeline
+    implementation(project(":pipeline:common"))
 
     // Used for testing
     implementation("org.projectlombok", "lombok", "1.18.12")
@@ -31,6 +31,7 @@ dependencies {
     testImplementation("org.testcontainers", "testcontainers", "1.14.1")
     testImplementation("org.testcontainers", "junit-jupiter", "1.14.1")
     testImplementation("org.testcontainers", "elasticsearch", "1.14.1")
+    testImplementation("org.zeromq", "jeromq", "0.5.2")
 
     // Used for logging
     implementation("io.github.microutils", "kotlin-logging", "1.7.9")
@@ -41,9 +42,9 @@ dependencies {
     implementation("org.apache.logging.log4j", "log4j-core", "2.13.2")
 
     // Used for YAML deserialization
-    implementation("com.fasterxml.jackson.core", "jackson-databind", "2.11.0")
-    implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.11.0")
-    implementation("com.fasterxml.jackson.dataformat", "jackson-dataformat-yaml","2.11.0")
+    implementation("com.fasterxml.jackson.core", "jackson-databind", "2.9.4")
+    implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", "2.9.4")
+    implementation("com.fasterxml.jackson.dataformat", "jackson-dataformat-yaml","2.9.4")
 
     // Add datasource commons
     implementation(project(":datasource:common"))
