@@ -9,9 +9,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import nl.tudelft.hyperion.aggregator.Configuration
 import nl.tudelft.hyperion.aggregator.ZMQConfiguration
 import nl.tudelft.hyperion.aggregator.api.LogEntry
 import nl.tudelft.hyperion.aggregator.workers.AggregationManager
+import org.joda.time.DateTime
+import org.joda.time.Seconds
 import org.zeromq.SocketType
 import org.zeromq.ZContext
 import java.util.concurrent.Executors
@@ -22,8 +25,9 @@ import java.util.concurrent.Executors
  * manager for eventual aggregation.
  */
 class ZMQIntake(
-    val configuration: ZMQConfiguration,
-    val aggregationManager: AggregationManager
+    val pluginConfiguration: Configuration,
+    val aggregationManager: AggregationManager,
+    val configuration: ZMQConfiguration = pluginConfiguration.pipeline
 ) {
     private val logger = mu.KotlinLogging.logger {}
     private var subInformation: PeerConnectionInformation? = null
@@ -105,7 +109,7 @@ class ZMQIntake(
      * and instead assume that any message on a channel that we've subscribed to
      * contains valid log entries.
      */
-    @Suppress("TooGenericExceptionCaught")
+    @Suppress("TooGenericExceptionCaught", "ReturnCount")
     suspend fun handleMessage(message: String) {
         logger.debug { "Received message from ZMQ: '$message'" }
 
@@ -117,6 +121,31 @@ class ZMQIntake(
             }
 
             return
+        }
+
+        if (pluginConfiguration.verifyTimestamp) {
+            if (entry.timestamp == null) {
+                logger.warn {
+                    "Received a log entry with a missing timestamp. Cannot verify that the entry fits " +
+                    "within the current time period, and will therefore ignore it. You can disable this " +
+                    "behavior by setting the `verify-timestamp` property to false in the config."
+                }
+
+                return
+            }
+
+            val secondsSinceLogEntry = Seconds.secondsBetween(entry.timestamp, DateTime.now()).seconds
+            if (secondsSinceLogEntry > pluginConfiguration.granularity) {
+                logger.warn {
+                    "Received a log entry that happened $secondsSinceLogEntry seconds ago, while the " +
+                    "granularity of the aggregator is set to ${pluginConfiguration.granularity} seconds. " +
+                    "Will ignore this log entry. You can fix this warning by either increasing your " +
+                    "granularity, decreasing the time between log and it arriving at the aggregator, " +
+                    "or by setting the `verify-timestamp` to false in the configuration."
+                }
+
+                return
+            }
         }
 
         aggregationManager.aggregate(entry)

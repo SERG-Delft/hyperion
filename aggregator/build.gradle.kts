@@ -53,6 +53,7 @@ dependencies {
     // Testing
     testImplementation("io.mockk", "mockk", "1.10.0")
     testImplementation("org.xerial", "sqlite-jdbc", "3.31.1")
+    testImplementation("org.junit.jupiter", "junit-jupiter-params", "5.6.2")
 
     // Integration test
     testImplementation("org.testcontainers", "testcontainers", "1.14.1")
