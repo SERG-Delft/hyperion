@@ -34,7 +34,9 @@ class HyperionSettingsFormTest {
         hyperionSettings = HyperionSettings(mockProject)
         every { mockProject.getService(HyperionSettings::class.java) } returns hyperionSettings
 
-        hyperionSettingsForm = HyperionSettingsForm(mockProject)
+
+        hyperionSettingsForm = HyperionSettingsForm(mockProject, true)
+
         getMethod("createSettings").call(hyperionSettingsForm)
 
         setProperty("addressField", JTextField(hyperionSettings.state.address))

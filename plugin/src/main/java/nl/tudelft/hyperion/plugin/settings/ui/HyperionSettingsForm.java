@@ -40,12 +40,18 @@ public class HyperionSettingsForm {
      */
     private Project project;
     private HyperionSettings hyperionSettings;
+    private boolean headless;
 
     /**
      * Instantiate Settings for given Project.
      * @param project relates to the settings we need to load. {@see HyperionSettings#getInstance(Project)}
      */
     public HyperionSettingsForm(Project project) {
+        this.project = project;
+    }
+
+    public HyperionSettingsForm(Project project, boolean headless) {
+        this.headless = headless;
         this.project = project;
     }
 
@@ -71,6 +77,7 @@ public class HyperionSettingsForm {
      * In our case this is only intervalTable and intervalPanel.
      */
     private void createUIComponents() {
+        if (headless) return;
         createSettings();
         createTable();
         createPanel();
