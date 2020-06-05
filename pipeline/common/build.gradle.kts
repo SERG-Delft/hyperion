@@ -1,8 +1,12 @@
+import java.util.Date
+
 plugins {
     jacoco
     kotlin("jvm")
     id("io.gitlab.arturbosch.detekt").version("1.8.0")
     id("com.github.johnrengelman.shadow").version("5.2.0")
+    id("maven-publish")
+    id("com.jfrog.bintray") version "1.8.5"
 }
 
 jacoco {
@@ -85,3 +89,63 @@ detekt {
     config = files("detekt-config.yml")
 }
 
+publishing {
+    publications {
+        create<MavenPublication>("pipeline-common") {
+            artifactId = "pipeline-common"
+            from(components["java"])
+
+            // include sources jar
+            //artifact(sourcesJar)
+
+            pom {
+                name.set("nl.tudelft.hyperion:pipeline-common")
+                description.set("Easily write pipeline plugins for the Hyperion logging framework.")
+                url.set("https://github.com/SERG-Delft/monitoring-aware-ides")
+
+
+                licenses {
+                    license {
+                        name.set("The Apache License, Version 2.0")
+                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                    }
+                }
+
+                developers {
+                    developer {
+                        id.set("Hyperion authors")
+                    }
+                }
+
+                scm {
+                    url.set("https://github.com/SERG-Delft/monitoring-aware-ides")
+                }
+            }
+        }
+    }
+}
+
+bintray {
+    user = project.findProperty("bintrayUser").toString()
+    key = project.findProperty("bintrayKey").toString()
+    publish = true
+    setPublications("pipeline-common")
+
+    pkg.apply {
+        repo = "monitoring-aware-ides"
+        name = "nl.tudelft.hyperion:pipeline-common"
+        setLicenses("Apache-2.0")
+        userOrg = "serg-tudelft"
+        vcsUrl = "https://github.com/SERG-Delft/monitoring-aware-ides.git"
+        version.apply {
+            name = "0.1.0"
+            desc = "0.1.0"
+            released = Date().toString()
+        }
+    }
+}
+
+val sourcesJar by tasks.creating(Jar::class) {
+    archiveClassifier.set("sources")
+    from(sourceSets.getByName("main").allSource)
+}
