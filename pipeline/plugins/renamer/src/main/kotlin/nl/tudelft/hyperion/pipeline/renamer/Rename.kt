@@ -57,19 +57,24 @@ fun rename(json: String, config: Configuration): String {
  * @param field the path
  * @return The found node
  */
-@Suppress("TooGenericExceptionThrown")
 fun findParent(root: ObjectNode, field: String): ObjectNode {
     val parts = field.split(".")
 
     if (parts.size > 1) {
         val path = "/" + field.split(".").dropLast(1).joinToString("/")
 
-        return root.at(path) as ObjectNode
-    } else {
-        if (root.has(field)) {
-            return root
-        } else {
-            throw Exception()
+        if (root.at(path).has(field.split(".").last())) {
+            return root.at(path) as ObjectNode
         }
+
+        throw JsonFieldNotFound(field)
     }
+
+    if (root.has(field)) {
+        return root
+    }
+
+    throw JsonFieldNotFound(field)
 }
+
+data class JsonFieldNotFound(val field: String) : Exception()

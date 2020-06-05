@@ -27,10 +27,15 @@ fun ObjectNode.put(type: Type, value: String, name: String): ObjectNode {
     val parts = name.split(".")
 
     if (parts.size == 1) {
-        when (type) {
-            Type.NUMBER -> this.put(parts[0], value.toInt())
-            Type.DOUBLE -> this.put(parts[0], value.toDouble())
-            Type.STRING -> this.put(parts[0], value)
+        try {
+            when (type) {
+                Type.NUMBER -> this.put(parts[0], value.toInt())
+                Type.DOUBLE -> this.put(parts[0], value.toDouble())
+                Type.STRING -> this.put(parts[0], value)
+            }
+        } catch (ex: NumberFormatException) {
+            this.put(parts[0], value)
+            ex.printStackTrace()
         }
     } else {
         val target = parts.subList(1, parts.size - 1).fold(this.findOrCreateChild(parts[0]), { p, c ->
@@ -38,10 +43,16 @@ fun ObjectNode.put(type: Type, value: String, name: String): ObjectNode {
         })
 
         val leafName = parts.last()
-        when (type) {
-            Type.NUMBER -> target.put(leafName, value.toInt())
-            Type.DOUBLE -> target.put(leafName, value.toDouble())
-            Type.STRING -> target.put(leafName, value)
+
+        try {
+            when (type) {
+                Type.NUMBER -> target.put(leafName, value.toInt())
+                Type.DOUBLE -> target.put(leafName, value.toDouble())
+                Type.STRING -> target.put(leafName, value)
+            }
+        } catch (ex: NumberFormatException) {
+            target.put(leafName, value)
+            ex.printStackTrace()
         }
     }
 
@@ -66,7 +77,6 @@ fun extract(input: String, config: Configuration): String {
 
     for (extractableField in config.fields) {
         try {
-
             val parent = findParent(tree, extractableField.field)
             val value = parent.findValue(extractableField.fieldName).toString()
             val pattern = extractableField.regex
@@ -75,8 +85,7 @@ fun extract(input: String, config: Configuration): String {
             matches?.groupValues?.drop(1)?.zip(extractableField.extract)?.forEach { (match, extract) ->
                 tree.put(extract.type, match, extract.to)
             }
-        } catch (ex: Exception) {
-            println(ex)
+        } catch (ex: JsonFieldNotFound) {
             continue
         }
     }
@@ -90,19 +99,24 @@ fun extract(input: String, config: Configuration): String {
  * @param field the path
  * @return The found node
  */
-@Suppress("TooGenericExceptionThrown")
 fun findParent(root: ObjectNode, field: String): ObjectNode {
     val parts = field.split(".")
 
     if (parts.size > 1) {
         val path = "/" + field.split(".").dropLast(1).joinToString("/")
 
-        return root.at(path) as ObjectNode
-    } else {
-        if (root.has(field)) {
-            return root
-        } else {
-            throw Exception()
+        if (root.at(path).has(field.split(".").last())) {
+            return root.at(path) as ObjectNode
         }
+
+        throw JsonFieldNotFound(field)
     }
+
+    if (root.has(field)) {
+        return root
+    }
+
+    throw JsonFieldNotFound(field)
 }
+
+data class JsonFieldNotFound(val field: String) : Exception()
