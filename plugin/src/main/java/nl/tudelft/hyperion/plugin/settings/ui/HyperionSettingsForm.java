@@ -46,7 +46,6 @@ public class HyperionSettingsForm {
      * @param project relates to the settings we need to load. {@see HyperionSettings#getInstance(Project)}
      */
     public HyperionSettingsForm(Project project) {
-        super();
         this.project = project;
     }
 
