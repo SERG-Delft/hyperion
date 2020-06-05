@@ -79,12 +79,9 @@ class Row implements Cloneable {
      * Clones the values of this row to a new one.
      * @return a new Row with the same values.
      */
+    @Override
     public Row clone() {
-        try {
-            return ((Row) super.clone());
-        } catch (CloneNotSupportedException e) {
-            return new Row(interval, period);
-        }
+        return new Row(interval, period);
     }
 
     @Override
