@@ -12,6 +12,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import nl.tudelft.hyperion.aggregator.Configuration
 import nl.tudelft.hyperion.aggregator.api.computeMetrics
+import nl.tudelft.hyperion.aggregator.api.computePeriodicMetrics
 
 /**
  * Starts a new worker that hosts a web server for API requests.
@@ -26,6 +27,10 @@ fun startAPIWorker(configuration: Configuration): Job {
     }.routes {
         path("/api/v1/metrics") {
             get { handleMetrics(configuration, it) }
+        }
+
+        path("/api/v1/metrics/period") {
+            get { handlePeriodicMetrics(configuration, it) }
         }
     }
 
@@ -62,4 +67,31 @@ fun handleMetrics(configuration: Configuration, ctx: Context) {
         .map { it.toInt() }
 
     ctx.json(computeMetrics(configuration, project, file, intervals))
+}
+
+/**
+ * Handles an HTTP call to GET /api/v1/metrics/period.
+ */
+fun handlePeriodicMetrics(configuration: Configuration, ctx: Context) {
+    val project = ctx.queryParam("project") ?: throw BadRequestResponse("Missing project query parameter")
+    val relativeTime = (ctx.queryParam("relative-time") ?: throw BadRequestResponse(
+        "Missing relative-time query parameter"
+    ))
+        .also {
+            if (Regex("[^0-9]").containsMatchIn(it)) {
+                throw BadRequestResponse("'startTime' query parameter must be a number")
+            }
+        }
+    val steps = (ctx.queryParam("steps") ?: throw BadRequestResponse("Missing steps query parameter"))
+        .also {
+            if (Regex("[^0-9]").containsMatchIn(it)) {
+                throw BadRequestResponse("'steps' query parameter must be a number")
+            }
+        }
+
+    // Query statistics of entire project if file is not given.
+    val file = ctx.queryParam("file")
+
+    val (interval, results) = computePeriodicMetrics(configuration, project, file, relativeTime.toInt(), steps.toInt())
+    ctx.json(mapOf("interval" to interval, "results" to results))
 }
