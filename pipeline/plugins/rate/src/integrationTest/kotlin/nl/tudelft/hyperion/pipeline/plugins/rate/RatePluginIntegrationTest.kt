@@ -33,8 +33,7 @@ class RatePluginIntegrationTest {
         mockkConstructor(RatePlugin::class)
         val plugin = Thread(RatePluginRunnable(temporaryFile.absolutePath))
         plugin.start()
-
-        println("Pushing messages")
+        
         val (pusher, channel) = runDummyZMQPublisher(39182);
         for (i in 1..10) {
             channel.send("message")
@@ -98,7 +97,6 @@ class RatePluginIntegrationTest {
 class RatePluginRunnable(private val path: String) : Runnable {
 
     override fun run() {
-        println("${Thread.currentThread()} has run.")
         main(path)
     }
 }
