@@ -13,7 +13,10 @@ import kotlin.math.PI
 import kotlin.math.round
 
 typealias Array2D<T> = Array<Array<T>>
+
 typealias Index2D = Pair<Int, Int>
+
+typealias HistogramParameters = Triple<Array2D<Int>, Array<String>, Array2D<Color>>
 
 class InteractiveHistogram(
     initialVals: Array2D<Int>,
@@ -21,12 +24,13 @@ class InteractiveHistogram(
     private var startY: Int,
     private var endY: Int,
     var barSpacing: Int,
-    var barColorScheme: Array<Color>,
+    var colors: Array2D<Color>,
     var labels: Array<String>,
     var timestamps: Array<String>
 ) : JPanel(true) {
 
-    var boxes: Array2D<Box> = initialVals.map { it.map { Box.default() }.toTypedArray() }.toTypedArray()
+    var boxes: Array2D<Box> = initialVals.map { it.map { Box() }.toTypedArray() }.toTypedArray()
+    // var bars: Array<Bar> = initialVals.map { Bar(it.size) }.toTypedArray()
     var boxCollisions: List<Index2D> = listOf()
     var isCurrentlyColored = false
     private val rotatedFont: Font
@@ -40,7 +44,7 @@ class InteractiveHistogram(
             field = value
 
             // Create array of uninitialized boxes
-            boxes = vals.map { it.map { Box.default() }.toTypedArray() }.toTypedArray()
+            boxes = vals.map { it.map { Box() }.toTypedArray() }.toTypedArray()
         }
 
     init {
@@ -70,10 +74,20 @@ class InteractiveHistogram(
 
     companion object {
         const val Y_LABEL = "count"
+
+        // Color the overlay with a transparent gray
+        val OVERLAY_COLOR = Color(0.8F, 0.8F, 0.8F, 0.6F)
+    }
+
+    fun update(parameters: HistogramParameters) {
+        vals = parameters.first
+        timestamps = parameters.second
+        colors = parameters.third
+        repaint()
     }
 
     private fun calculateBoxes() {
-        val histogramWidth = this.width - 2 * xMargin
+        val histogramWidth = width - 2 * xMargin
         val barWidth = histogramWidth / vals.size
 
         val maxBarTotal = vals.map(Array<Int>::sum).max()
@@ -122,6 +136,9 @@ class InteractiveHistogram(
         // TODO: only recalculate boxes on component show or component resize
         calculateBoxes()
 
+        // TODO: change to some sort of Bar data class to track individual bars
+        val barWidth = width / vals.size
+
         for ((i, bar) in boxes.withIndex()) {
 
             // Draw timestamps
@@ -136,7 +153,7 @@ class InteractiveHistogram(
 
             // Draw bars
             for ((j, box) in bar.withIndex()) {
-                g.color = barColorScheme[j]
+                g.color = colors[i][j]
                 g.fillRect(box.startX, box.startY, box.width, box.height)
 
                 // Draw relevant information if the user is hovering over this box
@@ -150,7 +167,7 @@ class InteractiveHistogram(
     @SuppressWarnings("MagicNumber")
     private fun drawBoxOverlay(g: Graphics, bar: Array<Box>, box: Box, label: String, labelVal: String) {
         // Color the overlay with a transparent gray
-        g.color = Color(0.8F, 0.8F, 0.8F, 0.6F)
+        g.color = OVERLAY_COLOR
         g.fillRect(box.startX, box.startY, box.width, box.height)
 
         g.color = Color.GRAY
@@ -174,13 +191,19 @@ class InteractiveHistogram(
     }
 }
 
-data class Box(
-    var startX: Int,
-    var startY: Int,
-    var width: Int,
-    var height: Int
+data class Bar(
+    var startX: Int = 0,
+    var width: Int = 0,
+    var boxes: List<Box>
 ) {
-    companion object {
-        fun default() = Box(0, 0, 0, 0)
+    constructor(boxCount: Int) {
+        boxes = (0 until boxCount).map { Box() }
     }
 }
+
+data class Box(
+    var startX: Int = 0,
+    var startY: Int = 0,
+    var width: Int = 0,
+    var height: Int = 0
+)
