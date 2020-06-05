@@ -55,11 +55,11 @@ class AggregatorIntegrationTest {
         )
 
         // Step 3: Create a ZMQ pusher that will send messages to the aggregator.
-        val (pusher, channel) = runDummyZMQPublisher(39182);
+        val (pusher, channel) = runDummyZMQPublisher(39182)
 
         // Step 4: Start the aggregator and issue some commands.
         val aggregator = coMain(temporaryFile.absolutePath)
-        delay(1000L)
+        delay(3300L)
 
         // Step 5: submit a couple of aggregation log entries
         for (i in 0..5) {
@@ -185,7 +185,8 @@ class AggregatorIntegrationTest {
 
                 sock.close()
                 ctx.destroy()
-            }, channel
+            },
+            channel
         )
     }
 
@@ -230,5 +231,5 @@ class AggregatorIntegrationTest {
 }
 
 // Fix for TestContainers doing some weird java stuff that Kotlin doesn't like.
-class KPostgreSQLContainer() : PostgreSQLContainer<KPostgreSQLContainer>()
+class KPostgreSQLContainer : PostgreSQLContainer<KPostgreSQLContainer>()
 

@@ -56,12 +56,12 @@ fun coMain(configPath: String) = GlobalScope.launch {
     }
 
     val intake = ZMQIntake(config, aggregationManager)
-    intake.setup()
+    intake.queryConnectionInformation()
 
     joinAll(
         startExpiryWorker(config),
         startAPIWorker(config),
-        intake.listen(),
+        intake.run(),
         aggregationManager.startCommitWorker()
     )
 }

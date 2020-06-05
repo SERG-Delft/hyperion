@@ -165,6 +165,7 @@ abstract class AbstractPipelinePlugin(
 
         while (isActive) {
             val msg = source.pull()
+            logger.trace { "Received message: '$msg'" }
 
             // Check for buffer limits if this is passthrough.
             if (isPassthrough) {
@@ -180,7 +181,9 @@ abstract class AbstractPipelinePlugin(
             processThreadPool.launch {
                 onMessageReceived(msg)
 
-                packetBufferCount.decrementAndGet()
+                if (isPassthrough) {
+                    packetBufferCount.decrementAndGet()
+                }
             }
         }
     }

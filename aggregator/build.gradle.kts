@@ -44,7 +44,7 @@ dependencies {
 
     // Intake
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-jdk8", "1.3.5")
-    implementation("org.zeromq", "jeromq", "0.5.2")
+    implementation(project(":pipeline:common"))
 
     // Logging
     implementation("io.github.microutils", "kotlin-logging", "1.7.9")
@@ -53,6 +53,7 @@ dependencies {
     // Testing
     testImplementation("io.mockk", "mockk", "1.10.0")
     testImplementation("org.xerial", "sqlite-jdbc", "3.31.1")
+    testImplementation("org.zeromq", "jeromq", "0.5.2")
 
     // Integration test
     testImplementation("org.testcontainers", "testcontainers", "1.14.1")
