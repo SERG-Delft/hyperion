@@ -23,7 +23,9 @@ dependencies {
 
     // testing
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-jdk8", "1.3.5")
+    implementation("org.zeromq", "jeromq", "0.5.2")
 
+    // local modules
     implementation(project(":pipeline:common"))
 }
 
