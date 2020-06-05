@@ -19,12 +19,12 @@ object APIRequestor {
         mapper.registerModule(module)
     }
 
-    suspend fun getMetricForFile(filePath: String, ideProject: Project): FileMetrics {
+    suspend fun getMetricForFile(filePath: String, ideProject: Project, httpClient: HttpClient = this.client): FileMetrics {
         val state = HyperionSettings.getInstance(ideProject).state
         val intervals = state.intervals.joinToString(",")
         val project = state.project
 
-        val json: String = client.get(
+        val json: String = httpClient.get(
                 "${state.address}/api/v1/metrics?project=$project&file=$filePath&intervals=$intervals"
         )
 

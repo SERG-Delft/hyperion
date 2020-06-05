@@ -17,8 +17,6 @@ import nl.tudelft.hyperion.plugin.settings.HyperionSettings
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import java.lang.reflect.Field
-import java.lang.reflect.Modifier
 import java.net.URLEncoder
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -38,7 +36,7 @@ class APIRequestorTest {
 |           {"abc":[{"line":10,"count":20,"severity":"INFO"}],"def":[{"line":20,"count":1,"severity":"DEBUG"}]}}]"""
                 .trimMargin()
 
-        val expectedRequest = "/?project=${enc(testProject)}&file=${enc(filePath)}" +
+        val expectedRequest = "/api/v1/metrics?project=${enc(testProject)}&file=${enc(filePath)}" +
                 "&intervals=${enc(testIntervals.joinToString(","))}"
         // Handlers are required to be specified when the client is constructed.
         // Since we only have one test everything is done globally and the client is initialized here.
@@ -52,19 +50,6 @@ class APIRequestorTest {
                 }
             }
         })
-
-        // Since we are setting a val here we need to use Java's reflection.
-        val field = APIRequestor::class.java.getDeclaredField("client").apply {
-            isAccessible = true
-        }
-
-        // Kotlin's val are final in java, we need to remove this modifier.
-        Field::class.java.getDeclaredField("modifiers").apply {
-            trySetAccessible()
-            setInt(field, field.modifiers and Modifier.FINAL.inv())
-        }
-        // Finally we set the client field to our mocked client.
-        field.set(APIRequestor, mockClient)
     }
 
     @Test
@@ -97,7 +82,7 @@ class APIRequestorTest {
                 )
         )
         runBlocking {
-            val result = APIRequestor.getMetricForFile(filePath, mockProject)
+            val result = APIRequestor.getMetricForFile(filePath, mockProject, mockClient)
             assertEquals(expected, result)
         }
 
