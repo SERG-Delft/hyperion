@@ -55,7 +55,7 @@ fun coMain(configPath: String) = GlobalScope.launch {
             " granularity of ${config.granularity} seconds. ^C to exit."
     }
 
-    val intake = ZMQIntake(config.pipeline, aggregationManager)
+    val intake = ZMQIntake(config, aggregationManager)
     intake.setup()
 
     joinAll(

@@ -63,6 +63,15 @@ granularity: 60 # a minute
 # the amount of data stored in the database.
 aggregation-ttl: 604800 # 7 days
 
+# Whether or not incoming timestamps should be validated to verify whether
+# they lie within the current intermediate aggregation as determined by the
+# granularity. If this is set to `true` (the default value), messages will
+# not be aggregated if they are too old (their granularity window has already
+# passed) or if the timestamp is missing entirely. If this is set to `false`,
+# all received messages will be assumed to have occurred in the current
+# granularity window, regardless of their actual timestamp value.
+verify-timestamp: false
+
 # Various settings needed for the aggregator to interact with the pipeline,
 # such as it's unique ID and the hostname and port of the Hyperion plugin manager.
 # 
@@ -98,5 +107,8 @@ The aggregator expects JSON input messages that adhere to the following format. 
     "timestamp": "<an ISO 8601-parsable timestamp that represents the time at which this log occurred>"
 }
 ```
+
+The `timestamp` value is required if `verify-timestamp` is set to true. If timestamp verification is turned off, the
+ timestamp value can be ignored.
 
 If any of these fields are invalid or otherwise fail to parse, a warning is logged and the message is ignored. Please note that such warnings are logged on every single invocation, so they may get out of hand quickly depending on how many erroneous requests arrive.

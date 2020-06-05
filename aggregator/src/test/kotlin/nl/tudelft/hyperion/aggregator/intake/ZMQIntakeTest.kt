@@ -11,9 +11,11 @@ import io.mockk.verify
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import nl.tudelft.hyperion.aggregator.Configuration
 import nl.tudelft.hyperion.aggregator.ZMQConfiguration
 import nl.tudelft.hyperion.aggregator.utils.TestWithoutLogging
 import nl.tudelft.hyperion.aggregator.workers.AggregationManager
+import org.joda.time.DateTime
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.zeromq.SocketType
@@ -38,8 +40,9 @@ class ZMQIntakeTest : TestWithoutLogging() {
         """.trimIndent()
 
         val intake = ZMQIntake(
-            ZMQConfiguration("localhost:12346", "Aggregator"),
-            mockk(relaxed = true)
+            mockk(),
+            mockk(relaxed = true),
+            ZMQConfiguration("localhost:12346", "Aggregator")
         )
 
         intake.setup()
@@ -61,8 +64,9 @@ class ZMQIntakeTest : TestWithoutLogging() {
     @Test
     fun `Setup should not allow being called twice`() {
         val ctx = ZMQIntake(
-            ZMQConfiguration("localhost:12346", "Aggregator"),
-            mockk(relaxed = true)
+            mockk(),
+            mockk(relaxed = true),
+            ZMQConfiguration("localhost:12346", "Aggregator")
         )
 
         ctx.setConnectionInformation(PeerConnectionInformation("a", true))
@@ -75,8 +79,9 @@ class ZMQIntakeTest : TestWithoutLogging() {
     @Test
     fun `Listen should not allow being called without setup`() {
         val ctx = ZMQIntake(
-            ZMQConfiguration("localhost:12346", "Aggregator"),
-            mockk(relaxed = true)
+            mockk(),
+            mockk(relaxed = true),
+            ZMQConfiguration("localhost:12346", "Aggregator")
         )
 
         assertThrows<ZMQIntakeInitializationException> {
@@ -94,8 +99,9 @@ class ZMQIntakeTest : TestWithoutLogging() {
         } returns socket
 
         val ctx = ZMQIntake(
-            ZMQConfiguration("localhost:12346", "Aggregator"),
-            mockk(relaxed = true)
+            mockk(),
+            mockk(relaxed = true),
+            ZMQConfiguration("localhost:12346", "Aggregator")
         )
         ctx.setConnectionInformation(PeerConnectionInformation("a", true))
 
@@ -123,8 +129,9 @@ class ZMQIntakeTest : TestWithoutLogging() {
         } returns socket
 
         val ctx = ZMQIntake(
-            ZMQConfiguration("localhost:12346", "Aggregator"),
-            mockk(relaxed = true)
+            mockk(),
+            mockk(relaxed = true),
+            ZMQConfiguration("localhost:12346", "Aggregator")
         )
         ctx.setConnectionInformation(PeerConnectionInformation("a", false))
 
@@ -157,8 +164,9 @@ class ZMQIntakeTest : TestWithoutLogging() {
 
         val ctx = spyk(
             ZMQIntake(
-                ZMQConfiguration("localhost:12346", "Aggregator"),
-                mockk(relaxed = true)
+                mockk(),
+                mockk(relaxed = true),
+                ZMQConfiguration("localhost:12346", "Aggregator")
             )
         )
         ctx.setConnectionInformation(PeerConnectionInformation("a", false))
@@ -187,8 +195,72 @@ class ZMQIntakeTest : TestWithoutLogging() {
         val aggregateMock = mockk<AggregationManager>(relaxed = true)
 
         val intake = ZMQIntake(
-            ZMQConfiguration("localhost:12346", "Aggregator"),
-            aggregateMock
+            Configuration("", 0, 1, 1),
+            aggregateMock,
+            ZMQConfiguration("localhost:12346", "Aggregator")
+        )
+
+        runBlocking {
+            intake.handleMessage(
+                """
+                    {
+                        "project": "TestProject",
+                        "version": "v1.0.0",
+                        "severity": "INFO",
+                        "location": {
+                            "file": "com.test.file",
+                            "line": "10"
+                        },
+                        "timestamp": "${DateTime.now()}"
+                    }
+                """.trimIndent()
+            )
+        }
+
+        coVerify(exactly = 1) {
+            aggregateMock.aggregate(any())
+        }
+    }
+
+    @Test
+    fun `Received messages will not be aggregated if timestamp is missing and checked`() {
+        val aggregateMock = mockk<AggregationManager>(relaxed = true)
+
+        val intake = ZMQIntake(
+            Configuration("", 0, 1, 1),
+            aggregateMock,
+            ZMQConfiguration("localhost:12346", "Aggregator")
+        )
+
+        runBlocking {
+            intake.handleMessage(
+                """
+                    {
+                        "project": "TestProject",
+                        "version": "v1.0.0",
+                        "severity": "INFO",
+                        "location": {
+                            "file": "com.test.file",
+                            "line": "10"
+                        }
+                    }
+                """.trimIndent()
+            )
+        }
+
+        coVerify(exactly = 0) {
+            aggregateMock.aggregate(any())
+        }
+    }
+
+    @Test
+    fun `Received messages will not be aggregated if timestamp is present but mismatches granularity`() {
+        val aggregateMock = mockk<AggregationManager>(relaxed = true)
+
+        val intake = ZMQIntake(
+            Configuration("", 0, 1, 1),
+            aggregateMock,
+            ZMQConfiguration("localhost:12346", "Aggregator")
         )
 
         runBlocking {
@@ -208,7 +280,55 @@ class ZMQIntakeTest : TestWithoutLogging() {
             )
         }
 
-        coVerify(exactly = 1) {
+        coVerify(exactly = 0) {
+            aggregateMock.aggregate(any())
+        }
+    }
+
+    @Test
+    fun `Received messages will be aggregated with invalid timestamps if checking is disabled`() {
+        val aggregateMock = mockk<AggregationManager>(relaxed = true)
+
+        val intake = ZMQIntake(
+            Configuration("", 0, 1, 1, false),
+            aggregateMock,
+            ZMQConfiguration("localhost:12346", "Aggregator")
+        )
+
+        runBlocking {
+            // outdated
+            intake.handleMessage(
+                """
+                    {
+                        "project": "TestProject",
+                        "version": "v1.0.0",
+                        "severity": "INFO",
+                        "location": {
+                            "file": "com.test.file",
+                            "line": "10"
+                        },
+                        "timestamp": "2020-05-07T11:22:00.644Z"
+                    }
+                """.trimIndent()
+            )
+
+            // null
+            intake.handleMessage(
+                """
+                    {
+                        "project": "TestProject",
+                        "version": "v1.0.0",
+                        "severity": "INFO",
+                        "location": {
+                            "file": "com.test.file",
+                            "line": "10"
+                        }
+                    }
+                """.trimIndent()
+            )
+        }
+
+        coVerify(exactly = 2) {
             aggregateMock.aggregate(any())
         }
     }
@@ -218,8 +338,9 @@ class ZMQIntakeTest : TestWithoutLogging() {
         val aggregateMock = mockk<AggregationManager>(relaxed = true)
 
         val intake = ZMQIntake(
-            ZMQConfiguration("localhost:12346", "Aggregator"),
-            aggregateMock
+            mockk(),
+            mockk(relaxed = true),
+            ZMQConfiguration("localhost:12346", "Aggregator")
         )
 
         // Project is missing
