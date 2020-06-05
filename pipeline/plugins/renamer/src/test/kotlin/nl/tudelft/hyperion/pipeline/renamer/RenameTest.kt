@@ -246,4 +246,28 @@ class RenameTest {
 
         Assertions.assertEquals(treeExpected, treeActual)
     }
+
+    @Test
+    fun `If nested field does not exist, nothing should be done`() {
+        val config = Configuration(
+            listOf(
+                Rename(
+                    "log.line",
+                    "log_line"
+                )
+            ),
+            PipelinePluginConfiguration("renamer", "1.2.3.4:4567")
+        )
+
+        val input = """{
+          "location": 10
+        }""".trimIndent()
+
+        val mapper = ObjectMapper()
+
+        val treeExpected = mapper.readTree(input)
+        val treeActual = mapper.readTree(rename(input, config))
+
+        Assertions.assertEquals(treeExpected, treeActual)
+    }
 }
