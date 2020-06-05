@@ -4,6 +4,7 @@ package nl.tudelft.hyperion.plugin.visualization
 
 import nl.tudelft.hyperion.plugin.visualization.graphing.InteractiveHistogram
 import java.awt.Color
+import javax.swing.JComboBox
 import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.table.DefaultTableModel
@@ -12,34 +13,12 @@ class VisWindow {
     lateinit var root: JPanel
     lateinit var label: JLabel
     lateinit var main: JPanel
+    lateinit var comboBox1: JComboBox<String>
 
     val content
         get() = root
 
     fun createUIComponents() {
-        val model = DefaultTableModel(
-            arrayOf(
-                arrayOf(
-                    "File",
-                    "Class",
-                    "Line",
-                    "Count"
-                ),
-                arrayOf(
-                    "src/main/java/com/sap/enterprises/server/impl/TransportationService.java",
-                    "com.sap.enterprises.server.impl.TransportationService",
-                    "11",
-                    "250"
-                ),
-                arrayOf(
-                    "src/main/java/org/sap/Sap.java",
-                    "org.sap.Sap",
-                    "10",
-                    "42"
-                )
-            ), arrayOf("File", "Class", "Line", "Trigger Count")
-        )
-
         main = InteractiveHistogram(
             arrayOf(
                 arrayOf(10, 10, 20, 4),

@@ -61,7 +61,7 @@ class InteractiveHistogram(
             }
         })
 
-        this.font = Font("Monospaced", Font.PLAIN, 10)
+        font = Font("Monospaced", Font.PLAIN, 10)
 
         val affineTransform = AffineTransform()
         affineTransform.rotate(-PI / 2, 0.0, 0.0)
@@ -96,6 +96,7 @@ class InteractiveHistogram(
         }
     }
 
+    @SuppressWarnings("MagicNumber")
     override fun paintComponent(g: Graphics) {
         super.paintComponent(g)
 
@@ -140,14 +141,21 @@ class InteractiveHistogram(
 
                 // Draw relevant information if the user is hovering over this box
                 if (boxCollisions.filter { it.first == i && it.second == j }.any()) {
-                    g.color = Color.GRAY
-                    g.fillRect(box.startX, box.startY, box.width, box.height)
-
-                    g.drawString(labels[j], bar.last().startX, bar.last().startY - 20)
-                    g.drawString("$Y_LABEL=${vals[i][j]}", bar.last().startX, bar.last().startY - 10)
+                    drawBoxOverlay(g, bar, box, labels[j], vals[i][j].toString())
                 }
             }
         }
+    }
+
+    @SuppressWarnings("MagicNumber")
+    private fun drawBoxOverlay(g: Graphics, bar: Array<Box>, box: Box, label: String, labelVal: String) {
+        // Color the overlay with a transparent gray
+        g.color = Color(0.8F, 0.8F, 0.8F, 0.6F)
+        g.fillRect(box.startX, box.startY, box.width, box.height)
+
+        g.color = Color.GRAY
+        g.drawString(label, bar.last().startX, bar.last().startY - 20)
+        g.drawString("$Y_LABEL=$labelVal", bar.last().startX, bar.last().startY - 10)
     }
 
     private fun checkCollide(x: Int, y: Int): List<Index2D> {
