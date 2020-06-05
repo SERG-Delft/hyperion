@@ -24,7 +24,7 @@ object APIRequestor {
         val intervals = state.intervals.joinToString(",")
         val project = state.project
 
-        val json: String = client.get("${state.address}?project=$project&file=$filePath&intervals=$intervals")
+        val json: String = client.get("${state.address}/api/v1/metrics?project=$project&file=$filePath&intervals=$intervals")
 
         return FileMetrics.fromMetricsResults(mapper.readValue(json))
     }
