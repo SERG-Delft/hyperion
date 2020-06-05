@@ -45,8 +45,8 @@ jacoco {
 
 tasks.jacocoTestReport {
     executionData(
-            tasks.run.get(),
-            tasks.integrationTest.get()
+        tasks.run.get(),
+        tasks.integrationTest.get()
     )
 
     reports {
@@ -58,8 +58,8 @@ tasks.jacocoTestReport {
 
 tasks.jacocoTestCoverageVerification {
     executionData(
-            tasks.run.get(),
-            tasks.integrationTest.get()
+        tasks.run.get(),
+        tasks.integrationTest.get()
     )
 
     violationRules {
@@ -71,7 +71,7 @@ tasks.jacocoTestCoverageVerification {
 
             limit {
                 counter = "LINE"
-                minimum = "0.8".toBigDecimal()
+                minimum = "0.7".toBigDecimal()
             }
         }
     }

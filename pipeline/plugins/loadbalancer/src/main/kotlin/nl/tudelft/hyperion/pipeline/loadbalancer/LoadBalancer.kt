@@ -2,16 +2,12 @@ package nl.tudelft.hyperion.pipeline.loadbalancer
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import nl.tudelft.hyperion.pipeline.AbstractPipelinePlugin
 import nl.tudelft.hyperion.pipeline.PipelinePluginInitializationException
 import org.zeromq.SocketType
 import org.zeromq.ZContext
-import java.util.concurrent.Executors
 
 /**
  * Basic load balancer that acts as both a plugin and plugin manager.
@@ -29,90 +25,85 @@ class LoadBalancer(
             throw PipelinePluginInitializationException("Cannot run plugin without connection information")
         }
 
-        // create channels for passing messages
-        val inputChannel = Channel<String>(capacity = config.pipeline.bufferSize)
-        val outputChannel = Channel<String>(capacity = config.pipeline.bufferSize)
+        // start plugin manager worker
+        val pluginManagerWorker = WorkerManager.run(
+            config.workerManagerHostname,
+            config.workerManagerPort,
+            if (canReceive) config.sinkPort else null,
+            if (canSend) config.ventilatorPort else null
+        )
 
-        // create separate worker threads for the ventilator and sink
-        val inputWorkerScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
-        val outputWorkerScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
-
-        // start workers
-        val parent = launch {
-            WorkerManager.run(
-                config.workerManagerHostname,
-                config.workerManagerPort,
-                config.sinkPort,
-                config.ventilatorPort
-            )
-            runReceiver(inputChannel)
-            inputWorkerScope.createChannelReceiver(
-                config.workerManagerHostname,
-                config.ventilatorPort,
-                inputChannel
-            )
-            outputWorkerScope.createChannelSender(
-                config.workerManagerHostname,
-                config.sinkPort,
-                outputChannel
-            )
-            runSender(outputChannel)
+        // start sender proxy thread, if we can send
+        val senderThread = if (canSend) {
+            createSenderProxyThread()
+        } else {
+            null
         }
+        senderThread?.start()
+
+        // start receiver proxy thread, if we can receive
+        val receiverThread = if (canReceive) {
+            createReceiverProxyThread()
+        } else {
+            null
+        }
+        receiverThread?.start()
 
         // Sleep while workers are active
         try {
-            parent.join()
+            pluginManagerWorker.join()
         } finally {
-            parent.cancelAndJoin()
+            // cancel and cleanup
+            pluginManagerWorker.cancelAndJoin()
+            senderThread?.interrupt()
+            receiverThread?.interrupt()
         }
     }
 
-    override suspend fun process(input: String): String? = input
-}
+    /**
+     * Creates a new thread that will proxy from our receiving port to the
+     * ventilator used for our child workers.
+     */
+    fun createReceiverProxyThread() = Thread {
+        ZContext().use {
+            val incoming = it.createSocket(SocketType.PULL)
+            val outgoing = it.createSocket(SocketType.PUSH)
 
-/**
- * Starts a Job that sends messages from the given channel
- * with a PUSH ZeroMQ socket.
- *
- * @param hostname hostname to bind the socket to
- * @param port port to bind the socket to
- * @param channel the channel to receive messages from
- */
-fun CoroutineScope.createChannelReceiver(
-    hostname: String,
-    port: Int,
-    channel: Channel<String>
-) = launch {
-    ZContext().use {
-        val sock = it.createSocket(SocketType.PUSH)
-        sock.bind(createAddress(hostname, port))
+            if (subConnectionInformation.isBind) {
+                incoming.bind(subConnectionInformation.host)
+            } else {
+                incoming.connect(subConnectionInformation.host)
+            }
 
-        while (isActive) {
-            sock.send(channel.receive())
+            outgoing.bind(createAddress(config.workerManagerHostname, config.ventilatorPort))
+
+            zmq.ZMQ.proxy(incoming.base(), outgoing.base(), null)
         }
     }
-}
 
-/**
- * Starts a Job that sends messages to a channel from the
- * given ZeroMQ PULL socket.
- *
- * @param hostname hostname to bind the socket to
- * @param port port to bind the socket to
- * @param channel the channel to send messages from
- */
-fun CoroutineScope.createChannelSender(
-    hostname: String,
-    port: Int,
-    channel: Channel<String>
-) = launch {
-    ZContext().use {
-        val sock = it.createSocket(SocketType.PULL)
-        sock.bind(createAddress(hostname, port))
+    /**
+     * Creates a new thread that will proxy from our sink port to the
+     * next step in the pipeline.
+     */
+    fun createSenderProxyThread() = Thread {
+        ZContext().use {
+            val incoming = it.createSocket(SocketType.PULL)
+            val outgoing = it.createSocket(SocketType.PUSH)
 
-        while (isActive) {
-            channel.send(sock.recvStr())
+            incoming.bind(createAddress(config.workerManagerHostname, config.sinkPort))
+
+            if (pubConnectionInformation.isBind) {
+                outgoing.bind(pubConnectionInformation.host)
+            } else {
+                outgoing.connect(pubConnectionInformation.host)
+            }
+
+            zmq.ZMQ.proxy(incoming.base(), outgoing.base(), null)
         }
+    }
+
+    override suspend fun onMessageReceived(msg: String) {
+        // never invoked as we override run to never create a listener
     }
 }
 

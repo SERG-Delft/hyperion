@@ -10,7 +10,6 @@ import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
@@ -284,7 +283,6 @@ class ElasticsearchTest {
     }
 
     @Test
-    @ExperimentalCoroutinesApi
     fun `Run should cleanup if sender is cancelled`() {
         mockkConstructor(ZContext::class)
 
