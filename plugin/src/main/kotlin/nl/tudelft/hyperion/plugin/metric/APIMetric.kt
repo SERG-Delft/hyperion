@@ -34,7 +34,11 @@ data class APIBinMetricsResponse<T : BaseAPIMetric>(
     val results: List<APIBinMetricsResult<T>>
 )
 
-sealed class BaseAPIMetric
+sealed class BaseAPIMetric(
+    open val line: Int,
+    open val severity: String,
+    open val count: Int
+)
 
 /**
  * Represents a single grouped metric of a (project, file, line, version,
@@ -43,10 +47,10 @@ sealed class BaseAPIMetric
  * triggered.
  */
 data class APIMetric(
-    val line: Int,
-    val severity: String,
-    val count: Int
-) : BaseAPIMetric()
+    override val line: Int,
+    override val severity: String,
+    override val count: Int
+) : BaseAPIMetric(line, severity, count)
 
 /**
  * Represents a single grouped metric of a (project, file, line, version,
@@ -55,8 +59,8 @@ data class APIMetric(
  * triggered.
  */
 data class FileAPIMetric(
-    val line: Int,
-    val severity: String,
-    val count: Int,
+    override val line: Int,
+    override val severity: String,
+    override val count: Int,
     val file: String
-) : BaseAPIMetric()
+) : BaseAPIMetric(line, severity, count)

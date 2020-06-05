@@ -34,30 +34,36 @@ object APIRequestor {
 
     // TODO: make relative time and steps retrievable from settings
     suspend fun getBinnedMetrics(
-        filePath: String?, 
+        filePath: String,
         ideProject: Project, 
         relativeTime: Int, 
         steps: Int
-    ): APIBinMetricsResponse<*> {
+    ): APIBinMetricsResponse<APIMetric> {
         val state = HyperionSettings.getInstance(ideProject).state
         val project = state.project
 
-        var getURL = "${state.address}/period?project=$project&relative-time=$relativeTime&steps=$steps"
-
-        // add file parameter to the query if given
-        // this results in retrieving file specific statistics
-        if (filePath != null) {
-            getURL += "&file=$filePath"
-        }
+        // add file query parameter
+        // this results in retrieving project wide statistics
+        val getURL = "${state.address}/period?project=$project&relative-time=$relativeTime&steps=$steps&file=$filePath"
 
         val json: String = client.get(getURL)
-        
-        return if (filePath != null) {
-            mapper.readValue<APIBinMetricsResponse<APIMetric>>(json)
-        } else {
-            mapper.readValue<APIBinMetricsResponse<FileAPIMetric>>(json)
-        }
 
+        return mapper.readValue(json)
+    }
+
+    suspend fun getBinnedMetrics(
+        ideProject: Project,
+        relativeTime: Int,
+        steps: Int
+    ): APIBinMetricsResponse<FileAPIMetric> {
+        val state = HyperionSettings.getInstance(ideProject).state
+        val project = state.project
+
+        val getURL = "${state.address}/period?project=$project&relative-time=$relativeTime&steps=$steps"
+
+        val json: String = client.get(getURL)
+
+        return mapper.readValue(json)
     }
 }
 

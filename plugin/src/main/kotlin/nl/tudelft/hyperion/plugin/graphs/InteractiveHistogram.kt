@@ -1,4 +1,4 @@
-package nl.tudelft.hyperion.plugin.visualization.graphing
+package nl.tudelft.hyperion.plugin.graphs
 
 import java.awt.Color
 import java.awt.Font
@@ -20,10 +20,10 @@ class InteractiveHistogram(
     private val xMargin: Int,
     private var startY: Int,
     private var endY: Int,
-    private var barSpacing: Int,
-    private var barColorScheme: Array<Color>,
-    private var labels: Array<String>,
-    private var timestamps: Array<String>
+    var barSpacing: Int,
+    var barColorScheme: Array<Color>,
+    var labels: Array<String>,
+    var timestamps: Array<String>
 ) : JPanel(true) {
 
     var boxes: Array2D<Box> = initialVals.map { it.map { Box.default() }.toTypedArray() }.toTypedArray()
@@ -35,7 +35,7 @@ class InteractiveHistogram(
      * A 2D array of the histogram values.
      * Change array size of [boxes] if this value changes.
      */
-    private var vals = initialVals
+    var vals = initialVals
         set(value) {
             field = value
 
