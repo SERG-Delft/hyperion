@@ -9,24 +9,29 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class RatePlugin(private val config: RateConfiguration) : AbstractPipelinePlugin(config.pipeline) {
     var throughput = AtomicInteger(0)
-    private val logger = mu.KotlinLogging.logger {}
+    override val logger = mu.KotlinLogging.logger {}
 
-    override suspend fun process(input: String): String? {
+    override suspend fun onMessageReceived(msg: String) {
         throughput.incrementAndGet()
-        return input
+
+        if (canSend) {
+            send(msg)
+        }
     }
 
     @Suppress("MagicNumber")
     fun launchReporter() = GlobalScope.launch {
         logger.info { "Rate plugin reporter launched" }
+
         while (isActive) {
             report()
             delay(1000 * config.rate.toLong())
         }
+
         logger.info { "Rate plugin reporter closed" }
     }
 
-    suspend fun report() {
+    fun report() {
         logger.info {
             """reporting throughput every ${config.rate} seconds
             $throughput messages last ${config.rate} seconds
