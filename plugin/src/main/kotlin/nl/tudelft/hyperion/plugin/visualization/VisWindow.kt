@@ -33,18 +33,14 @@ class VisWindow {
 
     companion object {
         const val HISTOGRAM_X_MARGIN = 50
+        const val HISTOGRAM_Y_MARGIN = 30
         const val HISTOGRAM_BAR_SPACING = 5
-
-        // the start is from down up, so start > end
-        // the y coordinates go from top to bottom
-        const val HISTOGRAM_Y_START = 200
-        const val HISTOGRAM_Y_END = 100
 
         // TODO: make color scheme configurable
         //  or make the unique severities in the aggregator unique
-        val HISTOGRAM_DEFAULT_COLOR = Color.GRAY
+        private val HISTOGRAM_DEFAULT_COLOR: Color = Color.GRAY
 
-        val HISTOGRAM_COLOR_SCHEME = mapOf(
+        private val HISTOGRAM_COLOR_SCHEME = mapOf(
             "err" to Color.RED,
             "error" to Color.RED,
             "warn" to Color.ORANGE,
@@ -63,8 +59,9 @@ class VisWindow {
         ): HistogramData {
             // TODO: also add parsing for the severity label
             val bins = mutableListOf<Array<Int>>()
-            val timestamps = mutableListOf<String>()
             val colors = mutableListOf<Array<Color>>()
+            val severities = mutableListOf<Array<String>>()
+            val timestamps = mutableListOf<String>()
 
             response.results.forEach {
                 // Add formatted timestamp values per box
@@ -93,9 +90,16 @@ class VisWindow {
                         HISTOGRAM_COLOR_SCHEME.getOrDefault(metric.severity.toLowerCase(), HISTOGRAM_DEFAULT_COLOR)
                     }.toTypedArray()
                 )
+
+                severities.add(bin.map(BaseAPIMetric::severity).toTypedArray())
             }
 
-            return Triple(bins.toTypedArray(), timestamps.toTypedArray(), colors.toTypedArray())
+            return HistogramData(
+                bins.toTypedArray(),
+                colors.toTypedArray(),
+                severities.toTypedArray(),
+                timestamps.toTypedArray()
+            )
         }
     }
 
@@ -143,12 +147,41 @@ class VisWindow {
 
     private fun createHistogramComponent(): InteractiveHistogram =
         InteractiveHistogram(
-            arrayOf(arrayOf()),
+            HistogramData(
+                arrayOf(
+                    arrayOf(10),
+                    arrayOf(10, 30, 5),
+                    arrayOf(20, 20, 10, 5),
+                    arrayOf(20, 15, 40, 5),
+                    arrayOf(20, 15, 30, 5),
+                    arrayOf(20, 15, 50, 5),
+                    arrayOf(20, 15, 50, 5),
+                    arrayOf(20, 15, 60, 5)
+                ),
+                arrayOf(
+                    arrayOf(Color.RED),
+                    arrayOf(Color.ORANGE, Color.GREEN, Color.BLUE),
+                    arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
+                    arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
+                    arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
+                    arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
+                    arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
+                    arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE)
+                ),
+                arrayOf(
+                    arrayOf("ERROR"),
+                    arrayOf("WARN", "INFO", "DEBUG"),
+                    arrayOf("ERROR", "WARN", "INFO", "DEBUG"),
+                    arrayOf("ERROR", "WARN", "INFO", "DEBUG"),
+                    arrayOf("ERROR", "WARN", "INFO", "DEBUG"),
+                    arrayOf("ERROR", "WARN", "INFO", "DEBUG"),
+                    arrayOf("ERROR", "WARN", "INFO", "DEBUG"),
+                    arrayOf("ERROR", "WARN", "INFO", "DEBUG")
+                ),
+                arrayOf("10:00:00", "10:00:05", "10:00:10", "10:00:15", "10:00:20", "10:00:25", "10:00:30", "10:00:35")
+            ),
             HISTOGRAM_X_MARGIN,
-            HISTOGRAM_Y_START, HISTOGRAM_Y_END,
-            HISTOGRAM_BAR_SPACING,
-            arrayOf(arrayOf()),
-            arrayOf(),
-            arrayOf()
+            HISTOGRAM_Y_MARGIN,
+            HISTOGRAM_BAR_SPACING
         )
 }
