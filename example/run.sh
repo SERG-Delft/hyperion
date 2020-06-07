@@ -21,5 +21,3 @@ tmux \
   select-layout tiled \; \
   split-window "sleep 1; java -jar ../aggregator/build/aggregator-all.jar aggregator.yml; read" \; \
   select-layout tiled
-
-/cygdrive/c/Program\ Files/Java/jdk-11.0.2/bin/java.exe -jar ../aggregator/build/aggregator-all.jar aggregator.yml
