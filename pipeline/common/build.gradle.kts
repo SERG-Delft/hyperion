@@ -7,6 +7,7 @@ plugins {
     id("com.github.johnrengelman.shadow").version("5.2.0")
     id("maven-publish")
     id("com.jfrog.bintray") version "1.8.5"
+    id("org.jetbrains.dokka") version "0.10.1"
 }
 
 jacoco {
@@ -89,9 +90,20 @@ detekt {
     config = files("detekt-config.yml")
 }
 
+tasks.dokka {
+    outputFormat = "html"
+    outputDirectory = "$buildDir/javadoc"
+}
+
 val sourcesJar by tasks.creating(Jar::class) {
     archiveClassifier.set("sources")
     from(sourceSets.getByName("main").allSource)
+}
+
+val dokkaJar by tasks.creating(Jar::class) {
+    description = "Assembles Kotlin docs with Dokka"
+    classifier = "javadoc"
+    from(tasks.dokka)
 }
 
 // groupId used for maven repository
@@ -107,7 +119,8 @@ publishing {
             // include sources jar
             artifact(sourcesJar)
 
-            // TODO: include kdoc jar
+            // include kdoc jar
+            artifact(dokkaJar)
 
             pom {
                 name.set("$pubGroup:pipeline-common")
