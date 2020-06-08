@@ -8,11 +8,8 @@ import javax.swing.JComponent
 /**
  * Class that represents the Project Configurable for the Hyperion Plugin.
  */
-class HyperionSettingsConfigurable(
-        val project: Project,
-        overridePane: HyperionSettingsForm? = null
-) : SearchableConfigurable {
-    private val settingsPane: HyperionSettingsForm = overridePane ?: HyperionSettingsForm(project)
+class HyperionSettingsConfigurable(val project: Project) : SearchableConfigurable {
+    lateinit var settingsPane: HyperionSettingsForm
 
 
     /**
@@ -30,6 +27,7 @@ class HyperionSettingsConfigurable(
      * @return new Swing form to show, or `null` if it cannot be created
      */
     override fun createComponent(): JComponent? {
+        settingsPane = HyperionSettingsForm(project)
         return settingsPane.root
     }
 

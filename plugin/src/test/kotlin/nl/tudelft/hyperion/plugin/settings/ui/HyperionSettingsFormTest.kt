@@ -11,19 +11,12 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import javax.swing.JTextField
-import kotlin.reflect.KFunction
-import kotlin.reflect.KMutableProperty1
-import kotlin.reflect.KProperty1
-import kotlin.reflect.full.memberFunctions
-import kotlin.reflect.full.memberProperties
-import kotlin.reflect.jvm.isAccessible
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class HyperionSettingsFormTest {
     private val mockProject: Project = mockk()
     private lateinit var hyperionSettings: HyperionSettings
     private lateinit var hyperionSettingsForm: HyperionSettingsForm
-    private val createTableMethod = getMethod("createTable")
 
     init {
         every { mockProject.name } returns "TestProject"
@@ -37,12 +30,14 @@ class HyperionSettingsFormTest {
 
         hyperionSettingsForm = HyperionSettingsForm(mockProject, true)
 
-        getMethod("createSettings").call(hyperionSettingsForm)
+        hyperionSettingsForm.createSettings()
 
-        setProperty("addressField", JTextField(hyperionSettings.state.address))
-        setProperty("projectField", JTextField(hyperionSettings.state.project))
+        hyperionSettingsForm.apply {
+            addressField = JTextField(hyperionSettings.state.address)
+            projectField = JTextField(hyperionSettings.state.project)
+        }
 
-        createTableMethod.call(hyperionSettingsForm)
+        hyperionSettingsForm.createTable()
     }
 
     @Test
@@ -53,9 +48,9 @@ class HyperionSettingsFormTest {
 
         // We need the table to be constructed so we call the createTable method.
         // createTable uses the getIntervalRows method to fill the table with data.
-        createTableMethod.call(hyperionSettingsForm)
+        hyperionSettingsForm.createTable()
 
-        val intervalTable: IntervalTable = getPropertyValue("intervalTable")
+        val intervalTable: IntervalTable = hyperionSettingsForm.intervalTable
 
         // Check if the data is the same
         assertEquals(expectedData, intervalTable.currentData.map(Row::toSeconds))
@@ -66,23 +61,23 @@ class HyperionSettingsFormTest {
         hyperionSettings.loadState(HyperionSettings.State().apply { intervals = emptyList() })
 
         // We need to construct the table again so it is empty this time.
-        createTableMethod.call(hyperionSettingsForm)
+        hyperionSettingsForm.createTable()
 
-        val intervalTable: IntervalTable = getPropertyValue("intervalTable")
+        val intervalTable: IntervalTable = hyperionSettingsForm.intervalTable
 
         assertTrue(intervalTable.currentData.isEmpty())
     }
 
     @Test
     fun `Test createTable with default data`() {
-        val intervalTable: IntervalTable = getPropertyValue("intervalTable")
+        val intervalTable: IntervalTable = hyperionSettingsForm.intervalTable
 
         assertEquals(listOf(3600, 86400, 2592000), intervalTable.currentData.map(Row::toSeconds))
     }
 
     @Test
     fun `Test isModified due to intervalTable`() {
-        val intervalTable: IntervalTable = getPropertyValue("intervalTable")
+        val intervalTable: IntervalTable = hyperionSettingsForm.intervalTable
 
         // Verify addition of new row.
         assertFalse(hyperionSettingsForm.isModified)
@@ -119,7 +114,7 @@ class HyperionSettingsFormTest {
 
     @Test
     fun `Test isModified due to addressField`() {
-        val addressField: JTextField = getPropertyValue("addressField")
+        val addressField: JTextField = hyperionSettingsForm.addressField
         val addressBefore = addressField.text
 
         assertFalse(hyperionSettingsForm.isModified)
@@ -131,7 +126,7 @@ class HyperionSettingsFormTest {
 
     @Test
     fun `Test isModified due to projectField`() {
-        val projectField: JTextField = getPropertyValue("projectField")
+        val projectField: JTextField = hyperionSettingsForm.projectField
         val projectBefore = projectField.text
 
         assertFalse(hyperionSettingsForm.isModified)
@@ -143,7 +138,7 @@ class HyperionSettingsFormTest {
 
     @Test
     fun `Test apply with addressField`() {
-        val addressField: JTextField = getPropertyValue("addressField")
+        val addressField: JTextField = hyperionSettingsForm.addressField
         val newAddress = "applied.address.com"
         addressField.text = newAddress
 
@@ -161,7 +156,7 @@ class HyperionSettingsFormTest {
 
     @Test
     fun `Test apply with projectField`() {
-        val projectField: JTextField = getPropertyValue("projectField")
+        val projectField: JTextField = hyperionSettingsForm.projectField
         val newProject = "AppliedProject"
         projectField.text = newProject
 
@@ -179,7 +174,7 @@ class HyperionSettingsFormTest {
 
     @Test
     fun `Test apply with intervalTable`() {
-        val intervalTable: IntervalTable = getPropertyValue("intervalTable")
+        val intervalTable: IntervalTable = hyperionSettingsForm.intervalTable
         intervalTable.intervalTableModel.removeRow(intervalTable.currentData.lastIndex)
         intervalTable.intervalTableModel.addRow(Row(-1, Period.WEEKS))
         val newIntervals = intervalTable.currentData.map(Row::toSeconds)
@@ -202,11 +197,11 @@ class HyperionSettingsFormTest {
         assertFalse(hyperionSettingsForm.isModified)
 
         // Change every modifiable object.
-        val projectField: JTextField = getPropertyValue("projectField")
+        val projectField: JTextField = hyperionSettingsForm.projectField
         projectField.text = "NonExistingProject"
-        val addressField: JTextField = getPropertyValue("addressField")
+        val addressField: JTextField = hyperionSettingsForm.addressField
         addressField.text = "does.not.exist.com"
-        val intervalTable: IntervalTable = getPropertyValue("intervalTable")
+        val intervalTable: IntervalTable = hyperionSettingsForm.intervalTable
         intervalTable.intervalTableModel.removeRow(intervalTable.currentData.lastIndex)
         intervalTable.intervalTableModel.addRow(Row(999, Period.HOURS))
 
@@ -215,27 +210,5 @@ class HyperionSettingsFormTest {
         hyperionSettingsForm.reset()
 
         assertFalse(hyperionSettingsForm.isModified)
-    }
-
-    private fun getMethod(name: String): KFunction<*> {
-        return HyperionSettingsForm::class.memberFunctions.find{it.name == name}
-                ?.apply { isAccessible = true }
-                ?: throw AssertionError("Could not find HyperionSettingsForm#$name method")
-    }
-
-    private fun getProperty(name: String): KProperty1<out HyperionSettingsForm, *> {
-        return hyperionSettingsForm::class.memberProperties.find { it.name == name }
-                ?.apply { isAccessible = true }
-                ?: throw AssertionError("Could not find HyperionSettingsForm.$name property")
-    }
-
-    private fun <T> getPropertyValue(name: String): T {
-        return getProperty(name).getter.call(hyperionSettingsForm) as T
-    }
-
-    private fun setProperty(name: String, value: Any) {
-        (getProperty(name)
-                as KMutableProperty1<out HyperionSettingsForm, *>)
-                .setter.call(hyperionSettingsForm, value)
     }
 }

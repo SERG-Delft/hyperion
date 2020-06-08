@@ -27,13 +27,13 @@ public class HyperionSettingsForm {
      * UI Components.
      */
     private JPanel root;
-    private IntervalTable intervalTable;
     private IntervalListPanel intervalPanel;
-    private JTextField addressField;
     private JLabel addressTitle;
     private JLabel intervalsTitle;
-    private JTextField projectField;
     private JLabel projectLabel;
+    IntervalTable intervalTable;
+    JTextField addressField;
+    JTextField projectField;
 
     /**
      * Other data needed.
@@ -50,6 +50,12 @@ public class HyperionSettingsForm {
         this.project = project;
     }
 
+    /**
+     * Instantiate Settings for given Project.
+     * @param project relates to the settings we need to load. {@see HyperionSettings#getInstance(Project)}
+     * @param headless tells the Form whether it should run headless, which means it doesn't initialize itself but
+     *                 it needs to be initialized manually.
+     */
     public HyperionSettingsForm(Project project, boolean headless) {
         this.headless = headless;
         this.project = project;
@@ -59,16 +65,16 @@ public class HyperionSettingsForm {
         return root;
     }
 
-    private void createSettings() {
+    void createSettings() {
         hyperionSettings = HyperionSettings.Companion.getInstance(project);
     }
 
-    private void createTable() {
+    void createTable() {
         List<Row> data = getIntervalRows();
         intervalTable = new IntervalTable(data);
     }
 
-    private void createPanel() {
+    void createPanel() {
         intervalPanel = new IntervalListPanel();
     }
 
@@ -89,7 +95,7 @@ public class HyperionSettingsForm {
      * @return a List of rows {@link Row}
      */
     @NotNull
-    private List<Row> getIntervalRows() {
+    List<Row> getIntervalRows() {
         List<Integer> intervals = hyperionSettings.getState().getIntervals();
         List<Row> data = new ArrayList<>();
         for (int interval : intervals) {

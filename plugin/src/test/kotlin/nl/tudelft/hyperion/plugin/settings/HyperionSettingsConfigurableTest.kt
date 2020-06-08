@@ -24,7 +24,7 @@ class HyperionSettingsConfigurableTest {
 
     @BeforeEach
     fun setup() {
-        configurable = HyperionSettingsConfigurable(mockProject, mockSettingsForm)
+        configurable = HyperionSettingsConfigurable(mockProject).apply { settingsPane = mockSettingsForm }
     }
 
     @AfterEach
