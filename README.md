@@ -42,6 +42,8 @@ The following projects are in this repository:
 - [pipeline/plugins/versiontracker](pipeline/plugins/versiontracker): A simple pipeline plugin that attaches a version tag to incoming JSON data based on the latest commit in a Git repository.
 - [pipeline/plugins/printer](pipeline/plugins/printer): A simple pipeline plugin that prints all messages passing through.
 - [pipeline/plugins/rate](pipeline/plugins/rate): A simple pipeline plugin that logs the rate at which messages pass through the pipeline.
+- [pipeline/plugins/reader](pipeline/plugins/reader): A simple pipeline plugin that pushes the contents of stdin to the pipeline for debugging purposes.
+- [pipeline/plugins/stresser](pipeline/plugins/stresser): A simple pipeline plugin that can stress-test the pipeline by sending a single message as fast as possible.
 - [plugin](plugin): An IntelliJ IDEA plugin that integrates with the aggregator to show metrics in the IDE.
 - [pluginmanager](pluginmanager): A central server that manages the pipeline order and orchestrates communication between pipeline parts.
 

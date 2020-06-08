@@ -5,14 +5,25 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import nl.tudelft.hyperion.pipeline.AbstractPipelinePlugin
+import java.text.NumberFormat
+import java.util.Locale
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 
 class RatePlugin(private val config: RateConfiguration) : AbstractPipelinePlugin(config.pipeline) {
-    var throughput = AtomicInteger(0)
+    private val formatter = NumberFormat.getNumberInstance(Locale.US).also {
+        it.minimumFractionDigits = 0
+        it.maximumFractionDigits = 2
+    }
+
+    val throughput = AtomicInteger(0)
+    val total = AtomicLong(0)
+
     override val logger = mu.KotlinLogging.logger {}
 
     override suspend fun onMessageReceived(msg: String) {
         throughput.incrementAndGet()
+        total.incrementAndGet()
 
         if (canSend) {
             send(msg)
@@ -34,10 +45,12 @@ class RatePlugin(private val config: RateConfiguration) : AbstractPipelinePlugin
     fun report() {
         logger.info {
             """reporting throughput every ${config.rate} seconds
-            $throughput messages last ${config.rate} seconds
-            ${throughput.get() / config.rate} messages per second.
-        """.trimIndent()
+                ${formatter.format(throughput.get())} messages last ${config.rate} seconds
+                ${formatter.format(throughput.get().toDouble() / config.rate)} messages per second
+                ${formatter.format(total.get())} messages total
+            """.trimIndent()
         }
+
         throughput.set(0)
     }
 }
