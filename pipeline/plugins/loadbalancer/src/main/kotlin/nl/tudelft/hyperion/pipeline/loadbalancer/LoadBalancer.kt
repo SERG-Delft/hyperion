@@ -111,4 +111,4 @@ class LoadBalancer(
 /**
  * Helper function to create a tcp address string.
  */
-fun createAddress(hostname: String, port: Int) = "tcp://${hostname}:${port}"
+fun createAddress(hostname: String, port: Int) = "tcp://$hostname:$port"
