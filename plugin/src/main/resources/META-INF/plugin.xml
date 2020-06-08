@@ -65,6 +65,9 @@
         <action id="nl.tudelft.hyperion.plugin.visualization.OpenFileGraphAction"
                 class="nl.tudelft.hyperion.plugin.visualization.OpenFileGraphAction"
                 text="Hyperion: Visualize Current File" description="Show log metrics of current open file"/>
+        <action id="nl.tudelft.hyperion.plugin.visualization.OpenGraphAction"
+                class="nl.tudelft.hyperion.plugin.visualization.OpenGraphAction" text="Hyperion: Visualize"
+                description="Show log metrics of entire project"/>
     </actions>
     <extensions defaultExtensionNs="com.intellij">
         <projectService serviceImplementation="nl.tudelft.hyperion.plugin.settings.HyperionSettings"/>

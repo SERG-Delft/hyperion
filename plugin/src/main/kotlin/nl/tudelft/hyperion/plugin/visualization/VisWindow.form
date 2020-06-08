@@ -33,13 +33,16 @@
             </constraints>
             <properties>
               <text value="File"/>
+              <toolTipText value="If the metrics for a single file should be shown instead of project wide"/>
             </properties>
           </component>
           <component id="313" class="javax.swing.JComboBox" binding="granularityComboBox" custom-create="true">
             <constraints>
               <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
-            <properties/>
+            <properties>
+              <toolTipText value="The relative time period to get metrics of"/>
+            </properties>
           </component>
           <component id="e46b" class="javax.swing.JTextField" binding="fileField" custom-create="true">
             <constraints>
@@ -47,7 +50,9 @@
                 <preferred-size width="150" height="-1"/>
               </grid>
             </constraints>
-            <properties/>
+            <properties>
+              <toolTipText value="File path to visualize"/>
+            </properties>
           </component>
           <hspacer id="5296f">
             <constraints>
@@ -75,6 +80,7 @@
             </constraints>
             <properties>
               <text value="Refresh"/>
+              <toolTipText value="Refresh metrics"/>
             </properties>
           </component>
         </children>
