@@ -16,7 +16,7 @@ private val mapper = ObjectMapper()
  * @param config the renaming configuration
  * @return A JSON string with renamed fields
  */
-@Suppress("", "LoopWithTooManyJumpStatements")
+@Suppress("LoopWithTooManyJumpStatements")
 fun rename(json: String, config: Configuration): String {
     val tree = try {
         mapper.readTree(json) as ObjectNode
