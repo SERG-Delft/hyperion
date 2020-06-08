@@ -1,0 +1,7 @@
+host: "tcp://*:30001"
+
+plugins:
+  - id: "Stresser"
+    host: "tcp://stresser:30002"
+  - id: "Rate"
+    host: "tcp://rate:30003"
