@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import nl.tudelft.hyperion.pipeline.AbstractPipelinePlugin
+import nl.tudelft.hyperion.pipeline.TransformingPipelinePlugin
 import nl.tudelft.hyperion.pipeline.readYAMLConfig
 import java.nio.file.FileSystems
 import java.nio.file.Path
@@ -18,10 +18,10 @@ import java.nio.file.WatchKey
  *
  * @param config: [AdderConfiguration] which specifies default plugin details and which fields to add.
  */
-class AdderPlugin(var config: AdderConfiguration) : AbstractPipelinePlugin(config.pipeline) {
+class AdderPlugin(var config: AdderConfiguration) : TransformingPipelinePlugin(config.pipeline) {
 
     private val mapper = ObjectMapper()
-    private val logger = mu.KotlinLogging.logger {}
+    override val logger = mu.KotlinLogging.logger {}
 
     /**
      * Helper function that will get or create an object child

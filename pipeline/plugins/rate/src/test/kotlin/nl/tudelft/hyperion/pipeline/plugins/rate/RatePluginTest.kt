@@ -12,7 +12,7 @@ class RatePluginTest {
     fun `process should increase throughput count`() {
         val plugin = RatePlugin(config)
 
-        runBlocking { plugin.process("message") }
+        runBlocking { plugin.onMessageReceived("message") }
 
         assertEquals(1, plugin.throughput.get())
     }
@@ -25,20 +25,11 @@ class RatePluginTest {
     }
 
     @Test
-    fun `process should return input`() {
-        val plugin = RatePlugin(config)
-
-        val ret = runBlocking { plugin.process("message") }
-
-        assertEquals("message", ret)
-    }
-
-    @Test
     fun `report should reset count to 0`() {
         val plugin = RatePlugin(config)
 
         runBlocking {
-            plugin.process("message")
+            plugin.onMessageReceived("message")
             plugin.report()
         }
 

@@ -71,7 +71,7 @@ class AbstractPluginIntegrationTest {
     }
 }
 
-class TestPlugin(config: PipelinePluginConfiguration) : AbstractPipelinePlugin(config) {
+class TestPlugin(config: PipelinePluginConfiguration) : TransformingPipelinePlugin(config) {
     override suspend fun process(input: String): String? {
         return input
     }
@@ -111,10 +111,10 @@ class PluginManagerRunnable(
                 requests.add(0, msg)
                 val rep = when (msg) {
                     """{"id":"$pluginId","type":"pull"}""" -> {
-                        """{"isBind":"false","host":"$pluginPull"}"""
+                        """{"isBind":false,"host":"$pluginPull"}"""
                     }
                     """{"id":"$pluginId","type":"push"}""" -> {
-                        """{"isBind":"true","host":"$pluginPush"}"""
+                        """{"isBind":true,"host":"$pluginPush"}"""
                     }
                     else -> "Invalid Request"
                 }

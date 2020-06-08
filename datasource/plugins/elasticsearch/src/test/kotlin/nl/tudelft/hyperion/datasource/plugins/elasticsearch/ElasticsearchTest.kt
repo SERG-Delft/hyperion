@@ -1,6 +1,5 @@
 package nl.tudelft.hyperion.datasource.plugins.elasticsearch
 
-import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
@@ -10,27 +9,24 @@ import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.withTimeout
 import nl.tudelft.hyperion.datasource.common.DataPluginInitializationException
+import nl.tudelft.hyperion.pipeline.PeerConnectionInformation
+import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
 import org.elasticsearch.client.RestHighLevelClient
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertThrows
-import org.zeromq.SocketType
 import org.zeromq.ZContext
-import org.zeromq.ZMQ
 import java.util.Timer
 import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KClass
@@ -68,7 +64,7 @@ class ElasticsearchTest {
     fun globalSetUp() {
         testConfig = Configuration(
             5,
-            PipelineConfig("Elasticsearch", "localhost:5555"),
+            PipelinePluginConfiguration("Elasticsearch", "localhost:5555"),
             ElasticsearchConfig(
                 "host",
                 "index",
@@ -155,7 +151,7 @@ class ElasticsearchTest {
     fun `Builder should throw exception if partial authentication is given`() {
         val config = Configuration(
             5,
-            PipelineConfig("Elasticsearch", "localhost:5555"),
+            PipelinePluginConfiguration("Elasticsearch", "localhost:5555"),
             ElasticsearchConfig(
                 "host",
                 "index",
@@ -176,7 +172,7 @@ class ElasticsearchTest {
     fun `Builder should not throw exception if authentication is correct`() {
         val config = Configuration(
             5,
-            PipelineConfig("Elasticsearch", "localhost:5555"),
+            PipelinePluginConfiguration("Elasticsearch", "localhost:5555"),
             ElasticsearchConfig(
                 "host",
                 "index",
@@ -194,97 +190,6 @@ class ElasticsearchTest {
     }
 
     @Test
-    fun `queryConnectionInformation should succeed if sent correct peer information`() {
-        mockkConstructor(ZContext::class)
-
-        val socket = mockk<ZMQ.Socket>(relaxed = true)
-
-        every {
-            ZContext().createSocket(SocketType.REQ)
-        } returns socket
-
-        every {
-            socket.recvStr()
-        } returns """
-            {"host":"tcp://*:12345","isBind":true}
-        """.trimIndent()
-
-        val es = Elasticsearch(testConfig, mockClient)
-
-        es.queryConnectionInformation()
-
-        verify {
-            socket.connect("tcp://${testConfig.pipeline.host}")
-            socket.send("""{"id":"Elasticsearch","type":"push"}""")
-        }
-
-        assertNotNull(es.pubConnectionInformation)
-
-        unmockkAll()
-    }
-
-    @Test
-    fun `queryConnectionInformation should throw exception if sent incorrect peer information`() {
-        mockkConstructor(ZContext::class)
-
-        val socket = mockk<ZMQ.Socket>(relaxed = true)
-
-        every {
-            ZContext().createSocket(SocketType.REQ)
-        } returns socket
-
-        every {
-            socket.recvStr()
-        } returns """
-            {"host":"tcp://*:12345","isBind":"foo"}
-        """.trimIndent()
-
-        val es = Elasticsearch(testConfig, mockClient)
-
-        assertThrows<Exception> { es.queryConnectionInformation() }
-        assertEquals(null, es.pubConnectionInformation)
-
-        unmockkAll()
-    }
-
-    @Test
-    fun `Sender socket should bind if isBind is set to true`() {
-        mockkConstructor(ZContext::class)
-
-        val socket = mockk<ZMQ.Socket>(relaxed = true)
-        val channel = mockk<Channel<String>>(relaxed = true)
-
-        coEvery {
-            channel.receive()
-        } coAnswers {
-            """{"foo": "bar"}"""
-        }
-
-        every {
-            ZContext().createSocket(SocketType.PUSH)
-        } returns socket
-
-        val peerAddress = "tcp://localhost:12345"
-
-        val es = Elasticsearch(testConfig, mockClient)
-        es.pubConnectionInformation = PeerConnectionInformation(peerAddress, true)
-
-        runBlocking {
-            // possibly flaky
-            withTimeout(1000) {
-                es.runSender(channel = channel)
-            }
-        }
-
-        coVerify {
-            socket.bind(peerAddress)
-        }
-
-        unmockkAll()
-    }
-
-    @Test
-    @ExperimentalCoroutinesApi
     fun `Run should cleanup if sender is cancelled`() {
         mockkConstructor(ZContext::class)
 
@@ -293,6 +198,8 @@ class ElasticsearchTest {
         val peerAddress = "tcp://localhost:12345"
 
         val es = spyk(Elasticsearch(testConfig, mockClient))
+        es.hasConnectionInformation = true
+        es.subConnectionInformation = PeerConnectionInformation(null, false)
         es.pubConnectionInformation = PeerConnectionInformation(peerAddress, false)
 
         val job = es.run(Dispatchers.Unconfined)

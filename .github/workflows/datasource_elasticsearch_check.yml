@@ -27,9 +27,9 @@ jobs:
       - uses: actions/cache@v1
         with:
           path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          key: ${{ runner.os }}-datasource_elasticsearch-gradle-${{ hashFiles('**/*.gradle*') }}
           restore-keys: |
-            ${{ runner.os }}-gradle-
+            ${{ runner.os }}-datasource_elasticsearch-gradle-
 
       - name: gradle check elasticsearch plugin
         if: steps.hyperion-datasource-elasticsearch.outputs.changed == 'true'
