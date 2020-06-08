@@ -89,17 +89,28 @@ detekt {
     config = files("detekt-config.yml")
 }
 
+val sourcesJar by tasks.creating(Jar::class) {
+    archiveClassifier.set("sources")
+    from(sourceSets.getByName("main").allSource)
+}
+
+// groupId used for maven repository
+val pubGroup = "nl.tudelft.hyperion"
 publishing {
     publications {
         create<MavenPublication>("pipeline-common") {
             artifactId = "pipeline-common"
+            groupId = pubGroup
+            version = "0.1.0"
             from(components["java"])
 
             // include sources jar
-            //artifact(sourcesJar)
+            artifact(sourcesJar)
+
+            // TODO: include kdoc jar
 
             pom {
-                name.set("nl.tudelft.hyperion:pipeline-common")
+                name.set("$pubGroup:pipeline-common")
                 description.set("Easily write pipeline plugins for the Hyperion logging framework.")
                 url.set("https://github.com/SERG-Delft/monitoring-aware-ides")
 
@@ -133,7 +144,7 @@ bintray {
 
     pkg.apply {
         repo = "monitoring-aware-ides"
-        name = "nl.tudelft.hyperion:pipeline-common"
+        name = "$pubGroup:pipeline-common"
         setLicenses("Apache-2.0")
         userOrg = "serg-tudelft"
         vcsUrl = "https://github.com/SERG-Delft/monitoring-aware-ides.git"
@@ -143,9 +154,4 @@ bintray {
             released = Date().toString()
         }
     }
-}
-
-val sourcesJar by tasks.creating(Jar::class) {
-    archiveClassifier.set("sources")
-    from(sourceSets.getByName("main").allSource)
 }
