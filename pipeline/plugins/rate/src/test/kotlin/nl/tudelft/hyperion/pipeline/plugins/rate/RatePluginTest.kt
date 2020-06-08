@@ -18,6 +18,16 @@ class RatePluginTest {
     }
 
     @Test
+    fun `process should increase total count`() {
+        val plugin = RatePlugin(config)
+
+        runBlocking { plugin.onMessageReceived("message") }
+
+        assertEquals(1, plugin.throughput.get())
+        assertEquals(1, plugin.total.get())
+    }
+
+    @Test
     fun `throughput should be 0 on start`() {
         val plugin = RatePlugin(config)
 
@@ -34,5 +44,17 @@ class RatePluginTest {
         }
 
         assertEquals(0, plugin.throughput.get())
+    }
+
+    @Test
+    fun `report should not reset total count`() {
+        val plugin = RatePlugin(config)
+
+        runBlocking {
+            plugin.onMessageReceived("message")
+            plugin.report()
+        }
+
+        assertEquals(1, plugin.total.get())
     }
 }
