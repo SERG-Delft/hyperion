@@ -9,7 +9,7 @@ import java.nio.file.Path
 /**
  * Configuration for each plugin in the pipeline
  *
- * @id  Unique identifier of a pipeline plugin
+ * @id Unique identifier of a pipeline plugin
  * @host Host address to which other plugins should bind to given plugin
  */
 data class PipelinePluginConfig(
