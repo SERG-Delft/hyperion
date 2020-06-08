@@ -15,10 +15,17 @@ const val KOTLIN_COROUTINES_VERSION = "1.3.5"
 // Detekt version used for linting.
 const val DETEKT_VERSION = "1.8.0"
 
+// Version of the kotlin logging library used.
 const val KOTLIN_LOGGING_VERSION = "1.7.9"
+
+// Version of the slf4j simple logger used.
 const val SLF4J_VERSION = "1.7.28"
+
+// Version of MockK used.
 const val MOCKK_VERSION = "1.10.0"
 
-// When changing these, please update the build.gradle.kts in buildSrc accordingly.
+// Version of the gradle shadow plugin used.
 const val SHADOW_VERSION = "5.2.0"
+
+// Version of the gradle jacoco plugin used.
 const val JACOCO_VERSION = "0.8.5"
