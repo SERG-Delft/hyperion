@@ -411,7 +411,7 @@ class ExtractTests {
     }
 
     @Test
-    fun `int type while not being int type should add as string`() {
+    fun `int type while not being int type should add as string, nested`() {
         val config = Configuration(
             PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
                 ExtractableFieldConfiguration(
@@ -517,6 +517,51 @@ class ExtractTests {
         val input = """{ "message" : { "line" : "1"} }"""
 
         val treeExpected = mapper.readTree(input)
+        val treeActual = mapper.readTree(extract(input, config))
+
+        Assertions.assertEquals(treeExpected, treeActual)
+    }
+
+    @Test
+    fun `when target field ends at a leaf that was configured to be a node, nothing should be extracted`() {
+        val config = Configuration(
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
+                ExtractableFieldConfiguration(
+                    "message.line",
+                    "(1)",
+                    listOf(
+                        Extract("numeric.1", Type.NUMBER)
+                    )
+                )
+            )
+        )
+
+        val input = """{ "message" : { "line" : "1"}, "numeric" : "not an object" }"""
+
+        val treeExpected = mapper.readTree(input)
+        val treeActual = mapper.readTree(extract(input, config))
+
+        Assertions.assertEquals(treeExpected, treeActual)
+    }
+
+    @Test
+    fun `int type while not being int type should add as string`() {
+        val config = Configuration(
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
+                ExtractableFieldConfiguration(
+                    "message.line",
+                    "(n)",
+                    listOf(
+                        Extract("numeric", Type.NUMBER)
+                    )
+                )
+            )
+        )
+
+        val input = """{ "message" : { "line" : "n"} }"""
+        val expected = """{ "message" : { "line" : "n"}, "numeric" : "n" }""".trimMargin()
+
+        val treeExpected = mapper.readTree(expected)
         val treeActual = mapper.readTree(extract(input, config))
 
         Assertions.assertEquals(treeExpected, treeActual)

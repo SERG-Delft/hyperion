@@ -3,21 +3,10 @@ package nl.tudelft.hyperion.pipeline.pathextractor
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
+import nl.tudelft.hyperion.pipeline.findOrCreateChild
 import nl.tudelft.hyperion.pipeline.findParent
 
 private val mapper = ObjectMapper()
-
-/**
- * Helper function that will get or create an object child
- * of the current object node.
- */
-fun ObjectNode.findOrCreateChild(name: String): ObjectNode? {
-    if (this.get(name) != null) {
-        return this.get(name) as? ObjectNode
-    }
-
-    return this.putObject(name)
-}
 
 /**
  * Function that replaces the value of a package field with the actual java class path

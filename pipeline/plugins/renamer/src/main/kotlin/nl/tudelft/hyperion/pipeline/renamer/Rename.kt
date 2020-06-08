@@ -3,20 +3,9 @@ package nl.tudelft.hyperion.pipeline.renamer
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import nl.tudelft.hyperion.pipeline.JsonFieldNotFoundException
+import nl.tudelft.hyperion.pipeline.findOrCreateChild
 import nl.tudelft.hyperion.pipeline.findParent
 import java.lang.ClassCastException
-
-/**
- * Helper function that will get or create an object child
- * of the current object node.
- */
-fun ObjectNode.findOrCreateChild(name: String): ObjectNode? {
-    if (this.get(name) != null) {
-        return this.get(name) as? ObjectNode
-    }
-
-    return this.putObject(name)
-}
 
 private val mapper = ObjectMapper()
 

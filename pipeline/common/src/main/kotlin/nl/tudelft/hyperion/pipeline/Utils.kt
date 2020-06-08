@@ -60,6 +60,19 @@ inline fun <reified T : Any> readJSONContent(content: String): T {
 }
 
 /**
+ * Function that checks whether a child exists and creates it otherwise
+ * @param name The name of the child to be found or created
+ * @return The child node as ObjectNode
+ */
+fun ObjectNode.findOrCreateChild(name: String): ObjectNode? {
+    if (this.get(name) != null) {
+        return this.get(name) as? ObjectNode
+    }
+
+    return this.putObject(name)
+}
+
+/**
  * Function that finds a path in a json tree
  * @param root the root of the tree
  * @param field the path
