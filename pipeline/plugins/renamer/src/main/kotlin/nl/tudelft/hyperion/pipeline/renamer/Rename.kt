@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import nl.tudelft.hyperion.pipeline.JsonFieldNotFoundException
 import nl.tudelft.hyperion.pipeline.findOrCreateChild
 import nl.tudelft.hyperion.pipeline.findParent
-import java.lang.ClassCastException
 
 private val mapper = ObjectMapper()
 
@@ -16,11 +15,11 @@ private val mapper = ObjectMapper()
  * @param config the renaming configuration
  * @return A JSON string with renamed fields
  */
-@Suppress("LoopWithTooManyJumpStatements")
+@Suppress("TooGenericExceptionCaught", "LoopWithTooManyJumpStatements")
 fun rename(json: String, config: Configuration): String {
     val tree = try {
         mapper.readTree(json) as ObjectNode
-    } catch (ex: ClassCastException) {
+    } catch (ex: Exception) {
         return json
     }
 

@@ -6,6 +6,8 @@ import nl.tudelft.hyperion.pipeline.JsonFieldNotFoundException
 import nl.tudelft.hyperion.pipeline.findOrCreateChild
 import nl.tudelft.hyperion.pipeline.findParent
 
+private val logger = mu.KotlinLogging.logger {}
+
 /**
  * Function that adds a new node with a (possibly hierarchical) path and a value to an ObjectNode
  * @param type The type of the value
@@ -42,7 +44,7 @@ fun ObjectNode.put(type: Type, value: String, name: String): ObjectNode {
             }
         } catch (ex: NumberFormatException) {
             target?.put(leafName, value)
-            ex.printStackTrace()
+            logger.error("$ex")
         }
     }
 

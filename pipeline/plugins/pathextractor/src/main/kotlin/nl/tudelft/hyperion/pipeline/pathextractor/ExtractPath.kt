@@ -14,7 +14,7 @@ private val mapper = ObjectMapper()
  * @param config The path renaming configuration
  * @return A JSON string with the new value
  */
-@Suppress("TooGenericExceptionCaught", "TooGenericExceptionThrown")
+@Suppress("ReturnCount", "TooGenericExceptionCaught")
 fun extractPath(input: String, config: Configuration): String {
     // Return value unmodified if not valid JSON or not an object
     try {
@@ -32,7 +32,7 @@ fun extractPath(input: String, config: Configuration): String {
 
             val target = config.toPath.fold(tree as ObjectNode?, { p, c ->
                 p?.findOrCreateChild(c)
-            }) ?: throw Exception()
+            }) ?: return input
 
             target.put(config.fieldName, newValue)
         }
