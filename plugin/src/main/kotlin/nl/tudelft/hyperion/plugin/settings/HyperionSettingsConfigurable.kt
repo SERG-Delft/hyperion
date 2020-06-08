@@ -11,12 +11,16 @@ import javax.swing.JComponent
 class HyperionSettingsConfigurable(val project: Project) : SearchableConfigurable {
     lateinit var settingsPane: HyperionSettingsForm
 
+    companion object {
+        const val ID = "hyperion.settings"
+        const val DISPLAY_NAME = "Hyperion"
+    }
 
     /**
      * Unique configurable id for the Hyperion Settings.
      */
     override fun getId(): String {
-        return "hyperion.settings"
+        return ID
     }
 
     /**
@@ -57,7 +61,7 @@ class HyperionSettingsConfigurable(val project: Project) : SearchableConfigurabl
      * @return the visible name of the configurable component
      */
     override fun getDisplayName(): String {
-        return "Hyperion"
+        return DISPLAY_NAME
     }
 
     /**
