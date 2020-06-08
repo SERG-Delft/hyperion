@@ -16,8 +16,6 @@ private val mapper = ObjectMapper()
  */
 @Suppress("TooGenericExceptionCaught", "TooGenericExceptionThrown")
 fun extractPath(input: String, config: Configuration): String {
-
-
     // Return value unmodified if not valid JSON or not an object
     try {
         val tree = mapper.readTree(input) as ObjectNode

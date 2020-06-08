@@ -3,7 +3,7 @@ plugins {
 }
 
 setupKotlinPlugins()
-setupJacocoPlugin(branchCoverage = 0.5, lineCoverage = 0.7, runOnIntegrationTest = true)
+setupJacocoPlugin(branchCoverage = 0.4, lineCoverage = 0.7, runOnIntegrationTest = true)
 
 dependencies {
     // Yaml/JSON deserialization
