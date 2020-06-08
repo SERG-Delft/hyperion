@@ -1,5 +1,6 @@
 package nl.tudelft.hyperion.pluginmanager
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.zeromq.SocketType
@@ -162,6 +163,7 @@ class PluginManager(config: Configuration) {
  */
 data class PeerConnectionInformation(
     val host: String?,
+    @get:JsonProperty("isBind") // Jackson will change this to "bind" by default.
     val isBind: Boolean
 ) {
     companion object {
