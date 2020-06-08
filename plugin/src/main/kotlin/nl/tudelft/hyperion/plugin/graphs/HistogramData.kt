@@ -57,7 +57,6 @@ fun parseAPIBinResponse(
     defaultColor: Color,
     response: APIBinMetricsResponse<out BaseAPIMetric>
 ): HistogramData {
-    // TODO: also add parsing for the severity label
     val bins = mutableListOf<Array<Int>>()
     val colors = mutableListOf<Array<Color>>()
     val severities = mutableListOf<Array<String>>()

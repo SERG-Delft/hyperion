@@ -31,12 +31,17 @@ class OpenFileGraphAction : AnAction() {
         hyperionSettings.state.visualization.filePath = relativePath
         hyperionSettings.state.visualization.fileOnly = true
 
+        // TODO: remove hardcoded version
+        VisWindowFactory.histogramTab.updateAllSettings()
+        VisWindowFactory.histogramTab.queryAndUpdate("v1.0.0")
+
         // Open tool window if it exists
         ToolWindowManager
             .getInstance(currentProject)
             .getToolWindow("Visualization")
-            ?.show(null)
-
-        VisWindowFactory.histogramTab.updateAllSettings()
+            ?.apply {
+                this.component.repaint()
+                show(null)
+            }
     }
 }

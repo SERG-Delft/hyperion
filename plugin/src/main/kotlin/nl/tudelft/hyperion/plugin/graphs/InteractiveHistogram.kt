@@ -193,13 +193,7 @@ class InteractiveHistogram(
         for ((i, bar) in bars.withIndex()) {
 
             // Draw timestamps
-            val xLabelFontMetrics = g.getFontMetrics(font)
-            g.color = Color.GRAY
-            g.drawString(
-                data.timestamps[i],
-                bar.startX + bar.width - xLabelFontMetrics.stringWidth(data.timestamps[i]) / 2,
-                bottomY + xLabelFontMetrics.height
-            )
+            drawTimeStamps(g, data.timestamps[i], bar)
 
             // Draw bars
             for ((j, box) in bar.boxes.withIndex()) {
@@ -211,6 +205,21 @@ class InteractiveHistogram(
                     drawBoxOverlay(g, bar, box, data.labels[i][j], data.frequency[i][j].toString())
                 }
             }
+        }
+    }
+
+    private fun drawTimeStamps(g: Graphics, text: String, bar: Bar) {
+        val xLabelFontMetrics = g.getFontMetrics(font)
+        g.color = Color.GRAY
+
+        val lines = text.split("\n")
+
+        for ((i, line) in lines.withIndex()) {
+            g.drawString(
+                line,
+                bar.startX + bar.width - xLabelFontMetrics.stringWidth(line) / 2,
+                bottomY + xLabelFontMetrics.height + i * xLabelFontMetrics.height
+            )
         }
     }
 

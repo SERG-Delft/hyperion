@@ -59,7 +59,7 @@ class VisWindow {
                 .state
                 .visualization
 
-        private val DATETIME_FORMATTER: DateTimeFormatter = DateTimeFormat.forPattern("MMM dd kk:mm:ss");
+        private val DATETIME_FORMATTER: DateTimeFormatter = DateTimeFormat.forPattern("kk:mm:ss\nMMM dd");
     }
 
     val content
@@ -113,28 +113,28 @@ class VisWindow {
         }
     }
 
-    private suspend fun queryBinAPI(
-        version: String,
-        relativeTime: Int,
-        steps: Int
-    ): HistogramData {
+    fun queryAndUpdate(version: String) = runBlocking {
         val project = ProjectManager.getInstance().openProjects[0]
-        val data = APIRequestor.getBinnedMetrics(project, relativeTime, steps)
 
-        return parseAPIBinResponse(version, DATETIME_FORMATTER, HISTOGRAM_COLOR_SCHEME, HISTOGRAM_DEFAULT_COLOR, data)
-    }
-
-    private fun queryAndUpdate(version: String) {
-        runBlocking {
-            launch(Dispatchers.IO) {
-                val params = queryBinAPI(
-                    version,
+        launch(Dispatchers.IO) {
+            val params = if (visualizationSettings.fileOnly) {
+                val data = APIRequestor.getBinnedMetrics(
+                    visualizationSettings.filePath!!,
+                    project,
                     visualizationSettings.interval.relativeTime,
                     visualizationSettings.timesteps
                 )
-                val hist = (main as InteractiveHistogram)
-                hist.update(params)
+                parseAPIBinResponse(version, DATETIME_FORMATTER, HISTOGRAM_COLOR_SCHEME, HISTOGRAM_DEFAULT_COLOR, data)
+            } else {
+                val data = APIRequestor.getBinnedMetrics(
+                    project,
+                    visualizationSettings.interval.relativeTime,
+                    visualizationSettings.timesteps
+                )
+                parseAPIBinResponse(version, DATETIME_FORMATTER, HISTOGRAM_COLOR_SCHEME, HISTOGRAM_DEFAULT_COLOR, data)
             }
+            val hist = (main as InteractiveHistogram)
+            hist.update(params)
         }
     }
 
