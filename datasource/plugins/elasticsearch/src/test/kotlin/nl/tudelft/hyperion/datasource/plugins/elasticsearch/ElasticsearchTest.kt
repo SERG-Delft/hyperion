@@ -88,7 +88,12 @@ class ElasticsearchTest {
     fun `Correct search parameters after createSearchRequest`() {
         val hitCount = 10
         val index = "foo"
-        val req = Elasticsearch.createSearchRequest(index, "time", 1, 1, hitCount)
+        val req = Elasticsearch.createSearchRequest(
+            Elasticsearch.Companion.SearchRequestParameters(
+                index, "time", 1,
+                1, hitCount
+            )
+        )
 
         assertEquals(hitCount, req.source().size())
         assertTrue(index in req.indices())

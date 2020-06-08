@@ -1,5 +1,6 @@
 package nl.tudelft.hyperion.datasource.plugins.elasticsearch
 
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -46,37 +47,44 @@ class Elasticsearch(
         private val logger = KotlinLogging.logger {}
 
         /**
+         * Represents the minimal required parameters for creating a search
+         * request.
+         *
+         * @property index the name of the ES index to query from
+         * @property timeStampField the name of the time field in the ES index
+         * @property currentTime the current epoch time in seconds
+         * @property range the time range in seconds
+         * @property responseHitCount the maximum amount of hits to return
+         */
+        data class SearchRequestParameters(
+            val index: String,
+            val timeStampField: String,
+            val currentTime: Int,
+            val range: Int,
+            val responseHitCount: Int
+        )
+
+        /**
          * Creates a search request that queries all logs between a certain timestamp.
          *
-         * @param index the name of the ES index to query from
-         * @param timeStampField the name of the time field in the ES index
-         * @param currentTime the current epoch time in seconds
-         * @param range the time range in seconds
-         * @param responseHitCount the maximum amount of hits to return
+         * @param params required parameters for the search request
          * @return the created search request
          */
-        fun createSearchRequest(
-            index: String,
-            timeStampField: String,
-            currentTime: Int,
-            range: Int,
-            responseHitCount: Int
-        ): SearchRequest {
-
+        fun createSearchRequest(params: SearchRequestParameters): SearchRequest {
             val searchRequest = SearchRequest()
-            searchRequest.indices(index)
+            searchRequest.indices(params.index)
 
             val query = QueryBuilders
-                .rangeQuery(timeStampField)
-                .gt(currentTime - range)
-                .to(currentTime)
+                .rangeQuery(params.timeStampField)
+                .gt(params.currentTime - params.range)
+                .to(params.currentTime)
                 .format("epoch_second")
 
             logger.debug { "Sending query: $query" }
 
             val searchBuilder = SearchSourceBuilder()
             searchBuilder.query(query)
-            searchBuilder.size(responseHitCount)
+            searchBuilder.size(params.responseHitCount)
 
             return searchRequest.source(searchBuilder)
         }
@@ -161,22 +169,19 @@ class Elasticsearch(
             sendQueued(it.sourceAsString)
         }
 
-        val pipelineWorker = super.run(context)
-
         logger.info { "Starting retrieval of logs" }
+        val pipelineWorker = super.run(context)
+        timer = createRequestScheduler(requestHandler)
+        runForever(pipelineWorker)
+    }
 
-        timer = fixedRateTimer("requestScheduler", period = config.pollInterval * 1000.toLong(), daemon = true) {
-            val searchRequest = createSearchRequest(
-                config.es.index,
-                config.es.timestampField,
-                (System.currentTimeMillis() / 1000).toInt(),
-                config.pollInterval,
-                config.es.responseHitCount
-            )
-
-            esClient.searchAsync(searchRequest, RequestOptions.DEFAULT, requestHandler)
-        }
-
+    /**
+     * Run forever until an exception occurs.
+     * Also does cleanup after execution.
+     *
+     * @param pipelineWorker the pipeline worker to also clean up after execution.
+     */
+    private suspend fun CoroutineScope.runForever(pipelineWorker: Job) {
         try {
             while (isActive) {
                 delay(Long.MAX_VALUE)
@@ -187,6 +192,28 @@ class Elasticsearch(
             pipelineWorker.cancelAndJoin()
         }
     }
+
+    /**
+     * Creates a [Timer] that periodically sends a request to Elasticsearch
+     * using parameters from the [Configuration] property.
+     *
+     * @param requestHandler the handler object.
+     * @return the timer that runs every [Configuration.pollInterval].
+     */
+    private fun createRequestScheduler(requestHandler: RequestHandler): Timer =
+        fixedRateTimer("requestScheduler", period = config.pollInterval * 1000L, daemon = true) {
+            val searchRequest = createSearchRequest(
+                SearchRequestParameters(
+                    config.es.index,
+                    config.es.timestampField,
+                    (System.currentTimeMillis() / 1000).toInt(),
+                    config.pollInterval,
+                    config.es.responseHitCount
+                )
+            )
+
+            esClient.searchAsync(searchRequest, RequestOptions.DEFAULT, requestHandler)
+        }
 
     override fun start(): Job = run(Dispatchers.Default)
 
