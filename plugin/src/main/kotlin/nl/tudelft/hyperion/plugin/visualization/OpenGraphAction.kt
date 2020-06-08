@@ -24,5 +24,7 @@ class OpenGraphAction : AnAction() {
             .getInstance(currentProject)
             .getToolWindow("Visualization")
             ?.show(null)
+
+        VisWindowFactory.histogramTab.updateAllSettings()
     }
 }

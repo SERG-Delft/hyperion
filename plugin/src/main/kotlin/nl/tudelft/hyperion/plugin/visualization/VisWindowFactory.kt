@@ -6,11 +6,15 @@ import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.content.ContentFactory
 
 class VisWindowFactory : ToolWindowFactory {
+    companion object {
+        lateinit var histogramTab: VisWindow
+    }
+
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
-        val myToolWindow = VisWindow()
+        histogramTab = VisWindow()
         val contentFactory = ContentFactory.SERVICE.getInstance()
         val content = contentFactory.createContent(
-            myToolWindow.content,
+            histogramTab.content,
             "",
             false
         )

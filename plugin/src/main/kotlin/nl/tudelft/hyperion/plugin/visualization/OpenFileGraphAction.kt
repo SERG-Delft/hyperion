@@ -3,12 +3,8 @@ package nl.tudelft.hyperion.plugin.visualization
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
-import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.wm.ToolWindowManager
 import nl.tudelft.hyperion.plugin.settings.HyperionSettings
-import java.awt.BorderLayout
-import javax.swing.JLabel
-import javax.swing.JPanel
 
 class OpenFileGraphAction : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
@@ -40,5 +36,7 @@ class OpenFileGraphAction : AnAction() {
             .getInstance(currentProject)
             .getToolWindow("Visualization")
             ?.show(null)
+
+        VisWindowFactory.histogramTab.updateAllSettings()
     }
 }
