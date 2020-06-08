@@ -1,12 +1,12 @@
-# Runs Gradle Check on the pipeline reader plugin
+# Runs Gradle Check on the pipeline stresser plugin
 # Will be triggered on every pull request and push to master
 # Only commences on check if the code changed
-name: Gradle check pipeline reader plugin
+name: Gradle check pipeline stresser plugin
 
 on:
   pull_request:
     paths:
-      - 'pipeline/plugins/reader/**'
+      - 'pipeline/plugins/stresser/**'
   push:
     branches:
       - master
@@ -25,11 +25,11 @@ jobs:
       - uses: actions/cache@v1
         with:
           path: ~/.gradle/caches
-          key: ${{ runner.os }}-pipeline_reader-gradle-${{ hashFiles('**/*.gradle*') }}
+          key: ${{ runner.os }}-pipeline_stresser-gradle-${{ hashFiles('**/*.gradle*') }}
           restore-keys: |
-            ${{ runner.os }}-pipeline_reader-gradle
+            ${{ runner.os }}-pipeline_stresser-gradle
 
       - name: gradle check plugin
         uses: eskatos/gradle-command-action@v1
         with:
-          arguments: :pipeline:plugins:reader:check
+          arguments: :pipeline:plugins:stresser:check
