@@ -8,6 +8,7 @@ plugins {
     id("maven-publish")
     id("com.jfrog.bintray") version "1.8.5"
     id("org.jetbrains.dokka") version "0.10.1"
+    signing
 }
 
 jacoco {
@@ -147,6 +148,15 @@ publishing {
             }
         }
     }
+
+    // set the repository for publishing the artifacts, properties can be found at:
+    // https://docs.gradle.org/current/dsl/org.gradle.api.artifacts.repositories.MavenArtifactRepository.html
+    repositories {
+        maven {
+            name = "com.github.sergdelft.hyperion:pipelin-common"
+            url = uri("file://${buildDir}/repo")
+        }
+    }
 }
 
 bintray {
@@ -167,4 +177,8 @@ bintray {
             released = Date().toString()
         }
     }
+}
+
+signing {
+    sign(publishing.publications["pipeline-common"])
 }
