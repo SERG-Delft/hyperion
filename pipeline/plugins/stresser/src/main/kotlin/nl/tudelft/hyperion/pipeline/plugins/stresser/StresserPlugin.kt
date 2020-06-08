@@ -24,7 +24,7 @@ class StresserPlugin(private val config: StresserConfiguration) : AbstractPipeli
     // Verify that we're the first step in the pipeline.
     override fun run(context: CoroutineContext): Job {
         if (!canSend || canReceive) {
-            throw IllegalStateException("The 'reader' plugin must be the first step in the pipeline.")
+            throw IllegalStateException("The 'stresser' plugin must be the first step in the pipeline.")
         }
 
         return workerScope.launch {
@@ -37,6 +37,8 @@ class StresserPlugin(private val config: StresserConfiguration) : AbstractPipeli
             } else {
                 runInfinitePublisher(push)
             }
+
+            push.closeConnection()
         }
     }
 
