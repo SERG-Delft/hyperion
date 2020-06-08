@@ -62,6 +62,9 @@
             <keyboard-shortcut first-keystroke="control alt H" second-keystroke="F" keymap="$default"/>
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </action>
+        <action id="nl.tudelft.hyperion.plugin.visualization.OpenFileGraphAction"
+                class="nl.tudelft.hyperion.plugin.visualization.OpenFileGraphAction"
+                text="Hyperion: Visualize Current File" description="Show log metrics of current open file"/>
     </actions>
     <extensions defaultExtensionNs="com.intellij">
         <projectService serviceImplementation="nl.tudelft.hyperion.plugin.settings.HyperionSettings"/>

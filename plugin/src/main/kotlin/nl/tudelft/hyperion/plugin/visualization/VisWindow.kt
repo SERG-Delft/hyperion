@@ -13,23 +13,28 @@ import nl.tudelft.hyperion.plugin.graphs.HistogramData
 import nl.tudelft.hyperion.plugin.graphs.InteractiveHistogram
 import nl.tudelft.hyperion.plugin.metric.APIBinMetricsResponse
 import nl.tudelft.hyperion.plugin.metric.BaseAPIMetric
+import nl.tudelft.hyperion.plugin.settings.HyperionSettings
+import nl.tudelft.hyperion.plugin.graphs.HistogramInterval
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import java.awt.Color
+import java.awt.event.ItemEvent
 import javax.swing.JButton
 import javax.swing.JCheckBox
 import javax.swing.JComboBox
 import javax.swing.JLabel
 import javax.swing.JPanel
+import javax.swing.JTextField
 
 class VisWindow {
     lateinit var root: JPanel
     lateinit var main: JPanel
-    lateinit var granularityComboBox: JComboBox<String>
+    lateinit var granularityComboBox: JComboBox<HistogramInterval>
     lateinit var onlyFileCheckBox: JCheckBox
     lateinit var statusLabel: JLabel
     lateinit var refreshButton: JButton
+    lateinit var fileField: JTextField
 
     companion object {
         const val HISTOGRAM_X_MARGIN = 50
@@ -50,6 +55,7 @@ class VisWindow {
         )
 
         private val logger = Logger.getInstance(VisWindow::class.java)
+        private val hyperionSettings = HyperionSettings.getInstance(ProjectManager.getInstance().openProjects[0])
 
         private val DATETIME_FORMATTER: DateTimeFormatter = DateTimeFormat.forPattern("kk:mm:ss");
 
@@ -107,12 +113,39 @@ class VisWindow {
         get() = root
 
     fun createUIComponents() {
-        // Currently placeholder
-        granularityComboBox = ComboBox(arrayOf("30M", "1H", "3H", "6H", "24H", "7D"))
-        onlyFileCheckBox = JCheckBox()
-        statusLabel = JLabel()
-        refreshButton = JButton()
+        granularityComboBox = ComboBox(HistogramInterval.values())
+        granularityComboBox.addItemListener {
+            if (it.stateChange == ItemEvent.SELECTED) {
+                val selectedItem = it.item as HistogramInterval
+                // Store the interval in persistence
+                hyperionSettings.state.visualization.interval = selectedItem
+                runBlocking {
+                    launch(Dispatchers.IO) {
+                        val params = queryBinAPI("v1.0.0", selectedItem.relativeTime, 12)
+                        val hist = (main as InteractiveHistogram)
+                        hist.update(params)
+                    }
+                }
+            }
+        }
 
+        fileField = JTextField()
+        if (hyperionSettings.state.visualization.fileOnly) {
+            fileField.isVisible = true
+            fileField.text = hyperionSettings.state.visualization.filePath ?: ""
+        } else {
+            fileField.isVisible = false
+        }
+
+        onlyFileCheckBox = JCheckBox()
+        onlyFileCheckBox.isSelected = hyperionSettings.state.visualization.fileOnly
+        onlyFileCheckBox.addItemListener {
+            val isSelected = it.stateChange == ItemEvent.SELECTED
+            fileField.isVisible = isSelected
+            hyperionSettings.state.visualization.fileOnly = isSelected
+        }
+
+        refreshButton = JButton()
         refreshButton.addActionListener {
             runBlocking {
                 launch(Dispatchers.IO) {
@@ -125,13 +158,13 @@ class VisWindow {
 
         main = createHistogramComponent()
 
-        runBlocking {
-            launch(Dispatchers.IO) {
-                val params = queryBinAPI("v1.0.0", 2400, 12)
-                val hist = (main as InteractiveHistogram)
-                hist.update(params)
-            }
-        }
+        // runBlocking {
+        //     launch(Dispatchers.IO) {
+        //         val params = queryBinAPI("v1.0.0", 2400, 12)
+        //         val hist = (main as InteractiveHistogram)
+        //         hist.update(params)
+        //     }
+        // }
     }
 
     private suspend fun queryBinAPI(

@@ -4,6 +4,11 @@ import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.openapi.project.Project
+import com.intellij.util.xmlb.annotations.Attribute
+import com.intellij.util.xmlb.annotations.OptionTag
+import nl.tudelft.hyperion.plugin.graphs.HistogramInterval
+import nl.tudelft.hyperion.plugin.graphs.HistogramSettings
+import nl.tudelft.hyperion.plugin.graphs.HistogramSettingsConverter
 
 /**
  * Class that holds persistent states for Hyperion's project scope settings.
@@ -18,6 +23,11 @@ class HyperionSettings(private val relatedProject: Project) : PersistentStateCom
         intervals = listOf(3600, 86400, 2592000)
         address = "hyperion.internal.yourcompany.com"
         project = relatedProject.name
+        visualization = HistogramSettings(
+            HistogramInterval.HalfHour,
+            12,
+            false
+        )
     }
 
     /**
@@ -27,6 +37,9 @@ class HyperionSettings(private val relatedProject: Project) : PersistentStateCom
         lateinit var intervals: List<Int>
         lateinit var address: String
         lateinit var project: String
+
+        @Attribute(converter = HistogramSettingsConverter::class)
+        lateinit var visualization: HistogramSettings
     }
 
     companion object {
