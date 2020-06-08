@@ -27,7 +27,8 @@ class HyperionSettingsConfigurable(val project: Project) : SearchableConfigurabl
      * @return new Swing form to show, or `null` if it cannot be created
      */
     override fun createComponent(): JComponent? {
-        settingsPane = HyperionSettingsForm(project)
+        // If settingsPane hasn't been initialized yet we need to create it.
+        if (!this::settingsPane.isInitialized) settingsPane = HyperionSettingsForm(project)
         return settingsPane.root
     }
 
