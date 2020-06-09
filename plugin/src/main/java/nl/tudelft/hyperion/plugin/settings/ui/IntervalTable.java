@@ -14,15 +14,16 @@ import java.util.stream.Collectors;
  * period scales it accordingly. For example a row can be {2, Hours} representing 2 Hours or 7200 seconds.
  */
 public class IntervalTable extends JBTable {
+    private final IntervalTableModel tableModel;
     /**
      * List of Rows representing the data we saved last time
      * {@link HyperionSettingsForm#apply()} was pressed.
      */
     private List<Row> lastData;
-    private final IntervalTableModel tableModel;
 
     /**
      * Instantiate new IntervalTable with given data to display.
+     *
      * @param data rows to display in the table.
      */
     public IntervalTable(List<Row> data) {
@@ -38,7 +39,19 @@ public class IntervalTable extends JBTable {
     }
 
     /**
+     * Private method used to deep clone rows of data.
+     * This is so we can compare the current data to the last saved data.
+     *
+     * @param data data to clone.
+     * @return Cloned data.
+     */
+    private static List<Row> cloneData(List<Row> data) {
+        return data.stream().map(Row::clone).collect(Collectors.toList());
+    }
+
+    /**
      * Gets the latest data from the table. This includes any changes the user has made
+     *
      * @return latest (potentially edited) data from table.
      */
     List<Row> getCurrentData() {
@@ -55,6 +68,7 @@ public class IntervalTable extends JBTable {
     /**
      * Returns the TableModel {@link IntervalTableModel} for this IntervalTable.
      * The Model contains data and information regarding column types etc.
+     *
      * @return the IntervalTableModel for this IntervalTable.
      */
     IntervalTableModel getIntervalTableModel() {
@@ -64,6 +78,7 @@ public class IntervalTable extends JBTable {
     /**
      * This is called when the data currently in the table has been saved.
      * We thus update lastData and return the data we updated to.
+     *
      * @return the updated data.
      */
     List<Row> updateData() {
@@ -72,19 +87,10 @@ public class IntervalTable extends JBTable {
 
     /**
      * Checks if the table has been modified compared to the last time we saved.
+     *
      * @return boolean value that returns true when the current data has deviated from the last saved data.
      */
     boolean isModified() {
         return !lastData.equals(getCurrentData());
-    }
-
-    /**
-     * Private method used to deep clone rows of data.
-     * This is so we can compare the current data to the last saved data.
-     * @param data data to clone.
-     * @return Cloned data.
-     */
-    private static List<Row> cloneData(List<Row> data) {
-        return data.stream().map(Row::clone).collect(Collectors.toList());
     }
 }
