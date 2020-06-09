@@ -141,12 +141,11 @@ class VisWindow {
 
         val branch = repo.getBranchTrackInfo(repo.currentBranchName!!)?.remoteBranch?.name
 
-        val gitCommandResult = Git.getInstance().runCommand {
-            val handler = GitLineHandler(ideProject, repo.root, GitCommand.REV_PARSE)
-            handler.addParameters(branch!!)
-            handler.endOptions()
-            handler
-        }
+        val handler = GitLineHandler(ideProject, repo.root, GitCommand.REV_PARSE)
+        handler.addParameters(branch!!)
+        handler.endOptions()
+
+        val gitCommandResult = Git.getInstance().runCommand(handler)
 
         return if (gitCommandResult.success()) {
             // The first line is the version hash
@@ -215,7 +214,7 @@ class VisWindow {
                 arrayOf(
                     arrayOf(10),
                     arrayOf(10, 30, 5),
-                    arrayOf(20, 20, 10, 5),
+                    arrayOf(),
                     arrayOf(20, 15, 40, 5),
                     arrayOf(20, 15, 30, 5),
                     arrayOf(20, 15, 50, 5),
@@ -225,7 +224,7 @@ class VisWindow {
                 arrayOf(
                     arrayOf(Color.RED),
                     arrayOf(Color.ORANGE, Color.GREEN, Color.BLUE),
-                    arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
+                    arrayOf(),
                     arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
                     arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
                     arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
@@ -235,7 +234,7 @@ class VisWindow {
                 arrayOf(
                     arrayOf("ERROR"),
                     arrayOf("WARN", "INFO", "DEBUG"),
-                    arrayOf("ERROR", "WARN", "INFO", "DEBUG"),
+                    arrayOf(),
                     arrayOf("ERROR", "WARN", "INFO", "DEBUG"),
                     arrayOf("ERROR", "WARN", "INFO", "DEBUG"),
                     arrayOf("ERROR", "WARN", "INFO", "DEBUG"),

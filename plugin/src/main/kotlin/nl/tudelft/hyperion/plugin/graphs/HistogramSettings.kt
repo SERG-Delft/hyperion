@@ -17,13 +17,13 @@ enum class HistogramInterval(
     private val repr: String,
     val relativeTime: Int
 ) {
-    HalfHour("30M", 1800),
-    Hour("1H", 3600),
-    QuarterDay("6H", 21600),
-    HalfDay("12H", 43200),
-    Day("1D", 86400),
-    ThreeDays("3D", 259200),
-    Week("7D", 604800);
+    HalfHour("Last 30 Minutes", 1800),
+    Hour("Last Hour", 3600),
+    QuarterDay("Last 6 Hours", 21600),
+    HalfDay("Last 12 Hours", 43200),
+    Day("Last Day", 86400),
+    ThreeDays("Last 3 Days", 259200),
+    Week("Last 7 Days", 604800);
 
     override fun toString(): String = repr
 }

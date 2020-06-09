@@ -38,6 +38,7 @@ class InteractiveHistogram(
     var bars: Array<Bar> = initialData.frequency.map { Bar(it.size) }.toTypedArray()
 
     var collidingBox: Box? = null
+    var collidingBar: Bar? = null
     var isCurrentlyColored = false
 
     /**
@@ -72,15 +73,16 @@ class InteractiveHistogram(
     init {
         this.addMouseMotionListener(object : MouseMotionAdapter() {
             override fun mouseMoved(e: MouseEvent?) {
-                collidingBox = checkCollide(e?.x!!, e.y)
+                val (bar, box) = checkCollide(e?.x!!, e.y)
+                collidingBar = bar
+                collidingBox = box
 
                 // Only redraw if the cursor is hovering over any of the boxes
-                if (collidingBox != null) {
+                if (bar != null || box != null) {
                     // TODO: make it only repaint the rect of what needs to be redrawn
                     //  instead of the entire JPanel
                     this@InteractiveHistogram.repaint()
                     isCurrentlyColored = true
-
                 } else if (isCurrentlyColored) {
                     this@InteractiveHistogram.repaint()
                     isCurrentlyColored = false
@@ -100,10 +102,12 @@ class InteractiveHistogram(
     companion object {
         // What text to put on the Y axis
         const val Y_AXIS_LABEL = "count"
-        const val Y_AXIS_LABEL_SPACING = 20
+        const val Y_AXIS_LABEL_SPACING = 10
 
         // Color the overlay with a transparent gray
         val OVERLAY_COLOR = Color(0.8F, 0.8F, 0.8F, 0.6F)
+
+        val LABEL_COLOR = Color.GRAY
     }
 
     /**
@@ -161,7 +165,7 @@ class InteractiveHistogram(
         super.paintComponent(g)
 
         // Draw X and Y axis
-        g.color = Color.GRAY
+        g.color = LABEL_COLOR
         g.drawLine(xMargin, bottomY, width - xMargin, bottomY)
         g.drawLine(xMargin, bottomY, xMargin, topY)
 
@@ -170,12 +174,6 @@ class InteractiveHistogram(
         // Set anti aliasing
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
-
-        // Draw Y-axis label
-        g2.font = verticalFont
-        val yLabelLength = g.getFontMetrics(font).stringWidth(Y_AXIS_LABEL)
-        g2.drawString(Y_AXIS_LABEL, xMargin - Y_AXIS_LABEL_SPACING, (height + yLabelLength) / 2)
-        g2.font = font
 
         drawHistogram(g)
     }
@@ -192,10 +190,17 @@ class InteractiveHistogram(
             calculateBoxes()
         }
 
+        // TODO: nicely parse the number with a suffix, e.g. 10_000 -> 10K
+        drawYAxisLabels(g, "0", data.frequency.map { it.sum() }.max().toString())
+
         for ((i, bar) in bars.withIndex()) {
 
             // Draw timestamps
-            drawTimeStamps(g, data.timestamps[i], bar)
+            drawTimeStamp(g, data.timestamps[i], bar)
+
+            if (bar === collidingBar && collidingBox == null) {
+                drawBarOverlay(g, bar, data.frequency[i].sum().toString())
+            }
 
             // Draw bars
             for ((j, box) in bar.boxes.withIndex()) {
@@ -210,9 +215,17 @@ class InteractiveHistogram(
         }
     }
 
-    private fun drawTimeStamps(g: Graphics, text: String, bar: Bar) {
+    /**
+     * Draws the x-axis timestamp values.
+     * The given text is split over multiple lines if it contains a new line.
+     *
+     * @param g the [Graphics] object used to draw on the buffer.
+     * @param text the timestamp or label to draw.
+     * @param bar which bar to draw the timestamp after.
+     */
+    private fun drawTimeStamp(g: Graphics, text: String, bar: Bar) {
         val xLabelFontMetrics = g.getFontMetrics(font)
-        g.color = Color.GRAY
+        g.color = LABEL_COLOR
 
         val lines = text.split("\n")
 
@@ -223,6 +236,34 @@ class InteractiveHistogram(
                 bottomY + xLabelFontMetrics.height + i * xLabelFontMetrics.height
             )
         }
+    }
+
+    /**
+     * Draws a value at the top and bottom of the Y-axis.
+     *
+     * @param g the [Graphics] object used to draw on the buffer.
+     * @param minLabel the string to draw at the bottom.
+     * @param maxLabel the string to draw at the top.
+     */
+    private fun drawYAxisLabels(g: Graphics, minLabel: String, maxLabel: String) {
+        g.color = LABEL_COLOR
+        val maxLabelWidth = g.fontMetrics.stringWidth(maxLabel)
+        g.drawString(
+            maxLabel,
+            xMargin - maxLabelWidth - Y_AXIS_LABEL_SPACING,
+            topY + g.fontMetrics.height / 2
+        )
+        g.drawString(
+            minLabel,
+            xMargin - g.fontMetrics.stringWidth(minLabel) - Y_AXIS_LABEL_SPACING,
+            bottomY + g.fontMetrics.height / 2
+        )
+
+        // Draw Y-axis label
+        g.font = verticalFont
+        val yLabelLength = g.getFontMetrics(font).stringWidth(Y_AXIS_LABEL)
+        g.drawString(Y_AXIS_LABEL, xMargin - Y_AXIS_LABEL_SPACING - maxLabelWidth, (height + yLabelLength) / 2)
+        g.font = font
     }
 
     /**
@@ -241,30 +282,51 @@ class InteractiveHistogram(
         g.color = OVERLAY_COLOR
         g.fillRect(bar.startX, box.startY, bar.width, box.height)
 
-        g.color = Color.GRAY
+        g.color = LABEL_COLOR
         g.drawString(label, bar.startX, bar.boxes.last().startY - 20)
         g.drawString("$Y_AXIS_LABEL=$labelVal", bar.startX, bar.boxes.last().startY - 10)
     }
 
     /**
-     * Checks if the given coordinates are within any of the boxes.
+     * Draws a rectangle overlay over the given bar and the corresponding
+     * textual information above the bar.
+     *
+     * @param g the [Graphics] object to draw on the buffer.
+     * @param bar the [Bar] to draw text above, necessary for the coordinates.
+     * @param labelVal the value of this particular bin.
+     */
+    @SuppressWarnings("MagicNumber")
+    private fun drawBarOverlay(g: Graphics, bar: Bar, labelVal: String) {
+        g.color = OVERLAY_COLOR
+        g.fillRect(bar.startX, topY - 10, bar.width, height - 2 * yMargin + 10)
+
+        g.color = LABEL_COLOR
+        g.drawString("$Y_AXIS_LABEL=$labelVal", bar.startX, topY)
+    }
+
+    /**
+     * Checks if the given coordinates are within any of the boxes or bars.
      *
      * @param x the x coordinate to check collisions of.
      * @param y the x coordinate to check collisions of.
-     * @return the first colliding box, otherwise null.
+     * @return a pair of the first colliding bar and box, otherwise null.
      */
-    @SuppressWarnings("ComplexCondition")
-    private fun checkCollide(x: Int, y: Int): Box? {
+    private fun checkCollide(x: Int, y: Int): Pair<Bar?, Box?> {
         for (bar in bars) {
+            if (x <= bar.startX || x > bar.startX + bar.width) {
+                continue
+            }
+
             for (box in bar.boxes) {
-                if (x > bar.startX && x <= bar.startX + bar.width &&
-                    y > box.startY && y <= box.startY + box.height) {
-                    return box
+                if (y > box.startY && y <= box.startY + box.height) {
+                    return Pair(bar, box)
                 }
             }
+
+            return Pair(if (y <= bottomY) bar else null , null)
         }
 
-        return null
+        return Pair(null, null)
     }
 }
 
