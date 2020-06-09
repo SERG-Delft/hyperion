@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -33,9 +34,15 @@ data class Configuration(
     @JsonProperty("aggregation-ttl")
     val aggregationTtl: Int,
     /**
+     * Whether or not timestamp fields should be validated for being
+     * in the correct granularity when a message is received.
+     */
+    @JsonProperty("verify-timestamp")
+    val verifyTimestamp: Boolean = true,
+    /**
      * The connection information for the ZMQ plugin manager.
      */
-    val pipeline: ZMQConfiguration = ZMQConfiguration("localhost:30101", "Aggregator")
+    val pipeline: PipelinePluginConfiguration = PipelinePluginConfiguration("Aggregator", "localhost:30101")
 ) {
     /**
      * Ensures that this is a valid configuration, i.e. that all properties
@@ -106,19 +113,3 @@ data class Configuration(
         }
     }
 }
-
-/**
- * Represents the connection information for the ZMQ plugin manager.
- */
-data class ZMQConfiguration(
-    /**
-     * The path to the plugin manager, without tcp://.
-     */
-    @JsonProperty("manager-host")
-    val managerHost: String,
-    /**
-     * The ID of this component, within the pipeline.
-     */
-    @JsonProperty("plugin-id")
-    val id: String
-)

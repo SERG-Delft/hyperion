@@ -1,6 +1,7 @@
 package nl.tudelft.hyperion.datasource.plugins.elasticsearch
 
 import com.fasterxml.jackson.databind.JsonMappingException
+import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -52,7 +53,7 @@ class ConfigurationTest {
 
         testConfig = Configuration(
             5,
-            PipelineConfig(
+            PipelinePluginConfiguration(
                 "Elasticsearch",
                 "localhost:5555"
             ),
@@ -74,7 +75,7 @@ class ConfigurationTest {
     fun `Valid config should parse`() {
         val expected = Configuration(
             5,
-            PipelineConfig(
+            PipelinePluginConfiguration(
                 "Elasticsearch",
                 "localhost:5555"
             ),
@@ -289,7 +290,7 @@ class ConfigurationTest {
 
     @Test
     fun `address field in ManagerConfig should be correct`() {
-        val config = PipelineConfig("Elasticsearch", "foo:123")
-        assertEquals("foo:123", config.host)
+        val config = PipelinePluginConfiguration("Elasticsearch", "foo:123")
+        assertEquals("foo:123", config.pluginManager)
     }
 }

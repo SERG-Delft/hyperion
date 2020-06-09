@@ -24,5 +24,6 @@ data class LoadBalancerPluginConfiguration(
     val workerManagerPort: Int,
     @JsonProperty("ventilator-port")
     val ventilatorPort: Int,
+    @JsonProperty("sink-port")
     val sinkPort: Int
 )

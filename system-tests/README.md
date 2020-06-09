@@ -4,5 +4,6 @@ This directory contains various example setups of system tests that have been pe
 
 The following system test scenarios are currently available:
 - [elasticsearch-pipeline](elasticsearch-pipeline): A simple pipeline that receives log information from an ElasticSearch instance, modifies it slightly and then aggregates it. See the README in the folder for more details.
+- [raw-stresstest](raw-stresstest): A simple pipeline meant for stress-testing the performance of the Hyperion pipeline.
 
 Please note that these system tests are not meant for end-users and are purely for development purposes.

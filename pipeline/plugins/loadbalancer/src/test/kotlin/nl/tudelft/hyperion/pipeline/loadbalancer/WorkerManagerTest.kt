@@ -7,7 +7,6 @@ import io.mockk.slot
 import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.asCoroutineDispatcher
 import nl.tudelft.hyperion.pipeline.readJSONContent
 import org.junit.jupiter.api.AfterEach
@@ -56,7 +55,6 @@ class WorkerManagerTest {
         }
     }
 
-    @ExperimentalCoroutinesApi
     @Test
     fun `Manager should add worker to connected on successful send`() {
         val workerId = "plugin1"
@@ -133,5 +131,45 @@ class WorkerManagerTest {
         val json = readJSONContent<Map<String, String>>(slot.captured)
 
         assertEquals("tcp://$hostname:$ventPort", json["host"])
+    }
+
+    @Test
+    fun `Manager should send null when requesting push and app is pull-only`() {
+        every {
+            socket.recvStr()
+        } returns """{"id": "plugin", "type": "push"}"""
+
+        val slot = slot<String>()
+
+        every {
+            socket.send(capture(slot))
+        } returns true
+
+        val hostname = "localhost"
+
+        WorkerManager.pollRequest(socket, hostname, null, 3333)
+
+        val json = readJSONContent<Map<String, String>>(slot.captured)
+        assertEquals(null, json["host"])
+    }
+
+    @Test
+    fun `Manager should send null when requesting pull and app is push-only`() {
+        every {
+            socket.recvStr()
+        } returns """{"id": "plugin", "type": "pull"}"""
+
+        val slot = slot<String>()
+
+        every {
+            socket.send(capture(slot))
+        } returns true
+
+        val hostname = "localhost"
+
+        WorkerManager.pollRequest(socket, hostname, 2222, null)
+
+        val json = readJSONContent<Map<String, String>>(slot.captured)
+        assertEquals(null, json["host"])
     }
 }

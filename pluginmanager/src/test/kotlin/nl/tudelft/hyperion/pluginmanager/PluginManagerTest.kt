@@ -7,13 +7,11 @@ import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.verify
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.zeromq.SocketType
 import org.zeromq.ZMQ
 
-class PluginManagerTest() {
+class PluginManagerTest {
 
     private val host = "tcp://localhost:5560"
     private val plugins = listOf(
@@ -36,7 +34,7 @@ class PluginManagerTest() {
         pluginManager.handleRegister(req, res)
 
         verify {
-            res.send("""{"isBind":"false","host":"tcp://localhost:1200"}""")
+            res.send("""{"host":"tcp://localhost:1200","isBind":false}""")
         }
     }
 
@@ -53,7 +51,7 @@ class PluginManagerTest() {
         pluginManager.handleRegister(req, res)
 
         verify {
-            res.send("""{"isBind":"true","host":"tcp://localhost:1201"}""")
+            res.send("""{"host":"tcp://localhost:1201","isBind":true}""")
         }
     }
 
@@ -70,7 +68,24 @@ class PluginManagerTest() {
         pluginManager.handleRegister(req, res)
 
         verify {
-            res.send("Invalid Request")
+            res.send("""{"host":null,"isBind":false}""")
+        }
+    }
+
+    @Test
+    fun `Register aggregator as push (invalid)`() {
+        val req = """{"id":"Aggregator","type":"push"}"""
+        val res = mockk<ZMQ.Socket>()
+
+        every {
+            res.send(any<String>())
+        } returns true
+
+        val pluginManager = PluginManager(config)
+        pluginManager.handleRegister(req, res)
+
+        verify {
+            res.send("""{"host":null,"isBind":true}""")
         }
     }
 
@@ -174,8 +189,8 @@ class PluginManagerTest() {
         pluginManager.handleRegister(req2, res)
 
         verify {
-            res.send("""{"isBind":"false","host":"tcp://localhost:1200"}""")
-            res.send("""{"isBind":"true","host":"tcp://localhost:1201"}""")
+            res.send("""{"host":"tcp://localhost:1200","isBind":false}""")
+            res.send("""{"host":"tcp://localhost:1201","isBind":true}""")
         }
     }
 

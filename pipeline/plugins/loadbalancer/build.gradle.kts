@@ -1,34 +1,30 @@
 plugins {
-    application
-    jacoco
-    kotlin("jvm")
-    id("io.gitlab.arturbosch.detekt").version("1.8.0")
-    id("com.github.johnrengelman.shadow").version("5.2.0")
+    kotlinPlugins()
 }
 
-jacoco {
-    toolVersion = "0.8.5"
-    reportsDir = file("$buildDir/jacoco")
-}
+setupKotlinPlugins()
+setupJacocoPlugin(branchCoverage = 0.6, lineCoverage = 0.7, runOnIntegrationTest = true)
 
 dependencies {
     // Coroutines
-    implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.3.5")
+    coroutines()
 
     // Logging
-    implementation("io.github.microutils", "kotlin-logging", "1.7.9")
-    implementation("org.slf4j", "slf4j-simple", "1.7.28")
+    logging()
 
     // Yaml/JSON deserialization
-    implementation("com.fasterxml.jackson.core", "jackson-databind", "2.9.4")
+    jackson(
+        withKotlin = false,
+        withYAML = false
+    )
 
     // ZeroMQ
-    implementation("org.zeromq", "jeromq", "0.5.2")
+    jeromq()
 
     // Used for testing
     testImplementation("org.jetbrains.kotlinx", "kotlinx-coroutines-test", "1.3.5")
     testImplementation("net.bytebuddy", "byte-buddy", "1.10.10")
-    testImplementation("io.mockk", "mockk", "1.9.3")
+    mockk()
 
     // Add pipeline commons
     implementation(project(":pipeline:common"))
@@ -36,56 +32,4 @@ dependencies {
 
 application {
     mainClassName = "nl.tudelft.hyperion.pipeline.loadbalancer.MainKt"
-}
-
-jacoco {
-    toolVersion = "0.8.5"
-    reportsDir = file("$buildDir/jacoco")
-}
-
-tasks.jacocoTestReport {
-    executionData(
-            tasks.run.get(),
-            tasks.integrationTest.get()
-    )
-
-    reports {
-        xml.isEnabled = false
-        csv.isEnabled = false
-        html.destination = file("${buildDir}/jacocoHtml")
-    }
-}
-
-tasks.jacocoTestCoverageVerification {
-    executionData(
-            tasks.run.get(),
-            tasks.integrationTest.get()
-    )
-
-    violationRules {
-        rule {
-            limit {
-                counter = "BRANCH"
-                minimum = "0.6".toBigDecimal()
-            }
-
-            limit {
-                counter = "LINE"
-                minimum = "0.8".toBigDecimal()
-            }
-        }
-    }
-}
-
-tasks.check {
-    dependsOn(tasks.jacocoTestCoverageVerification)
-}
-
-tasks.build {
-    dependsOn(tasks.jacocoTestReport)
-    dependsOn(tasks.shadowJar)
-}
-
-tasks.shadowJar {
-    destinationDirectory.set(File("./build"))
 }

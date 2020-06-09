@@ -1,0 +1,5 @@
+message: "This is a message"
+
+pipeline:
+  manager-host: pluginmanager:30001
+  plugin-id: Stresser

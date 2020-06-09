@@ -29,6 +29,6 @@ interface DataSourcePlugin {
  * Exception thrown during initialization of a data source plugin.
  */
 class DataPluginInitializationException(
-        msg: String,
-        cause: Throwable? = null
+    msg: String,
+    cause: Throwable? = null
 ) : RuntimeException(msg, cause)

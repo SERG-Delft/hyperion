@@ -23,19 +23,30 @@ class PluginManagerIntegrationTest {
 
         // run a zmq client in a different thread which sends the register requests
         // valid requests
-        zmqRequest("Datasource", "push",
-                   """{"isBind":"true","host":"tcp://localhost:1200"}""")
-        zmqRequest("Renamer", "push",
-                   """{"isBind":"true","host":"tcp://localhost:1201"}""")
-        zmqRequest("Renamer", "pull",
-                   """{"isBind":"false","host":"tcp://localhost:1200"}""")
-        zmqRequest("Aggregator", "pull",
-                           """{"isBind":"false","host":"tcp://localhost:1201"}""")
+        zmqRequest(
+            "Datasource", "push",
+            """{"host":"tcp://localhost:1200","isBind":true}"""
+        )
+        zmqRequest(
+            "Renamer", "push",
+            """{"host":"tcp://localhost:1201","isBind":true}"""
+        )
+        zmqRequest(
+            "Renamer", "pull",
+            """{"host":"tcp://localhost:1200","isBind":false}"""
+        )
+        zmqRequest(
+            "Aggregator", "pull",
+            """{"host":"tcp://localhost:1201","isBind":false}"""
+        )
+        zmqRequest(
+            "Datasource", "pull",
+            """{"host":null,"isBind":false}"""
+        )
 
         // invalid requests
         zmqRequest("Chicken", "push", "Invalid Request")
         zmqRequest("Renamer", "drop", "Invalid Request")
-        zmqRequest("Datasource", "pull", "Invalid Request")
     }
 
     private fun zmqRequest(pluginName: String, type: String, reply: String) {
