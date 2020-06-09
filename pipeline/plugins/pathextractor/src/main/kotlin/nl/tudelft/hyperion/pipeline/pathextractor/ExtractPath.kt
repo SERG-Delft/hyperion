@@ -2,8 +2,6 @@ package nl.tudelft.hyperion.pipeline.pathextractor
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.databind.node.TextNode
-import nl.tudelft.hyperion.pipeline.findOrCreateChild
 import nl.tudelft.hyperion.pipeline.findParent
 
 private val mapper = ObjectMapper()
