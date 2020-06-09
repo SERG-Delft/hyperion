@@ -49,7 +49,7 @@ Dockerfile
 ```
 
 ### Dockerfile
-######Adding a Dockerfile is recommended but optional. 
+###### Adding a Dockerfile is recommended but optional. 
 The Dockerfile is used for launching the plugin with a specified configuration.
 This will enable easy pipeline setup using a `Docker compose` file.
 By convention, it will load the path to the configuration file by reading the `CONFIGPATH` environment variable.
@@ -115,7 +115,7 @@ Lists or additional classes may be helpful when parsing more complex structures.
 We could for example create a separate configuration class for our plugin to separate all the parameters from the actual wrapper class.
 
 Furthermore, it might be useful to know that a list of elements in the configuration file is parsed as a list of the type of those elements. 
-In our case, we could have used a `ListOf<String>` type for the add field if we would have wanted to parse multiple strings to be added to messages. 
+In our case, we could have used a `List<String>` type for the add field if we would have wanted to parse multiple strings to be added to messages. 
 In that case the following would be an example of a parsable configuration:
 
 ```yaml
@@ -160,12 +160,12 @@ we can simply concatenate the incoming message with the configured postfix and r
 This will be your final process method:
 
 ```kotlin
-override suspend fun process(input: Stri4ng): String {
+override suspend fun process(input: String): String {
     return input + config.add
 }
 ```
 
-######The pipeline-common library introduces functions to alter JSON messages such as `findParent` and `findOrCreateChild`.
+###### The pipeline-common library introduces functions to alter JSON messages such as `findParent` and `findOrCreateChild`.
 
 ## 4. plugin entry point
 To launch a plugin, the runPipelinePlugin method can be called. 
