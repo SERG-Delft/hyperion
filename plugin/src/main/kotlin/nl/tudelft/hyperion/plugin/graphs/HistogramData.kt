@@ -76,6 +76,7 @@ fun parseAPIBinResponse(
 
             bins.add(arrayOf())
             colors.add(arrayOf())
+            severities.add(arrayOf())
 
             return@forEach
         }

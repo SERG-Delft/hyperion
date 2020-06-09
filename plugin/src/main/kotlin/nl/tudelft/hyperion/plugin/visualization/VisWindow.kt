@@ -2,8 +2,13 @@
 
 package nl.tudelft.hyperion.plugin.visualization
 
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.ui.ComboBox
+import git4idea.GitUtil
+import git4idea.commands.Git
+import git4idea.commands.GitCommand
+import git4idea.commands.GitLineHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -17,6 +22,7 @@ import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import java.awt.Color
 import java.awt.event.ItemEvent
+import java.lang.IllegalStateException
 import javax.swing.JButton
 import javax.swing.JCheckBox
 import javax.swing.JComboBox
@@ -37,7 +43,7 @@ class VisWindow {
         const val HISTOGRAM_BAR_SPACING = 5
 
         // TODO: make color scheme configurable
-        //  or make the unique severities in the aggregator unique
+        //  or make the severities in the aggregator unique
         private val HISTOGRAM_DEFAULT_COLOR: Color = Color.GRAY
 
         private val HISTOGRAM_COLOR_SCHEME = mapOf(
@@ -53,11 +59,17 @@ class VisWindow {
             "debug" to Color.BLUE
         )
 
-        private val visualizationSettings =
-            HyperionSettings
-                .getInstance(ProjectManager.getInstance().openProjects[0])
-                .state
-                .visualization
+        private var ideProject: Project = ProjectManager.getInstance().openProjects[0]
+            get() {
+                if (field.isDisposed) {
+                    field = ProjectManager.getInstance().openProjects[0]
+                }
+
+                return field
+            }
+
+        private val settings: HyperionSettings.State
+            get() = HyperionSettings.getInstance(ideProject).state
 
         private val DATETIME_FORMATTER: DateTimeFormatter = DateTimeFormat.forPattern("kk:mm:ss\nMMM dd");
     }
@@ -77,15 +89,15 @@ class VisWindow {
     private fun createRefreshButton() {
         refreshButton = JButton()
         refreshButton.addActionListener {
-            queryAndUpdate("v1.0.0")
+            queryAndUpdate()
         }
     }
 
     private fun createFileField() {
         fileField = JTextField()
-        if (visualizationSettings.fileOnly) {
+        if (settings.visualization.fileOnly) {
             fileField.isVisible = true
-            fileField.text = visualizationSettings.filePath ?: ""
+            fileField.text = settings.visualization.filePath ?: ""
         } else {
             fileField.isVisible = false
         }
@@ -93,58 +105,110 @@ class VisWindow {
 
     private fun createGranularityComboBox() {
         granularityComboBox = ComboBox(HistogramInterval.values())
-        granularityComboBox.selectedItem = visualizationSettings.interval
+        granularityComboBox.selectedItem = settings.visualization.interval
         granularityComboBox.addItemListener {
             if (it.stateChange == ItemEvent.SELECTED) {
                 val selectedItem = it.item as HistogramInterval
-                visualizationSettings.interval = selectedItem
-                queryAndUpdate("v1.0.0")
+                settings.visualization.interval = selectedItem
+                queryAndUpdate()
             }
         }
     }
 
     private fun createFileCheckBox() {
         onlyFileCheckBox = JCheckBox()
-        onlyFileCheckBox.isSelected = visualizationSettings.fileOnly
+        onlyFileCheckBox.isSelected = settings.visualization.fileOnly
         onlyFileCheckBox.addItemListener {
             val isSelected = it.stateChange == ItemEvent.SELECTED
             fileField.isVisible = isSelected
-            visualizationSettings.fileOnly = isSelected
+            settings.visualization.fileOnly = isSelected
         }
     }
 
-    fun queryAndUpdate(version: String) = runBlocking {
-        val project = ProjectManager.getInstance().openProjects[0]
+    /**
+     * Returns the version hash of the current projects origin branch.
+     * It does this by getting the repository associated with the current
+     * project's `.idea` folder.
+     *
+     * @return most recent commit hash of origin/branch, null if the branch
+     *  does not have a remote.
+     */
+    private fun getCurrentBranchHash(): String? {
+        val repo = ideProject.workspaceFile?.let {
+            GitUtil.getRepositoryManager(ideProject).getRepositoryForFileQuick(it)
+        }
+            ?: throw IllegalStateException("Current project does not have a repository attached to it")
+
+        val branch = repo.getBranchTrackInfo(repo.currentBranchName!!)?.remoteBranch?.name
+
+        val gitCommandResult = Git.getInstance().runCommand {
+            val handler = GitLineHandler(ideProject, repo.root, GitCommand.REV_PARSE)
+            handler.addParameters(branch!!)
+            handler.endOptions()
+            handler
+        }
+
+        return if (gitCommandResult.success()) {
+            // The first line is the version hash
+            gitCommandResult.output[0]
+        } else {
+            null
+        }
+    }
+
+    /**
+     * Queues an API call for binned metrics in an IO thread, of which the
+     * results are used to update the histogram data and repaint the histogram
+     * component.
+     */
+    fun queryAndUpdate() = runBlocking {
+        val version = getCurrentBranchHash()
+
+        requireNotNull(version) {
+            "Could not retrieve the version of this project, which is the current hash of origin/HEAD"
+        }
 
         launch(Dispatchers.IO) {
-            val params = if (visualizationSettings.fileOnly) {
-                val data = APIRequestor.getBinnedMetrics(
-                    visualizationSettings.filePath!!,
-                    project,
-                    visualizationSettings.interval.relativeTime,
-                    visualizationSettings.timesteps
-                )
-                parseAPIBinResponse(version, DATETIME_FORMATTER, HISTOGRAM_COLOR_SCHEME, HISTOGRAM_DEFAULT_COLOR, data)
-            } else {
-                val data = APIRequestor.getBinnedMetrics(
-                    project,
-                    visualizationSettings.interval.relativeTime,
-                    visualizationSettings.timesteps
-                )
-                parseAPIBinResponse(version, DATETIME_FORMATTER, HISTOGRAM_COLOR_SCHEME, HISTOGRAM_DEFAULT_COLOR, data)
-            }
+            val data = APIRequestor.getBinnedMetrics(
+                settings.address,
+                settings.project,
+                settings.visualization.interval.relativeTime,
+                settings.visualization.timesteps,
+                if (settings.visualization.fileOnly) settings.visualization.filePath else null
+            )
+
+            val params = parseAPIBinResponse(
+                version,
+                DATETIME_FORMATTER,
+                HISTOGRAM_COLOR_SCHEME,
+                HISTOGRAM_DEFAULT_COLOR,
+                data
+            )
+
             val hist = (main as InteractiveHistogram)
             hist.update(params)
         }
     }
 
+    /**
+     * Sets all Swing component values to the corresponding values set in the
+     * [settings] property.
+     *
+     */
     fun updateAllSettings() {
-        fileField.isVisible = visualizationSettings.fileOnly
-        fileField.text = visualizationSettings.filePath ?: ""
-        granularityComboBox.selectedItem = visualizationSettings.interval
-        onlyFileCheckBox.isSelected = visualizationSettings.fileOnly
+        fileField.isVisible = settings.visualization.fileOnly
+        fileField.text = settings.visualization.filePath ?: ""
+        granularityComboBox.selectedItem = settings.visualization.interval
+        onlyFileCheckBox.isSelected = settings.visualization.fileOnly
     }
 
+    /**
+     * Creates an empty [InteractiveHistogram] component.
+     *
+     * TODO: remove mock values later
+     *
+     * @return the created Swing component.
+     */
     private fun createHistogramComponent(): InteractiveHistogram =
         InteractiveHistogram(
             HistogramData(

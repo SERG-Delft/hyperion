@@ -188,7 +188,9 @@ class InteractiveHistogram(
      */
     private fun drawHistogram(g: Graphics) {
         // TODO: only recalculate boxes on component show or component resize
-        calculateBoxes()
+        if (data.frequency.isNotEmpty()) {
+            calculateBoxes()
+        }
 
         for ((i, bar) in bars.withIndex()) {
 

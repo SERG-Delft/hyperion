@@ -22,7 +22,8 @@ enum class HistogramInterval(
     QuarterDay("6H", 21600),
     HalfDay("12H", 43200),
     Day("1D", 86400),
-    ThreeDays("3D", 259200);
+    ThreeDays("3D", 259200),
+    Week("7D", 604800);
 
     override fun toString(): String = repr
 }
