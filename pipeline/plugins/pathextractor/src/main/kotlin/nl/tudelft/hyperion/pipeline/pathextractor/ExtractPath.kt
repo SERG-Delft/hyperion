@@ -16,26 +16,19 @@ private val mapper = ObjectMapper()
  */
 @Suppress("ReturnCount", "TooGenericExceptionCaught")
 fun extractPath(input: String, config: Configuration): String {
-    // Return value unmodified if not valid JSON or not an object
+    // Return value unmodified if JSON is invalid or not an object
     try {
         val tree = mapper.readTree(input) as ObjectNode
         val parent = findParent(tree, config.field)
         val packageNode = parent.findValue(config.fieldName)
 
-        if (packageNode is TextNode) {
-            // Drop Kt suffix for kotlin support.
-            val packageFields = packageNode.textValue().split(".").map {
-                if (it.endsWith("Kt")) it.dropLast(2) else it
-            }
-
-            val newValue = "${config.relativePathFromSource}/${packageFields.joinToString("/")}${config.postfix}"
-
-            val target = config.toPath.fold(tree as ObjectNode?, { p, c ->
-                p!!.findOrCreateChild(c)
-            })
-
-            target!!.put(config.fieldName, newValue)
+        // Drop Kt suffix for kotlin support.
+        val packageFields = packageNode.textValue().split(".").map {
+            if (it.endsWith("Kt")) it.dropLast(2) else it
         }
+
+        val value = "${config.relativePathFromSource}/${packageFields.joinToString("/")}${config.postfix}"
+        parent.put(config.fieldName, value)
 
         return tree.toString()
     } catch (ex: Exception) {
