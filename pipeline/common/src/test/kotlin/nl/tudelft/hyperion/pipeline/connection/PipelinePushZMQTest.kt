@@ -9,6 +9,7 @@ import nl.tudelft.hyperion.pipeline.PeerConnectionInformation
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 import org.zeromq.SocketType
 import org.zeromq.ZContext
 import org.zeromq.ZMQ
@@ -28,6 +29,20 @@ class PipelinePushZMQTest {
     @AfterEach
     internal fun tearDown() {
         clearAllMocks()
+    }
+
+    @Test
+    fun `on bad message does not crash`() {
+        val config = PeerConnectionInformation(host, true)
+        val push = PipelinePushZMQ()
+
+        push.setupConnection(config)
+
+        every {
+            socket.send("chicken", zmq.ZMQ.ZMQ_DONTWAIT)
+        } throws Exception("Exception goes brrr")
+
+        assertDoesNotThrow { push.push("chicken") }
     }
 
     @Test
