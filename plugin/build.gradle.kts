@@ -27,6 +27,9 @@ dependencies {
     // Used for testing requests by ktor.
     testImplementation("io.ktor:ktor-client-mock:1.3.2")
     testImplementation("io.ktor:ktor-client-mock-jvm:1.3.2")
+
+    // For ParameterizedTests.
+    testImplementation("org.junit.jupiter", "junit-jupiter-params", "5.6.2")
 }
 
 
