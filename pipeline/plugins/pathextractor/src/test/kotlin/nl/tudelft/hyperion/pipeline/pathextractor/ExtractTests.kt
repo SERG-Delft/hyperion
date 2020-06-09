@@ -56,10 +56,9 @@ class ExtractTests {
 
         val input = """{"log4j_file":true}"""
 
-        val expected = input
         val actual = extractPath(input, config)
 
-        Assertions.assertEquals(expected, actual)
+        Assertions.assertEquals(input, actual)
     }
 
     @Test
@@ -114,6 +113,25 @@ class ExtractTests {
         val mapper = ObjectMapper()
 
         val treeExpected = mapper.readTree(expected)
+        val treeActual = mapper.readTree(extractPath(input, config))
+
+        Assertions.assertEquals(treeExpected, treeActual)
+    }
+
+    @Test
+    fun `Test path non existent`() {
+        val config = Configuration(
+            "location.nonExistent",
+            "src/main/kotlin",
+            ".java",
+            PipelinePluginConfiguration("pathExtractor", "1.2.3.4:4567")
+        )
+
+        val input = """{ "location" :  { "file" : "com.sap.enterprises.server.impl.TransportationService" } }"""
+
+        val mapper = ObjectMapper()
+
+        val treeExpected = mapper.readTree(input)
         val treeActual = mapper.readTree(extractPath(input, config))
 
         Assertions.assertEquals(treeExpected, treeActual)

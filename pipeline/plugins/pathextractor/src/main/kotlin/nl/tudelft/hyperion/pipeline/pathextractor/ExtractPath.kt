@@ -31,10 +31,10 @@ fun extractPath(input: String, config: Configuration): String {
             val newValue = "${config.relativePathFromSource}/${packageFields.joinToString("/")}${config.postfix}"
 
             val target = config.toPath.fold(tree as ObjectNode?, { p, c ->
-                p?.findOrCreateChild(c)
-            }) ?: return input
+                p!!.findOrCreateChild(c)
+            })
 
-            target.put(config.fieldName, newValue)
+            target!!.put(config.fieldName, newValue)
         }
 
         return tree.toString()

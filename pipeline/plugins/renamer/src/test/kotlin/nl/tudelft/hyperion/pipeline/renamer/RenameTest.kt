@@ -270,4 +270,33 @@ class RenameTest {
 
         Assertions.assertEquals(treeExpected, treeActual)
     }
+
+    @Test
+    fun `Test target path is nested existing path`() {
+        val config = Configuration(
+            listOf(
+                Rename(
+                    "log_line",
+                    "location.line"
+                )
+            ),
+            PipelinePluginConfiguration("renamer", "1.2.3.4:4567")
+        )
+
+        val input = """{
+          "log_line": 10,
+          "location" : { "line" : "test"}
+        }""".trimIndent()
+
+        val expected = """{
+          "location" : { "line" : 10 }
+        }""".trimIndent()
+
+        val mapper = ObjectMapper()
+
+        val treeExpected = mapper.readTree(expected)
+        val treeActual = mapper.readTree(rename(input, config))
+
+        Assertions.assertEquals(treeExpected, treeActual)
+    }
 }
