@@ -8,7 +8,7 @@ import org.zeromq.ZContext
  * Provides handlers to setup and teardown ZMQ socket.
  * @param socketType Type of Socket that should be created.
  */
-open class SetupZMQConnection(socketType: SocketType) {
+open class ZMQConnection(socketType: SocketType) {
     private val ctx = ZContext()
     val socket = ctx.createSocket(socketType)
 

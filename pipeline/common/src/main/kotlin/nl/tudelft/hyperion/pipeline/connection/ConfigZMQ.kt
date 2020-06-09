@@ -13,7 +13,7 @@ class ConfigZMQ(pluginManager: String) {
 
     fun requestConfig(id: String, type: ConfigType): String {
         logger.debug { "Connecting to $pluginManagerHost" }
-        val conn = SetupZMQConnection(SocketType.REQ)
+        val conn = ZMQConnection(SocketType.REQ)
         conn.setupConnection(PeerConnectionInformation(pluginManagerHost, false))
 
         val req = """{"id":"$id","type":"${type.toString().toLowerCase()}"}"""

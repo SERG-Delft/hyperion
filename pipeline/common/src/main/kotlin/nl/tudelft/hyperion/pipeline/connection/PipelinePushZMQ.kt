@@ -5,7 +5,7 @@ import org.zeromq.SocketType
 /**
  * ZMQ implementation of message push to successive pipeline plugin.
  */
-class PipelinePushZMQ : SetupZMQConnection(SocketType.PUSH) {
+class PipelinePushZMQ : ZMQConnection(SocketType.PUSH) {
     private val logger = mu.KotlinLogging.logger {}
 
     /**
