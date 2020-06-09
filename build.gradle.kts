@@ -6,31 +6,6 @@ plugins {
 group = "nl.tudelft.hyperion"
 version = "0.1.0"
 
-sourceSets {
-    create("systemTest")
-}
-
-sourceSets.main {
-    java.srcDirs("src/main/java", "src/main/kotlin")
-}
-configurations["systemTestImplementation"].extendsFrom(configurations.testImplementation.get())
-configurations["systemTestRuntimeOnly"].extendsFrom(configurations.testRuntimeOnly.get())
-
-val systemTest = task<Test>("systemTest") {
-    description = "Runs system tests"
-    group = "verification"
-
-    useJUnitPlatform()
-
-    testClassesDirs = sourceSets["systemTest"].output.classesDirs
-    classpath = sourceSets["systemTest"].runtimeClasspath
-    shouldRunAfter("test")
-}
-
-tasks.check {
-    dependsOn(systemTest)
-}
-
 allprojects {
     apply(plugin = "kotlin")
 
