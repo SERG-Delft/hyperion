@@ -3,7 +3,7 @@ plugins {
 }
 
 setupKotlinPlugins()
-setupJacocoPlugin(branchCoverage = 0.8, lineCoverage = 0.5)
+setupJacocoPlugin(branchCoverage = 0.7, lineCoverage = 0.5)
 
 dependencies {
     // Kotlin class reflection

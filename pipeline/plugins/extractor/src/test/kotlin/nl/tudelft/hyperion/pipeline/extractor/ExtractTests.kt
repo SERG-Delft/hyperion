@@ -370,14 +370,14 @@ class ExtractTests {
     fun `on invalid message return input`() {
         val config = Configuration(
             PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
-            ExtractableFieldConfiguration(
-                "message",
-                "(1)",
-                listOf(
-                    Extract("numeric.1", Type.NUMBER)
+                ExtractableFieldConfiguration(
+                    "message",
+                    "(1)",
+                    listOf(
+                        Extract("numeric.1", Type.NUMBER)
+                    )
                 )
             )
-        )
         )
 
         val input = """chicken"""
@@ -385,5 +385,185 @@ class ExtractTests {
         val ret = extract(input, config)
 
         Assertions.assertEquals(input, ret)
+    }
+
+    @Test
+    fun `nested extract field`() {
+        val config = Configuration(
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
+            ExtractableFieldConfiguration(
+                "message.line",
+                "(1)",
+                listOf(
+                    Extract("numeric.1", Type.NUMBER)
+                    )
+                )
+            )
+        )
+
+        val input = """{ "message" : { "line" : "1"} }"""
+        val expected = """{ "message" : { "line" : "1"}, "numeric" : { "1" : 1}}""".trimMargin()
+
+        val treeExpected = mapper.readTree(expected)
+        val treeActual = mapper.readTree(extract(input, config))
+
+        Assertions.assertEquals(treeExpected, treeActual)
+    }
+
+    @Test
+    fun `int type while not being int type should add as string, nested`() {
+        val config = Configuration(
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
+                ExtractableFieldConfiguration(
+                    "message.line",
+                    "(n)",
+                    listOf(
+                        Extract("numeric.1", Type.NUMBER)
+                    )
+                )
+            )
+        )
+
+        val input = """{ "message" : { "line" : "n"} }"""
+        val expected = """{ "message" : { "line" : "n"}, "numeric" : { "1" : "n"}}""".trimMargin()
+
+        val treeExpected = mapper.readTree(expected)
+        val treeActual = mapper.readTree(extract(input, config))
+
+        Assertions.assertEquals(treeExpected, treeActual)
+    }
+
+    @Test
+    fun `double type while not being double type should add as string`() {
+        val config = Configuration(
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
+                ExtractableFieldConfiguration(
+                    "message.line",
+                    "(n)",
+                    listOf(
+                        Extract("numeric.1", Type.DOUBLE)
+                    )
+                )
+            )
+        )
+
+        val input = """{ "message" : { "line" : "n"} }"""
+        val expected = """{ "message" : { "line" : "n"}, "numeric" : { "1" : "n"}}""".trimMargin()
+
+        val treeExpected = mapper.readTree(expected)
+        val treeActual = mapper.readTree(extract(input, config))
+
+        Assertions.assertEquals(treeExpected, treeActual)
+    }
+
+    @Test
+    fun `nothing should happen when field does not exist`() {
+        val config = Configuration(
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
+                ExtractableFieldConfiguration(
+                    "messag",
+                    "(n)",
+                    listOf(
+                        Extract("numeric.1", Type.NUMBER)
+                    )
+                )
+            )
+        )
+
+        val input = """{ "message" : "message" }"""
+
+        val treeExpected = mapper.readTree(input)
+        val treeActual = mapper.readTree(extract(input, config))
+
+        Assertions.assertEquals(treeExpected, treeActual)
+    }
+
+    @Test
+    fun `nothing should happen when field does not exist, nested`() {
+        val config = Configuration(
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
+                ExtractableFieldConfiguration(
+                    "message.lin",
+                    "(n)",
+                    listOf(
+                        Extract("numeric.1", Type.NUMBER)
+                    )
+                )
+            )
+        )
+
+        val input = """{ "message" : { "line" : "1"} }"""
+
+        val treeExpected = mapper.readTree(input)
+        val treeActual = mapper.readTree(extract(input, config))
+
+        Assertions.assertEquals(treeExpected, treeActual)
+    }
+
+    @Test
+    fun `nothing should happen when path does not exist`() {
+        val config = Configuration(
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
+                ExtractableFieldConfiguration(
+                    "messag.lin",
+                    "(n)",
+                    listOf(
+                        Extract("numeric.1", Type.NUMBER)
+                    )
+                )
+            )
+        )
+
+        val input = """{ "message" : { "line" : "1"} }"""
+
+        val treeExpected = mapper.readTree(input)
+        val treeActual = mapper.readTree(extract(input, config))
+
+        Assertions.assertEquals(treeExpected, treeActual)
+    }
+
+    @Test
+    fun `when target field ends at a leaf that was configured to be a node, nothing should be extracted`() {
+        val config = Configuration(
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
+                ExtractableFieldConfiguration(
+                    "message.line",
+                    "(1)",
+                    listOf(
+                        Extract("numeric.1", Type.NUMBER)
+                    )
+                )
+            )
+        )
+
+        val input = """{ "message" : { "line" : "1"}, "numeric" : "not an object" }"""
+
+        val treeExpected = mapper.readTree(input)
+        val treeActual = mapper.readTree(extract(input, config))
+
+        Assertions.assertEquals(treeExpected, treeActual)
+    }
+
+    @Test
+    fun `int type while not being int type should add as string`() {
+        val config = Configuration(
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
+                ExtractableFieldConfiguration(
+                    "message.line",
+                    "(n)",
+                    listOf(
+                        Extract("numeric", Type.NUMBER)
+                    )
+                )
+            )
+        )
+
+        val input = """{ "message" : { "line" : "n"} }"""
+        val expected = """{ "message" : { "line" : "n"}, "numeric" : "n" }""".trimMargin()
+
+        val treeExpected = mapper.readTree(expected)
+        val treeActual = mapper.readTree(extract(input, config))
+
+        Assertions.assertEquals(treeExpected, treeActual)
     }
 }

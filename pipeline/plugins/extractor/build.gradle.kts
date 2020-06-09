@@ -3,7 +3,7 @@ plugins {
 }
 
 setupKotlinPlugins()
-setupJacocoPlugin(branchCoverage = 0.7, lineCoverage = 0.6)
+setupJacocoPlugin(branchCoverage = 0.6, lineCoverage = 0.6)
 
 application {
     mainClassName = "nl.tudelft.hyperion.pipeline.extractor.Main"
@@ -12,6 +12,9 @@ application {
 dependencies {
     // Kotlin class reflection
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.3.70")
+
+    // Logging
+    logging()
 
     // Local imports
     implementation(project(":pipeline:common"))

@@ -27,12 +27,16 @@ data class ExtractableFieldConfiguration(
     val regex: Regex by lazy {
         Regex(match)
     }
+
+    val fieldName by lazy {
+        field.split(".").last()
+    }
 }
 
 /**
  * Data class for a naming and typing scheme
  */
-data class Extract(val to: String, val type: Type)
+data class Extract(val to: String, val type: Type = Type.STRING)
 
 enum class Type {
     @JsonProperty("string")
