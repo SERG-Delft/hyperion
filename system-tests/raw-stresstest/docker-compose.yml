@@ -1,0 +1,47 @@
+# Sets up postgres and the plugin manager.
+# The Elasticsearch datasource is used in combination with the renamer to feed the aggregator.
+
+version: '3.3'
+services:
+  pluginmanager:
+    build:
+      context: ${HYPERION_ROOT_DIR}/pluginmanager
+    volumes:
+      - type: bind
+        source: ./pluginmanager.yml
+        target: /usr/config.yml
+    environment:
+      - CONFIGPATH=/usr/config.yml
+    networks:
+      - hyperion
+
+  stresser:
+    build:
+      context: ${HYPERION_ROOT_DIR}/pipeline/plugins/stresser
+    volumes:
+      - type: bind
+        source: ./stresser.yml
+        target: /usr/config.yml
+    environment:
+      - CONFIGPATH=/usr/config.yml
+    networks:
+      - hyperion
+    depends_on:
+      - pluginmanager
+
+  rate:
+    build:
+      context: ${HYPERION_ROOT_DIR}/pipeline/plugins/rate
+    volumes:
+      - type: bind
+        source: ./rate.yml
+        target: /usr/config.yml
+    environment:
+      - CONFIGPATH=/usr/config.yml
+    networks:
+      - hyperion
+    depends_on:
+      - pluginmanager
+
+networks:
+  hyperion:

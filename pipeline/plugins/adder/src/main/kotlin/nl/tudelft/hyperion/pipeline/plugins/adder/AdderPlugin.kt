@@ -3,7 +3,14 @@ package nl.tudelft.hyperion.pipeline.plugins.adder
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
-import nl.tudelft.hyperion.pipeline.AbstractPipelinePlugin
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import nl.tudelft.hyperion.pipeline.TransformingPipelinePlugin
+import nl.tudelft.hyperion.pipeline.readYAMLConfig
+import java.nio.file.FileSystems
+import java.nio.file.Path
+import java.nio.file.StandardWatchEventKinds
+import java.nio.file.WatchKey
 
 /**
  * Pipeline plugin which adds (key, value) pairs to incoming JSON messages.
@@ -11,10 +18,10 @@ import nl.tudelft.hyperion.pipeline.AbstractPipelinePlugin
  *
  * @param config: [AdderConfiguration] which specifies default plugin details and which fields to add.
  */
-class AdderPlugin(private var config: AdderConfiguration) : AbstractPipelinePlugin(config.pipeline) {
+class AdderPlugin(var config: AdderConfiguration) : TransformingPipelinePlugin(config.pipeline) {
 
     private val mapper = ObjectMapper()
-    private val logger = mu.KotlinLogging.logger {}
+    override val logger = mu.KotlinLogging.logger {}
 
     /**
      * Helper function that will get or create an object child
@@ -56,5 +63,50 @@ class AdderPlugin(private var config: AdderConfiguration) : AbstractPipelinePlug
         }
 
         return tree.toString()
+    }
+
+    fun launchUpdateConfigFileChanged(path: String) = GlobalScope.launch {
+        updateConfigFileChanged(path)
+    }
+
+    /**
+     * Will watch the given config file path for changes.
+     * When the file has changed it will update the configuration.
+     * @param path The path to the configuration file.
+     */
+    private fun updateConfigFileChanged(path: String) {
+        logger.info { "Launching config file listener" }
+        // setup directory changed watcher for the configuration file
+        val watchService = FileSystems.getDefault().newWatchService()
+        val configName = Path.of(path).fileName
+        val configDir = Path.of(path).parent
+        configDir.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY)
+
+        // poll for file changes
+        logger.info { "Start polling loop" }
+        var key: WatchKey
+        while (watchService.take().also { key = it } != null) {
+            for (event in key.pollEvents()) {
+                val filename = Path.of(event.context().toString())
+                val fileLocation = configDir.resolve(filename)
+                // only update config when config file changed in directory
+                if (filename == configName) {
+                    logger.info { "Configuration file has been changed" }
+                    updateConfig(fileLocation.toString())
+                }
+            }
+            key.reset()
+        }
+    }
+
+    /**
+     * Updates configuration file with file on given path.
+     * Will only apply new AddConfiguration instances, new config won't be requested.
+     * @param path The Path to the configuration file which should be loaded.
+     */
+    fun updateConfig(path: String) {
+        val newConfig = readYAMLConfig<AdderConfiguration>(Path.of(path))
+        config = newConfig
+        logger.info { "Configuration has been updated" }
     }
 }

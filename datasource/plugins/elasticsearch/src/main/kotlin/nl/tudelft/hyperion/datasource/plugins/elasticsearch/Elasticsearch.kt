@@ -4,16 +4,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import nl.tudelft.hyperion.datasource.common.DataPluginInitializationException
 import nl.tudelft.hyperion.datasource.common.DataSourcePlugin
+import nl.tudelft.hyperion.pipeline.AbstractPipelinePlugin
 import org.apache.http.HttpHost
 import org.apache.http.auth.AuthScope
 import org.apache.http.auth.UsernamePasswordCredentials
@@ -26,10 +24,7 @@ import org.elasticsearch.client.RestClientBuilder
 import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.search.builder.SearchSourceBuilder
-import org.zeromq.SocketType
-import org.zeromq.ZContext
 import java.util.Timer
-import java.util.concurrent.Executors
 import kotlin.concurrent.fixedRateTimer
 import kotlin.coroutines.CoroutineContext
 
@@ -43,50 +38,53 @@ import kotlin.coroutines.CoroutineContext
 class Elasticsearch(
     private var config: Configuration,
     val esClient: RestHighLevelClient
-) : DataSourcePlugin {
+) : AbstractPipelinePlugin(config.pipeline), DataSourcePlugin {
 
     private var finished = false
     lateinit var timer: Timer
-    var pubConnectionInformation: PeerConnectionInformation? = null
-
-    var senderScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
-    private val queue = Channel<String>(config.pipeline.bufferSize)
 
     companion object {
         private val logger = KotlinLogging.logger {}
 
         /**
+         * Represents the minimal required parameters for creating a search
+         * request.
+         *
+         * @property index the name of the ES index to query from
+         * @property timeStampField the name of the time field in the ES index
+         * @property currentTime the current epoch time in seconds
+         * @property range the time range in seconds
+         * @property responseHitCount the maximum amount of hits to return
+         */
+        data class SearchRequestParameters(
+            val index: String,
+            val timeStampField: String,
+            val currentTime: Int,
+            val range: Int,
+            val responseHitCount: Int
+        )
+
+        /**
          * Creates a search request that queries all logs between a certain timestamp.
          *
-         * @param index the name of the ES index to query from
-         * @param timeStampField the name of the time field in the ES index
-         * @param currentTime the current epoch time in seconds
-         * @param range the time range in seconds
-         * @param responseHitCount the maximum amount of hits to return
+         * @param params required parameters for the search request
          * @return the created search request
          */
-        fun createSearchRequest(
-            index: String,
-            timeStampField: String,
-            currentTime: Int,
-            range: Int,
-            responseHitCount: Int
-        ): SearchRequest {
-
+        fun createSearchRequest(params: SearchRequestParameters): SearchRequest {
             val searchRequest = SearchRequest()
-            searchRequest.indices(index)
+            searchRequest.indices(params.index)
 
             val query = QueryBuilders
-                .rangeQuery(timeStampField)
-                .gt(currentTime - range)
-                .to(currentTime)
+                .rangeQuery(params.timeStampField)
+                .gt(params.currentTime - params.range)
+                .to(params.currentTime)
                 .format("epoch_second")
 
             logger.debug { "Sending query: $query" }
 
             val searchBuilder = SearchSourceBuilder()
             searchBuilder.query(query)
-            searchBuilder.size(responseHitCount)
+            searchBuilder.size(params.responseHitCount)
 
             return searchRequest.source(searchBuilder)
         }
@@ -151,50 +149,6 @@ class Elasticsearch(
     }
 
     /**
-     * Synchronously attempts to query the connection information from the plugin
-     * manager. This will block the calling thread until a response is received
-     * from the plugin manager, which may take an arbitrary amount of time depending
-     * on whether the service is online.
-     */
-    fun queryConnectionInformation() {
-        ZContext().use {
-            val socket = it.createSocket(SocketType.REQ)
-            socket.connect("tcp://${config.pipeline.host}")
-
-            socket.send("""{"id":"${config.pipeline.id}","type":"push"}""")
-            pubConnectionInformation = Utils.readJSONContent(socket.recvStr())
-
-            logger.debug { "pubConnectionInformation: $pubConnectionInformation" }
-        }
-
-        logger.debug { "Successfully retrieved connection information" }
-    }
-
-    /**
-     * Helper function that will create a new subroutine that is used to send the
-     * results of computation to the next stage in the pipeline.
-     */
-    fun runSender(channel: Channel<String>) = senderScope.launch {
-        val ctx = ZContext()
-        val sock = ctx.createSocket(SocketType.PUSH)
-
-        if (pubConnectionInformation!!.isBind) {
-            logger.debug { "Binding socket to ${pubConnectionInformation!!.host}" }
-            sock.bind(pubConnectionInformation!!.host)
-        } else {
-            logger.debug { "Connecting socket to ${pubConnectionInformation!!.host}" }
-            sock.connect(pubConnectionInformation!!.host)
-        }
-
-        while (isActive) {
-            sock.send(channel.receive(), zmq.ZMQ.ZMQ_DONTWAIT)
-        }
-
-        sock.close()
-        ctx.destroy()
-    }
-
-    /**
      * Starts a coroutine in the global scope which in turn starts
      * a [java.util.Timer] that periodically schedules a request to
      * Elasticsearch and a worker that sends the documents to a ZMQ
@@ -202,37 +156,32 @@ class Elasticsearch(
      *
      * @param context additional coroutine context to add
      */
-    fun run(context: CoroutineContext) = GlobalScope.launch(context) {
+    override fun run(context: CoroutineContext): Job = GlobalScope.launch(context) {
         if (finished) {
             throw IllegalStateException("Elasticsearch client is already closed")
         }
 
-        if (pubConnectionInformation == null) {
-            throw DataPluginInitializationException("Connection information is not set")
+        if (!canSend) {
+            throw DataPluginInitializationException("Data source must be the first step in the pipeline.")
         }
 
         val requestHandler = RequestHandler {
-            runBlocking {
-                queue.send(it.sourceAsString)
-            }
+            sendQueued(it.sourceAsString)
         }
-
-        val sender = runSender(queue)
 
         logger.info { "Starting retrieval of logs" }
+        val pipelineWorker = super.run(context)
+        timer = createRequestScheduler(requestHandler)
+        runForever(pipelineWorker)
+    }
 
-        timer = fixedRateTimer("requestScheduler", period = config.pollInterval * 1000.toLong(), daemon = true) {
-            val searchRequest = createSearchRequest(
-                config.es.index,
-                config.es.timestampField,
-                (System.currentTimeMillis() / 1000).toInt(),
-                config.pollInterval,
-                config.es.responseHitCount
-            )
-
-            esClient.searchAsync(searchRequest, RequestOptions.DEFAULT, requestHandler)
-        }
-
+    /**
+     * Run forever until an exception occurs.
+     * Also does cleanup after execution.
+     *
+     * @param pipelineWorker the pipeline worker to also clean up after execution.
+     */
+    private suspend fun CoroutineScope.runForever(pipelineWorker: Job) {
         try {
             while (isActive) {
                 delay(Long.MAX_VALUE)
@@ -240,9 +189,31 @@ class Elasticsearch(
         } finally {
             this@Elasticsearch.stop()
             this@Elasticsearch.cleanup()
-            sender.cancelAndJoin()
+            pipelineWorker.cancelAndJoin()
         }
     }
+
+    /**
+     * Creates a [Timer] that periodically sends a request to Elasticsearch
+     * using parameters from the [Configuration] property.
+     *
+     * @param requestHandler the handler object.
+     * @return the timer that runs every [Configuration.pollInterval].
+     */
+    private fun createRequestScheduler(requestHandler: RequestHandler): Timer =
+        fixedRateTimer("requestScheduler", period = config.pollInterval * 1000L, daemon = true) {
+            val searchRequest = createSearchRequest(
+                SearchRequestParameters(
+                    config.es.index,
+                    config.es.timestampField,
+                    (System.currentTimeMillis() / 1000).toInt(),
+                    config.pollInterval,
+                    config.es.responseHitCount
+                )
+            )
+
+            esClient.searchAsync(searchRequest, RequestOptions.DEFAULT, requestHandler)
+        }
 
     override fun start(): Job = run(Dispatchers.Default)
 
@@ -260,14 +231,8 @@ class Elasticsearch(
 
         finished = true
     }
-}
 
-/**
- * Represents the information needed for this plugin to connect to any
- * future elements in the pipeline. Contains the host, port and whether
- * it needs to bind or connect to that specific element.
- */
-data class PeerConnectionInformation(
-    val host: String,
-    val isBind: Boolean
-)
+    override suspend fun onMessageReceived(msg: String) {
+        // Should never receive a message.
+    }
+}

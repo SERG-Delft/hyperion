@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "nl.tudelft.hyperion"
-version = "1.0-SNAPSHOT"
+version = "0.1.0"
 
 sourceSets {
     create("systemTest")

@@ -12,7 +12,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
-import nl.tudelft.hyperion.pipeline.AbstractPipelinePlugin
+import nl.tudelft.hyperion.pipeline.TransformingPipelinePlugin
 import org.eclipse.jgit.lib.Ref
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
@@ -28,11 +28,11 @@ import java.util.concurrent.Executors
  *
  * @param config the configuration to run the plugin
  */
-class VersionTracker(config: Configuration) : AbstractPipelinePlugin(config.pipeline) {
+class VersionTracker(config: Configuration) : TransformingPipelinePlugin(config.pipeline) {
 
     val projectVersions = ConcurrentHashMap<String, String>()
     private val mapper = jacksonObjectMapper()
-    private val logger = KotlinLogging.logger {}
+    override val logger = KotlinLogging.logger {}
     private val pollThreadPool = CoroutineScope(Executors.newCachedThreadPool().asCoroutineDispatcher())
 
     companion object {
