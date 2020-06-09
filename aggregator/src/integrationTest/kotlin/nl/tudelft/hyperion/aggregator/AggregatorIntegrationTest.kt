@@ -59,7 +59,7 @@ class AggregatorIntegrationTest {
 
         // Step 4: Start the aggregator and issue some commands.
         val aggregator = coMain(temporaryFile.absolutePath)
-        delay(3300L)
+        delay(2300L)
 
         // Step 5: submit a couple of aggregation log entries
         for (i in 0..5) {
