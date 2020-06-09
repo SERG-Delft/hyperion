@@ -27,7 +27,7 @@ fun ObjectNode.put(type: Type, value: String, name: String): ObjectNode {
             }
         } catch (ex: NumberFormatException) {
             this.put(parts[0], value)
-            ex.printStackTrace()
+            logger.error("$ex")
         }
     } else {
         val target = parts.subList(1, parts.size - 1).fold(this.findOrCreateChild(parts[0]), { p, c ->
