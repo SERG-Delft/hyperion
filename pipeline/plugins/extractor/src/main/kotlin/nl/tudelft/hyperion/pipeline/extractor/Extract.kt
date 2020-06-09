@@ -7,6 +7,7 @@ import nl.tudelft.hyperion.pipeline.findOrCreateChild
 import nl.tudelft.hyperion.pipeline.findParent
 
 private val logger = mu.KotlinLogging.logger {}
+private val mapper = ObjectMapper()
 
 /**
  * Function that adds a new node with a (possibly hierarchical) path and a value to an ObjectNode
@@ -43,15 +44,13 @@ fun ObjectNode.put(type: Type, value: String, name: String): ObjectNode {
                 Type.STRING -> target?.put(leafName, value)
             }
         } catch (ex: NumberFormatException) {
-            target?.put(leafName, value)
+            target!!.put(leafName, value) // Target can never be null if number format exception was thrown
             logger.error("$ex")
         }
     }
 
     return this
 }
-
-private val mapper = ObjectMapper()
 
 /**
  * Function that extracts information from a JSON string according to a configuration
