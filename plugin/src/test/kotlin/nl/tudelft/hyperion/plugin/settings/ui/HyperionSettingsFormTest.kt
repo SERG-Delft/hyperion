@@ -43,7 +43,7 @@ class HyperionSettingsFormTest {
     @Test
     fun `Test createTable() and getIntervalRows() method`() {
 
-        val expectedData = listOf(1, 3600, 3600*24, 3600*24*7)
+        val expectedData = listOf(1, 3600, 3600 * 24, 3600 * 24 * 7)
         hyperionSettings.loadState(HyperionSettings.State().apply { intervals = expectedData })
 
         // We need the table to be constructed so we call the createTable method.

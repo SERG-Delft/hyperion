@@ -77,5 +77,4 @@ class HyperionSettingsConfigurableTest {
 
         verify(exactly = 1) { mockSettingsForm.apply() }
     }
-
 }
