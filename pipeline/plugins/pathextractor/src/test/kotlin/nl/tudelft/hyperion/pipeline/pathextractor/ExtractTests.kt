@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class ExtractTests {
+    private val mapper = ObjectMapper()
+
     @Test
     fun testRenameLogLine() {
         val config = Configuration(
@@ -17,8 +19,6 @@ class ExtractTests {
 
         val input = """{ "log4j_file" :  "com.sap.enterprises.server.impl.TransportationService" }"""
         val expected = """{"log4j_file":"src/main/java/com/sap/enterprises/server/impl/TransportationService.java"}"""
-
-        val mapper = ObjectMapper()
 
         val treeExpected = mapper.readTree(expected)
         val treeActual = mapper.readTree(extractPath(input, config))
@@ -37,8 +37,6 @@ class ExtractTests {
 
         val input = """{ "log4j_file" :  "com.sap.enterprises.server.impl.TransportationService" }"""
 
-        val mapper = ObjectMapper()
-
         val treeExpected = mapper.readTree(input)
         val treeActual = mapper.readTree(extractPath(input, config))
 
@@ -55,7 +53,6 @@ class ExtractTests {
         )
 
         val input = """{"log4j_file":true}"""
-
         val actual = extractPath(input, config)
 
         Assertions.assertEquals(input, actual)
@@ -71,7 +68,6 @@ class ExtractTests {
         )
 
         val input = """true"""
-
         val actual = extractPath(input, config)
 
         Assertions.assertEquals(input, actual)
@@ -88,8 +84,6 @@ class ExtractTests {
 
         val input = """{ "log4j_file" :  "com.sap.enterprises.server.impl.TransportationServiceKt" }"""
         val expected = """{"log4j_file":"src/main/kotlin/com/sap/enterprises/server/impl/TransportationService.kt"}"""
-
-        val mapper = ObjectMapper()
 
         val treeExpected = mapper.readTree(expected)
         val treeActual = mapper.readTree(extractPath(input, config))
@@ -110,8 +104,6 @@ class ExtractTests {
         val expected = """{"location": { "file" : 
             |"src/main/kotlin/com/sap/enterprises/server/impl/TransportationService.java"} }""".trimMargin()
 
-        val mapper = ObjectMapper()
-
         val treeExpected = mapper.readTree(expected)
         val treeActual = mapper.readTree(extractPath(input, config))
 
@@ -128,8 +120,6 @@ class ExtractTests {
         )
 
         val input = """{ "location" :  { "file" : "com.sap.enterprises.server.impl.TransportationService" } }"""
-
-        val mapper = ObjectMapper()
 
         val treeExpected = mapper.readTree(input)
         val treeActual = mapper.readTree(extractPath(input, config))
