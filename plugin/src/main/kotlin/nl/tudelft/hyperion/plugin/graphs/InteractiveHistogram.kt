@@ -301,7 +301,7 @@ class InteractiveHistogram(
         g.fillRect(bar.startX, topY - 10, bar.width, height - 2 * yMargin + 10)
 
         g.color = LABEL_COLOR
-        g.drawString("$Y_AXIS_LABEL=$labelVal", bar.startX, topY)
+        g.drawString("$Y_AXIS_LABEL=$labelVal", bar.startX, topY - g.fontMetrics.height)
     }
 
     /**

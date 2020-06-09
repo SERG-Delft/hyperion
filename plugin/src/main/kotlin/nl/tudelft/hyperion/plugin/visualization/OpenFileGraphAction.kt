@@ -31,14 +31,14 @@ class OpenFileGraphAction : AnAction() {
         hyperionSettings.state.visualization.filePath = relativePath
         hyperionSettings.state.visualization.fileOnly = true
 
-        VisWindowFactory.histogramTab.updateAllSettings()
-        VisWindowFactory.histogramTab.queryAndUpdate()
-        VisWindowFactory.histogramTab.root.repaint()
-
         // Open tool window if it exists
         ToolWindowManager
             .getInstance(currentProject)
             .getToolWindow("Visualization")
             ?.show(null)
+
+        VisWindowFactory.histogramTab.updateAllSettings()
+        VisWindowFactory.histogramTab.queryAndUpdate()
+        VisWindowFactory.histogramTab.root.repaint()
     }
 }

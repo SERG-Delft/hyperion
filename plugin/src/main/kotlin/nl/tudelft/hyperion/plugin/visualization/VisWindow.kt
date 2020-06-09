@@ -5,14 +5,11 @@ package nl.tudelft.hyperion.plugin.visualization
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.ui.ComboBox
-import git4idea.GitUtil
-import git4idea.commands.Git
-import git4idea.commands.GitCommand
-import git4idea.commands.GitLineHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import nl.tudelft.hyperion.plugin.connection.APIRequestor
+import nl.tudelft.hyperion.plugin.git.GitVersionResolver
 import nl.tudelft.hyperion.plugin.graphs.HistogramData
 import nl.tudelft.hyperion.plugin.graphs.HistogramInterval
 import nl.tudelft.hyperion.plugin.graphs.InteractiveHistogram
@@ -22,10 +19,11 @@ import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import java.awt.Color
 import java.awt.event.ItemEvent
-import java.lang.IllegalStateException
+import java.nio.file.Paths
 import javax.swing.JButton
 import javax.swing.JCheckBox
 import javax.swing.JComboBox
+import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JTextField
 
@@ -33,9 +31,12 @@ class VisWindow {
     lateinit var root: JPanel
     lateinit var main: JPanel
     lateinit var granularityComboBox: JComboBox<HistogramInterval>
+    lateinit var barCountComboBox: JComboBox<CustomTextItem<Int>>
     lateinit var onlyFileCheckBox: JCheckBox
     lateinit var refreshButton: JButton
     lateinit var fileField: JTextField
+    lateinit var countLabel: JLabel
+    lateinit var titleLabel: JLabel
 
     companion object {
         const val HISTOGRAM_X_MARGIN = 50
@@ -71,7 +72,16 @@ class VisWindow {
         private val settings: HyperionSettings.State
             get() = HyperionSettings.getInstance(ideProject).state
 
-        private val DATETIME_FORMATTER: DateTimeFormatter = DateTimeFormat.forPattern("kk:mm:ss\nMMM dd");
+        private val DATETIME_FORMATTER: DateTimeFormatter = DateTimeFormat.forPattern("kk:mm:ss\nMMM dd")
+
+        data class CustomTextItem<T>(
+            val v: T,
+            val format: String
+        ) {
+            override fun toString(): String = format.format(v)
+        }
+
+        private val TIME_STEPS = arrayOf(1, 2, 4, 6, 12, 24).map { CustomTextItem(it, "%s bars") }.toTypedArray()
     }
 
     val content
@@ -79,9 +89,10 @@ class VisWindow {
 
     fun createUIComponents() {
         createGranularityComboBox()
-        createFileField()
-        createFileCheckBox()
+        // createFileField()
+        // createFileCheckBox()
         createRefreshButton()
+        createBarCountComboBox()
 
         main = createHistogramComponent()
     }
@@ -115,6 +126,19 @@ class VisWindow {
         }
     }
 
+    private fun createBarCountComboBox() {
+        barCountComboBox = ComboBox(TIME_STEPS)
+        // TODO: Add restrictions on legal time steps
+        barCountComboBox.selectedItem = TIME_STEPS.find { it.v == settings.visualization.timesteps }!!
+        barCountComboBox.addItemListener {
+            if (it.stateChange == ItemEvent.SELECTED) {
+                val selectedItem = it.item as CustomTextItem<*>
+                settings.visualization.timesteps = selectedItem.v as Int
+                queryAndUpdate()
+            }
+        }
+    }
+
     private fun createFileCheckBox() {
         onlyFileCheckBox = JCheckBox()
         onlyFileCheckBox.isSelected = settings.visualization.fileOnly
@@ -126,48 +150,18 @@ class VisWindow {
     }
 
     /**
-     * Returns the version hash of the current projects origin branch.
-     * It does this by getting the repository associated with the current
-     * project's `.idea` folder.
-     *
-     * @return most recent commit hash of origin/branch, null if the branch
-     *  does not have a remote.
-     */
-    private fun getCurrentBranchHash(): String? {
-        val repo = ideProject.workspaceFile?.let {
-            GitUtil.getRepositoryManager(ideProject).getRepositoryForFileQuick(it)
-        }
-            ?: throw IllegalStateException("Current project does not have a repository attached to it")
-
-        val branch = repo.getBranchTrackInfo(repo.currentBranchName!!)?.remoteBranch?.name
-
-        val handler = GitLineHandler(ideProject, repo.root, GitCommand.REV_PARSE)
-        handler.addParameters(branch!!)
-        handler.endOptions()
-
-        val gitCommandResult = Git.getInstance().runCommand(handler)
-
-        return if (gitCommandResult.success()) {
-            // The first line is the version hash
-            gitCommandResult.output[0]
-        } else {
-            null
-        }
-    }
-
-    /**
      * Queues an API call for binned metrics in an IO thread, of which the
      * results are used to update the histogram data and repaint the histogram
      * component.
      */
     fun queryAndUpdate() = runBlocking {
-        val version = getCurrentBranchHash()
-
-        requireNotNull(version) {
-            "Could not retrieve the version of this project, which is the current hash of origin/HEAD"
-        }
-
         launch(Dispatchers.IO) {
+            val version = GitVersionResolver.getCurrentBranchHash(ideProject)
+
+            requireNotNull(version) {
+                "Could not retrieve the version of this project, which is the current hash of origin/HEAD"
+            }
+
             val data = APIRequestor.getBinnedMetrics(
                 settings.address,
                 settings.project,
@@ -186,6 +180,7 @@ class VisWindow {
 
             val hist = (main as InteractiveHistogram)
             hist.update(params)
+            countLabel.text = "${params.frequency.map { it.sum() }.sum()} Total Lines"
         }
     }
 
@@ -195,10 +190,18 @@ class VisWindow {
      *
      */
     fun updateAllSettings() {
-        fileField.isVisible = settings.visualization.fileOnly
-        fileField.text = settings.visualization.filePath ?: ""
+        // fileField.isVisible = settings.visualization.fileOnly
+        // fileField.text = settings.visualization.filePath ?: ""
+        // onlyFileCheckBox.isSelected = settings.visualization.fileOnly
         granularityComboBox.selectedItem = settings.visualization.interval
-        onlyFileCheckBox.isSelected = settings.visualization.fileOnly
+        if (settings.visualization.fileOnly) {
+            // Assume that filename is a local path
+            // TODO: fix assumption that filePath is local
+            val filename = Paths.get(settings.visualization.filePath!!).fileName.toString()
+            titleLabel.text = "Showing metrics for $filename"
+        } else {
+            titleLabel.text = "Showing metrics for all files"
+        }
     }
 
     /**

@@ -64,10 +64,14 @@
         </action>
         <action id="nl.tudelft.hyperion.plugin.visualization.OpenFileGraphAction"
                 class="nl.tudelft.hyperion.plugin.visualization.OpenFileGraphAction"
-                text="Hyperion: Visualize Current File" description="Show log metrics of current open file"/>
+                text="Hyperion: Visualize Current File" description="Show log metrics of current open file"
+                icon="/placeholder_logo.png">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="after" relative-to-action="ConsoleView.PopupMenu"/>
+        </action>
         <action id="nl.tudelft.hyperion.plugin.visualization.OpenGraphAction"
                 class="nl.tudelft.hyperion.plugin.visualization.OpenGraphAction" text="Hyperion: Visualize"
-                description="Show log metrics of entire project"/>
+                description="Show log metrics of entire project"
+                icon="/placeholder_logo.png"/>
     </actions>
     <extensions defaultExtensionNs="com.intellij">
         <projectService serviceImplementation="nl.tudelft.hyperion.plugin.settings.HyperionSettings"/>
@@ -75,6 +79,7 @@
                              instance="nl.tudelft.hyperion.plugin.settings.HyperionSettingsConfigurable"/>
         <highlightingPassFactory implementation="nl.tudelft.hyperion.plugin.doc.MetricInlayRenderPassFactory" />
         <toolWindow id="Visualization" anchor="bottom"
-                    factoryClass="nl.tudelft.hyperion.plugin.visualization.VisWindowFactory"/>
+                    factoryClass="nl.tudelft.hyperion.plugin.visualization.VisWindowFactory"
+                    icon="/placeholder_logo.png"/>
     </extensions>
 </idea-plugin>

@@ -8,16 +8,28 @@ import com.intellij.ui.content.ContentFactory
 class VisWindowFactory : ToolWindowFactory {
     companion object {
         lateinit var histogramTab: VisWindow
+        lateinit var codeListTab: CodeList
     }
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
-        histogramTab = VisWindow()
         val contentFactory = ContentFactory.SERVICE.getInstance()
-        val content = contentFactory.createContent(
+
+        histogramTab = VisWindow()
+        val histogramContent = contentFactory.createContent(
             histogramTab.content,
-            "",
+            "Histogram",
             false
         )
-        toolWindow.contentManager.addContent(content)
+
+        codeListTab = CodeList()
+        val codeListContent = contentFactory.createContent(
+            codeListTab.content,
+            "Related lines",
+            false
+        )
+
+        toolWindow.contentManager.addContent(histogramContent)
+        toolWindow.contentManager.addContent(codeListContent)
+        toolWindow.contentManager.setSelectedContent(histogramContent)
     }
 }
