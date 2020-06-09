@@ -39,7 +39,7 @@ class AggregatorIntegrationTest {
             temporaryFile.toPath(), """
                 database-url: "$postgresUrl"
                 port: 38173
-                granularity: 1 # 1 second
+                granularity: 5 # 5 seconds
                 aggregation-ttl: 604800 # 7 days
                 pipeline:
                     manager-host: localhost:39181
@@ -59,7 +59,7 @@ class AggregatorIntegrationTest {
 
         // Step 4: Start the aggregator and issue some commands.
         val aggregator = coMain(temporaryFile.absolutePath)
-        delay(2300L)
+        delay(7000L) // ensure that we're at the start of a new granularity slot
 
         // Step 5: submit a couple of aggregation log entries
         for (i in 0..5) {
@@ -134,27 +134,26 @@ class AggregatorIntegrationTest {
         Assertions.assertEquals(200, status)
         Assertions.assertEquals(
             """
-                [{"interval":1,"versions":{}},{"interval":10,"versions":{}},{"interval":100,"versions":{}}]
+                [{"interval":5,"versions":{}},{"interval":10,"versions":{}},{"interval":100,"versions":{}}]
             """.trimIndent(),
             content
         )
 
         // Step 6: wait a second or two to allow the submitted entries to aggregate
-        delay(1000L)
+        delay(5000L)
 
         // Step 7: assert that the content was aggregated
         val (aggregatedStatus, aggregatedContent) = doRequest(
-            "http://localhost:38173/api/v1/metrics?project=TestProject&file=com.test.file&intervals=0,1,10"
+            "http://localhost:38173/api/v1/metrics?project=TestProject&file=com.test.file&intervals=5,10"
         )
 
         Assertions.assertEquals(200, aggregatedStatus)
         Assertions.assertEquals(
             """
-                [{"interval":1,"versions":{"v1.0.0":[{"line":10,"severity":"INFO","count":4},{"line":20,"severity":"DEBUG",
-                "count":1}],"v1.1.0":[{"line":10,"severity":"INFO","count":3}]}},{"interval":1,"versions":{"v1.0.0":[{"line
-                ":10,"severity":"INFO","count":4},{"line":20,"severity":"DEBUG","count":1}],"v1.1.0":[{"line":10,"severity
-                ":"INFO","count":3}]}},{"interval":10,"versions":{"v1.0.0":[{"line":10,"severity":"INFO","count":4},{"line
-                ":20,"severity":"DEBUG","count":1}],"v1.1.0":[{"line":10,"severity":"INFO","count":3}]}}]
+                [{"interval":5,"versions":{"v1.0.0":[{"line":10,"severity":"INFO","count":4},{"line":20,"severity":"DEBU
+                G","count":1}],"v1.1.0":[{"line":10,"severity":"INFO","count":3}]}},{"interval":10,"versions":{"v1.0.0":
+                [{"line":10,"severity":"INFO","count":4},{"line":20,"severity":"DEBUG","count":1}],"v1.1.0":[{"line":10,
+                "severity":"INFO","count":3}]}}]
             """.trimIndent().replace("\n", ""),
             aggregatedContent
         )
