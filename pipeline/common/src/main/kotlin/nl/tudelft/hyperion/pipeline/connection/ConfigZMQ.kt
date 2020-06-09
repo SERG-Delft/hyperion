@@ -1,7 +1,7 @@
 package nl.tudelft.hyperion.pipeline.connection
 
+import nl.tudelft.hyperion.pipeline.PeerConnectionInformation
 import org.zeromq.SocketType
-import org.zeromq.ZContext
 
 /**
  * Requests the config from [PluginManager] via ZMQ connection
@@ -12,21 +12,18 @@ class ConfigZMQ(pluginManager: String) {
     private val pluginManagerHost = "tcp://$pluginManager"
 
     fun requestConfig(id: String, type: ConfigType): String {
-        val context = ZContext()
-        val socket = context.createSocket(SocketType.REQ)
-        val req = """{"id":"$id","type":"${type.toString().toLowerCase()}"}"""
-
         logger.debug { "Connecting to $pluginManagerHost" }
-        socket.connect(pluginManagerHost)
+        val conn = SetupZMQConnection(SocketType.REQ)
+        conn.setupConnection(PeerConnectionInformation(pluginManagerHost, false))
 
+        val req = """{"id":"$id","type":"${type.toString().toLowerCase()}"}"""
         logger.debug { "Sending message $req" }
-        socket.send(req)
+        conn.socket.send(req)
 
-        val rep = socket.recvStr()
+        val rep = conn.socket.recvStr()
         logger.debug { "Received $rep" }
 
-        socket.close()
-        context.destroy()
+        conn.closeConnection()
 
         return rep
     }

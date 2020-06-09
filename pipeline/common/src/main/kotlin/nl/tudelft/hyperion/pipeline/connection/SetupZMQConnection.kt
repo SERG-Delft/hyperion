@@ -10,7 +10,7 @@ import org.zeromq.ZContext
  */
 open class SetupZMQConnection(socketType: SocketType) {
     private val ctx = ZContext()
-    protected val socket = ctx.createSocket(socketType)
+    val socket = ctx.createSocket(socketType)
 
     /**
      * Setup the ZMQ connection in a blocking fashion.
