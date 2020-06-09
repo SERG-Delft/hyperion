@@ -56,11 +56,7 @@ fun countsToLabel(counts: Map<Int, Int>): String {
  * line in the specified editor.
  */
 fun createInlayForLine(editor: Editor, line: Int, counts: Map<Int, Int>): MetricInlayItem {
-    // Figure out the first character on the line.
-    val startOffset = editor.document.getLineStartOffset(line - 1)
-    val endOffset = editor.document.getLineEndOffset(line - 1)
-    val lineText = editor.document.getText(TextRange(startOffset, endOffset))
-    val inlayOffset = startOffset + lineText.indexOf(lineText.trim())
+    val inlayOffset = calculateInlayOffset(editor, line)
 
     // Create a highlighter attached to this first element.
     val highlighter = editor.markupModel.addRangeHighlighter(
@@ -72,15 +68,29 @@ fun createInlayForLine(editor: Editor, line: Int, counts: Map<Int, Int>): Metric
     )
 
     // And attach an inlay to that highlighter
-    val inlay = editor.inlayModel.addBlockElement(
-        inlayOffset,
-        false,
-        true,
-        1,
-        MetricTooltipRenderer(countsToLabel(counts), highlighter)
-    )!!
+    val inlay = createInlay(editor, inlayOffset, countsToLabel(counts), highlighter)
 
     return MetricInlayItem(inlay, highlighter)
+}
+
+private fun calculateInlayOffset(editor: Editor, line: Int): Int {
+    // Figure out the first character on the line.
+    val startOffset = editor.document.getLineStartOffset(line - 1)
+    val endOffset = editor.document.getLineEndOffset(line - 1)
+    val lineText = editor.document.getText(TextRange(startOffset, endOffset))
+    val inlayOffset = startOffset + lineText.indexOf(lineText.trim())
+    return inlayOffset
+}
+
+private fun createInlay(editor: Editor, offset: Int, text: String?, highlighter: RangeHighlighter):
+        Inlay<MetricTooltipRenderer> {
+    return editor.inlayModel.addBlockElement(
+            offset,
+            false,
+            true,
+            1,
+            MetricTooltipRenderer(text, highlighter)
+    )!!
 }
 
 /**
@@ -90,28 +100,27 @@ fun createInlayForLine(editor: Editor, line: Int, counts: Map<Int, Int>): Metric
  * It is expected that the item is valid when this function is called.
  */
 fun updateMetricInlayItem(editor: Editor, item: MetricInlayItem): MetricInlayItem {
+    if (isFullyValid(item)) return item
+
+    // Recreate the inlay at the current highlighter offset. We cannot
+    // move it, as intellij does not support the movement of inlays.
+    item.inlay = createInlay(editor, item.highlighter.startOffset, item.inlay.renderer.text, item.highlighter)
+
+    return item
+}
+
+private fun isFullyValid(item: MetricInlayItem): Boolean {
     if (!item.isValid) {
         throw IllegalStateException("All items should be valid at this stage")
     }
 
     // Nothing to do.
     if (item.isProperlyPlaced) {
-        return item
+        return true
     }
 
     if (item.inlay.isValid) {
         Disposer.dispose(item.inlay)
     }
-
-    // Recreate the inlay at the current highlighter offset. We cannot
-    // move it, as intellij does not support the movement of inlays.
-    item.inlay = editor.inlayModel.addBlockElement(
-        item.highlighter.startOffset,
-        false,
-        true,
-        1,
-        MetricTooltipRenderer(item.inlay.renderer.text, item.highlighter)
-    )!!
-
-    return item
+    return false
 }
