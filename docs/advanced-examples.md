@@ -41,6 +41,8 @@ I want to...
 - [Transform a Java package name to a file path](#plugin-pathextractor)
 - [Attach a version tag based on the latest commit in a Git repository](#plugin-versiontracker)
 - [Load balance multiple instances of a single plugin to increase pipeline throughput](#plugin-loadbalancer)
+- [Read messages from stdin and send them through the pipeline to debug my plugin setup](#plugin-reader)
+- [Stress-test my pipeline by sending a huge amount of messages](#plugin-stresser)
 
 Want to do something not listed here? You might be able to do it by combining multiple plugins. If that doesn't work, check out our documentation on [creating a new pipeline plugin in Java/Kotlin](/docs/writing-java-kotlin-plugin.md) and [creating a new pipeline plugin in a different language](/docs/writing-custom-plugin.md).
 
@@ -214,6 +216,29 @@ For more information and the full set of configuration options, please see the [
 The load balancer is a bit of a special plugin. It provides no functionality on its own, but rather provides infrastructure for running multiple workers in parallel. It does this by hosting a "fake" plugin manager, which the worker plugins connect to. As far as the worker plugins are aware, they're just part of a normal pipeline.
 
 For full documentation on the load balancing plugin, please see the [load balancer documentation](/pipeline/plugins/loadbalancer). Please note that the load balancer is a built-in way to support parallelizing your pipeline, but unless you are dealing with an extreme amount of events or have a very slow custom plugin, you will likely not need it. The built-in plugins are able to scale to tens of thousands of messages a second.
+
+### Plugin: Reader
+
+The reader plugin is a debugging plugin intended for testing the behavior of your pipeline and for testing your [custom plugins](/docs/writing-custom-plugin.md). It is not intended for production usage. If you need a plugin that is able to read content from a file or from stdin and publish the contents in the pipeline, consider [writing a custom plugin](/docs/writing-custom-plugin).
+
+Given that the reader plugin _produces_ data, it needs to be the first step in the pipeline. It therefore acts as a data source.
+
+The reader plugin simply reads content from stdin and submits it in the pipeline as soon as a newline is encountered. No other verification is done (such as asserting that the content is properly formatted as JSON or even that the input is not empty). It therefore has no other configuration than the standard plugin manager ID and host. For more information, see the [reader documentation](/pipeline/plugins/reader).
+
+### Plugin: Stresser
+
+The stresser plugin is a debugging plugin that publishes a single message over the pipeline as fast as it can. It is intended for stress-testing the performance of single plugin as well as the pipeline as a whole. A sample configuration could be the stresser as data source, followed by the plugin to be tested, and finally the [rate](/pipeline/plugins/rate) plugin for measuring the rate of messages going through the pipeline.
+
+Given that the stresser plugin _produces_ messages, it needs to be the first step in the pipeline.
+
+The `message` property defines which message needs to be sent. Additionally, you can set `iterations` to configure the amount of messages to be sent. Note that these messages will be sent as fast as possible, and that there's no guarantee that the next step in the pipeline is able to handle all the messages in time (therefore causing messages to drop).
+
+```yaml
+message: "My message here. Note that longer messages will lead to a smaller throughput."
+iterations: 10000000
+```
+
+For more information and the full set of configuration options, please see the [stresser documentation](/pipeline/plugins/stresser).
 
 ## Example Transformation Pipelines
 
