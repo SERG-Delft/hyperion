@@ -66,3 +66,35 @@ subprojects {
         dependsOn(integrationTest)
     }
 }
+
+tasks.register<DefaultTask>("build-artifacts-release") {
+    group = "build"
+    description = "Produces all necessary artifacts for a GitHub Release"
+
+    // Ensure that shadow outputs to one directory.
+    allprojects {
+        try {
+            tasks.getByName<AbstractArchiveTask>("shadowJar") {
+                destinationDirectory.set(File(project.rootDir.absolutePath + "/release-artifacts/"))
+            }
+        } catch (ex: UnknownDomainObjectException) {
+
+        }
+    }
+
+    // build all artifacts with shadowJar
+    dependsOn(":pluginmanager:shadowJar")
+    dependsOn(":datasource:plugins:elasticsearch:shadowJar")
+    dependsOn(":aggregator:shadowJar")
+
+    dependsOn(":pipeline:plugins:adder:shadowJar")
+    dependsOn(":pipeline:plugins:extractor:shadowJar")
+    dependsOn(":pipeline:plugins:loadbalancer:shadowJar")
+    dependsOn(":pipeline:plugins:pathextractor:shadowJar")
+    dependsOn(":pipeline:plugins:printer:shadowJar")
+    dependsOn(":pipeline:plugins:rate:shadowJar")
+    dependsOn(":pipeline:plugins:reader:shadowJar")
+    dependsOn(":pipeline:plugins:renamer:shadowJar")
+    dependsOn(":pipeline:plugins:stresser:shadowJar")
+    dependsOn(":pipeline:plugins:versiontracker:shadowJar")
+}
