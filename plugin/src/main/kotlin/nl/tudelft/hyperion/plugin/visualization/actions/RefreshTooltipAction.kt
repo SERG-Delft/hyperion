@@ -1,4 +1,4 @@
-package nl.tudelft.hyperion.plugin.visualization
+package nl.tudelft.hyperion.plugin.visualization.actions
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent

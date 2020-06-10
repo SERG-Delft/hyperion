@@ -5,16 +5,26 @@ package nl.tudelft.hyperion.plugin.visualization
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.ui.ComboBox
+import com.intellij.openapi.wm.ToolWindowManager
+import com.jetbrains.rd.util.getLogger
+import com.jetbrains.rd.util.warn
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import nl.tudelft.hyperion.plugin.connection.APIRequestor
 import nl.tudelft.hyperion.plugin.git.GitVersionResolver
+import nl.tudelft.hyperion.plugin.graphs.ClickableHistogram
 import nl.tudelft.hyperion.plugin.graphs.HistogramData
 import nl.tudelft.hyperion.plugin.graphs.HistogramInterval
 import nl.tudelft.hyperion.plugin.graphs.InteractiveHistogram
 import nl.tudelft.hyperion.plugin.graphs.parseAPIBinResponse
+import nl.tudelft.hyperion.plugin.metric.APIBinMetricsResponse
+import nl.tudelft.hyperion.plugin.metric.BaseAPIMetric
+import nl.tudelft.hyperion.plugin.metric.FileAPIMetric
+import nl.tudelft.hyperion.plugin.metric.FileMetrics
 import nl.tudelft.hyperion.plugin.settings.HyperionSettings
+import nl.tudelft.hyperion.plugin.visualization.components.clickHandler
+import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import java.awt.Color
@@ -59,14 +69,17 @@ class VisWindow {
             "error" to Color.RED,
             "warn" to Color.ORANGE,
             "warning" to Color.ORANGE,
-            "notive" to Color.GREEN,
+            "notice" to Color.GREEN,
             "info" to Color.GREEN,
             "debug" to Color.BLUE
         )
 
-        private val DATETIME_FORMATTER: DateTimeFormatter = DateTimeFormat.forPattern("kk:mm:ss\nMMM dd")
+        private val DATETIME_FORMATTER = DateTimeFormat.forPattern("kk:mm:ss\nMMM dd")
+        val DATETIME_FORMATTER_TIME: DateTimeFormatter = DateTimeFormat.forPattern("kk:mm:ss")
 
-        private var ideProject: Project = ProjectManager.getInstance().openProjects[0]
+        private val TIME_STEPS = arrayOf(1, 2, 4, 6, 12, 24).map { CustomTextItem(it, "%s bars") }.toTypedArray()
+
+        var ideProject: Project = ProjectManager.getInstance().openProjects[0]
             get() {
                 if (field.isDisposed) {
                     field = ProjectManager.getInstance().openProjects[0]
@@ -75,17 +88,12 @@ class VisWindow {
                 return field
             }
 
-        private val settings: HyperionSettings.State
+        val settings: HyperionSettings.State
             get() = HyperionSettings.getInstance(ideProject).state
 
-        data class CustomTextItem<T>(
-            val v: T,
-            val format: String
-        ) {
-            override fun toString(): String = format.format(v)
-        }
-
-        private val TIME_STEPS = arrayOf(1, 2, 4, 6, 12, 24).map { CustomTextItem(it, "%s bars") }.toTypedArray()
+        // Necessary for referencing code when clicking
+        lateinit var apiMetrics: APIBinMetricsResponse<out BaseAPIMetric>
+        lateinit var branchVersion: String
     }
 
     val content
@@ -101,7 +109,7 @@ class VisWindow {
         createHistogramComponent()
 
         // TODO: remove mock values later
-        (main as InteractiveHistogram).update(createMockData())
+        // (main as InteractiveHistogram).update(createMockData())
     }
 
     /**
@@ -156,10 +164,12 @@ class VisWindow {
             val version = GitVersionResolver.getCurrentBranchHash(ideProject)
 
             requireNotNull(version) {
-                "Could not retrieve the version of this project, which is the current hash of origin/HEAD"
+                "Could not retrieve the version of this project, which is the current hash of the most recent origin " +
+                    "of the current branch"
             }
 
-            val data = APIRequestor.getBinnedMetrics(
+            branchVersion = version
+            apiMetrics = APIRequestor.getBinnedMetrics(
                 settings.address,
                 settings.project,
                 settings.visualization.interval.relativeTime,
@@ -172,12 +182,12 @@ class VisWindow {
                 DATETIME_FORMATTER,
                 HISTOGRAM_COLOR_SCHEME,
                 HISTOGRAM_DEFAULT_COLOR,
-                data
+                apiMetrics
             )
 
             val hist = (main as InteractiveHistogram)
             hist.update(params)
-            countLabel.text = "${params.frequency.map { it.sum() }.sum()} Total Lines"
+            countLabel.text = "${params.logCounts.map { it.sum() }.sum()} Total Lines"
         }
     }
 
@@ -202,50 +212,49 @@ class VisWindow {
      * Creates an empty [InteractiveHistogram] component.
      */
     private fun createHistogramComponent() {
-        main = InteractiveHistogram(
+        main = ClickableHistogram(
             HistogramData(
                 arrayOf(arrayOf()),
-                arrayOf(),
-                arrayOf(arrayOf()),
-                arrayOf()
+                arrayOf(DateTime().toString(DATETIME_FORMATTER))
             ),
             HISTOGRAM_X_MARGIN,
             HISTOGRAM_Y_MARGIN,
-            HISTOGRAM_BAR_SPACING
+            HISTOGRAM_BAR_SPACING,
+            ::clickHandler
         )
     }
 
-    private fun createMockData(): HistogramData = HistogramData(
-        arrayOf(
-            arrayOf(10),
-            arrayOf(10, 30, 5),
-            arrayOf(),
-            arrayOf(20, 15, 40, 5),
-            arrayOf(20, 15, 30, 5),
-            arrayOf(20, 15, 50, 5),
-            arrayOf(20, 15, 50, 5),
-            arrayOf(20, 15, 60, 5)
-        ),
-        arrayOf(
-            arrayOf(Color.RED),
-            arrayOf(Color.ORANGE, Color.GREEN, Color.BLUE),
-            arrayOf(),
-            arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
-            arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
-            arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
-            arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
-            arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE)
-        ),
-        arrayOf(
-            arrayOf("ERROR"),
-            arrayOf("WARN", "INFO", "DEBUG"),
-            arrayOf(),
-            arrayOf("ERROR", "WARN", "INFO", "DEBUG"),
-            arrayOf("ERROR", "WARN", "INFO", "DEBUG"),
-            arrayOf("ERROR", "WARN", "INFO", "DEBUG"),
-            arrayOf("ERROR", "WARN", "INFO", "DEBUG"),
-            arrayOf("ERROR", "WARN", "INFO", "DEBUG")
-        ),
-        arrayOf("10:00:00", "10:00:05", "10:00:10", "10:00:15", "10:00:20", "10:00:25", "10:00:30", "10:00:35")
-    )
+    // private fun createMockData(): HistogramData = HistogramData(
+    //     arrayOf(
+    //         arrayOf(10),
+    //         arrayOf(10, 30, 5),
+    //         arrayOf(),
+    //         arrayOf(20, 15, 40, 5),
+    //         arrayOf(20, 15, 30, 5),
+    //         arrayOf(20, 15, 50, 5),
+    //         arrayOf(20, 15, 50, 5),
+    //         arrayOf(20, 15, 60, 5)
+    //     ),
+    //     arrayOf(
+    //         arrayOf(Color.RED),
+    //         arrayOf(Color.ORANGE, Color.GREEN, Color.BLUE),
+    //         arrayOf(),
+    //         arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
+    //         arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
+    //         arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
+    //         arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
+    //         arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE)
+    //     ),
+    //     arrayOf(
+    //         arrayOf("ERROR"),
+    //         arrayOf("WARN", "INFO", "DEBUG"),
+    //         arrayOf(),
+    //         arrayOf("ERROR", "WARN", "INFO", "DEBUG"),
+    //         arrayOf("ERROR", "WARN", "INFO", "DEBUG"),
+    //         arrayOf("ERROR", "WARN", "INFO", "DEBUG"),
+    //         arrayOf("ERROR", "WARN", "INFO", "DEBUG"),
+    //         arrayOf("ERROR", "WARN", "INFO", "DEBUG")
+    //     ),
+    //     arrayOf("10:00:00", "10:00:05", "10:00:10", "10:00:15", "10:00:20", "10:00:25", "10:00:30", "10:00:35")
+    // )
 }

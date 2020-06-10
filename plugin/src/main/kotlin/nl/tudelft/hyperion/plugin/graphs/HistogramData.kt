@@ -14,17 +14,37 @@ import java.awt.Color
 typealias Array2D<T> = Array<Array<T>>
 
 /**
- * Represents all data necessary for a histogram, is composed of the counts for
- * each box, the list of timestamps, the label and color of each box
+ * Represents some grouped metric that is displayed in the histogram as a
+ * single box.
  *
- * TODO: make histogram data a single array of bin components
+ * @property count the number of triggered log lines in this grouped metric.
+ * @property color the color to give the grouped metric.
+ * @property label what the grouped metric should be referenced as.
+ *  Currently, this is used for displaying the severity.
+ */
+data class BinComponent(
+    val count: Int,
+    val color: Color,
+    val label: String
+)
+
+/**
+ * Represents all data necessary for a histogram, is composed of the counts for
+ * each box, the list of timestamps, the label and color of each box.
  */
 data class HistogramData(
-    var frequency: Array2D<Int>,
-    var colors: Array2D<Color>,
-    var labels: Array2D<String>,
+    var bins: Array2D<BinComponent>,
     var timestamps: Array<String>
 ) {
+    val logCounts
+        get() = bins.map { it.map(BinComponent::count) }
+
+    val colors
+        get() = bins.map { it.map(BinComponent::color) }
+
+    val labels
+        get() = bins.map { it.map(BinComponent::label) }
+
     //<editor-fold desc="Hide generated">
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -32,18 +52,14 @@ data class HistogramData(
 
         other as HistogramData
 
-        if (!frequency.contentDeepEquals(other.frequency)) return false
-        if (!colors.contentDeepEquals(other.colors)) return false
-        if (!labels.contentDeepEquals(other.labels)) return false
+        if (!bins.contentDeepEquals(other.bins)) return false
         if (!timestamps.contentEquals(other.timestamps)) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = frequency.contentDeepHashCode()
-        result = 31 * result + colors.contentDeepHashCode()
-        result = 31 * result + labels.contentDeepHashCode()
+        var result = bins.contentDeepHashCode()
         result = 31 * result + timestamps.contentHashCode()
         return result
     }
@@ -57,9 +73,7 @@ fun parseAPIBinResponse(
     defaultColor: Color,
     response: APIBinMetricsResponse<out BaseAPIMetric>
 ): HistogramData {
-    val bins = mutableListOf<Array<Int>>()
-    val colors = mutableListOf<Array<Color>>()
-    val severities = mutableListOf<Array<String>>()
+    val bins = mutableListOf<Array<BinComponent>>()
     val timestamps = mutableListOf<String>()
 
     response.results.forEach {
@@ -75,34 +89,24 @@ fun parseAPIBinResponse(
             }
 
             bins.add(arrayOf())
-            colors.add(arrayOf())
-            severities.add(arrayOf())
 
             return@forEach
         }
 
         val bin = it.versions[version] ?: error("version=$version removed at runtime")
 
-        // Add the counts per box from the metrics
-        bins.add(bin.map(BaseAPIMetric::count).toTypedArray())
-
-        // Add the color per box from the metrics
-        colors.add(
-            bin.map { metric ->
-                colorScheme.getOrDefault(
-                    metric.severity.toLowerCase(),
-                    defaultColor
-                )
-            }.toTypedArray()
-        )
-
-        severities.add(bin.map(BaseAPIMetric::severity).toTypedArray())
+        // Add the count, color and severity per box from the metrics
+        bins.add(bin.map { part ->
+            BinComponent(
+                part.count,
+                colorScheme.getOrDefault(part.severity.toLowerCase(), defaultColor),
+                part.severity
+            )
+        }.toTypedArray())
     }
 
     return HistogramData(
         bins.toTypedArray(),
-        colors.toTypedArray(),
-        severities.toTypedArray(),
         timestamps.toTypedArray()
     )
 }

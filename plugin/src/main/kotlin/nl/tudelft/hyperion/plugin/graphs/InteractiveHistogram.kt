@@ -9,6 +9,7 @@ import java.awt.event.MouseEvent
 import java.awt.event.MouseMotionAdapter
 import java.awt.geom.AffineTransform
 import javax.swing.JPanel
+import javax.swing.event.MouseInputAdapter
 import kotlin.math.PI
 import kotlin.math.round
 
@@ -28,14 +29,14 @@ import kotlin.math.round
  * @property bottomY the Y coordinate of the bottom of the histogram.
  * @property topY the Y coordinate of the top of the histogram.
  */
-class InteractiveHistogram(
+open class InteractiveHistogram(
     initialData: HistogramData,
     private val xMargin: Int,
     private val yMargin: Int,
     private var barSpacing: Int
 ) : JPanel(true) {
 
-    var bars: Array<Bar> = initialData.frequency.map { Bar(it.size) }.toTypedArray()
+    var bars: Array<Bar> = initialData.logCounts.map { Bar(it.size) }.toTypedArray()
 
     var collidingBox: Box? = null
     var collidingBar: Bar? = null
@@ -67,7 +68,7 @@ class InteractiveHistogram(
             field = value
 
             // Create array of uninitialized boxes
-            bars = value.frequency.map { Bar(it.size) }.toTypedArray()
+            bars = value.logCounts.map { Bar(it.size) }.toTypedArray()
         }
 
     init {
@@ -107,7 +108,7 @@ class InteractiveHistogram(
         // Color the overlay with a transparent gray
         val OVERLAY_COLOR = Color(0.8F, 0.8F, 0.8F, 0.6F)
 
-        val LABEL_COLOR = Color.GRAY
+        private val LABEL_COLOR = Color.GRAY
     }
 
     /**
@@ -126,14 +127,14 @@ class InteractiveHistogram(
      * max height of the histogram, which is the difference between [bottomY]
      * and [topY].
      *
-     * Note that it is assumed that the dimensions of [HistogramData.frequency] matches those of
+     * Note that it is assumed that the dimensions of [HistogramData.logCounts] matches those of
      * [bars] times its [Bar.boxes] property.
      */
     private fun calculateBoxes() {
         val histogramWidth = width - 2 * xMargin
-        val barWidth = histogramWidth / data.frequency.size
+        val barWidth = histogramWidth / data.logCounts.size
 
-        val maxBarTotal = data.frequency.map(Array<Int>::sum).max()
+        val maxBarTotal = data.logCounts.map(List<Int>::sum).max()
         val barHeightScale = (height - 2 * yMargin) / maxBarTotal!!.toDouble()
 
         for ((i, bar) in bars.withIndex()) {
@@ -145,7 +146,7 @@ class InteractiveHistogram(
 
             for ((j, box) in bar.boxes.withIndex()) {
                 // Normalize the height based on the Y positions
-                val currentY = round(data.frequency[i][j] * barHeightScale).toInt()
+                val currentY = round(data.logCounts[i][j] * barHeightScale).toInt()
 
                 box.startY = height - yMargin - (prevY + currentY)
                 box.height = currentY
@@ -186,12 +187,12 @@ class InteractiveHistogram(
      */
     private fun drawHistogram(g: Graphics) {
         // TODO: only recalculate boxes on component show or component resize
-        if (data.frequency.isNotEmpty()) {
+        if (data.bins.isNotEmpty()) {
             calculateBoxes()
         }
 
         // TODO: nicely parse the number with a suffix, e.g. 10_000 -> 10K
-        drawYAxisLabels(g, "0", data.frequency.map { it.sum() }.max().toString())
+        drawYAxisLabels(g, "0", data.logCounts.map { it.sum() }.max().toString())
 
         for ((i, bar) in bars.withIndex()) {
 
@@ -199,7 +200,7 @@ class InteractiveHistogram(
             drawTimeStamp(g, data.timestamps[i], bar)
 
             if (bar === collidingBar && collidingBox == null) {
-                drawBarOverlay(g, bar, data.frequency[i].sum().toString())
+                drawBarOverlay(g, bar, data.logCounts[i].sum().toString())
             }
 
             // Draw bars
@@ -209,7 +210,7 @@ class InteractiveHistogram(
 
                 // Draw relevant information if the user is hovering over this box
                 if (box === collidingBox) {
-                    drawBoxOverlay(g, bar, box, data.labels[i][j], data.frequency[i][j].toString())
+                    drawBoxOverlay(g, bar, box, data.labels[i][j], data.logCounts[i][j].toString())
                 }
             }
         }
@@ -323,7 +324,7 @@ class InteractiveHistogram(
                 }
             }
 
-            return Pair(if (y <= bottomY) bar else null , null)
+            return Pair(if (y <= bottomY) bar else null, null)
         }
 
         return Pair(null, null)

@@ -1,10 +1,12 @@
-package nl.tudelft.hyperion.plugin.visualization
+package nl.tudelft.hyperion.plugin.visualization.actions
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.wm.ToolWindowManager
 import nl.tudelft.hyperion.plugin.settings.HyperionSettings
+import nl.tudelft.hyperion.plugin.visualization.ErrorDialog
+import nl.tudelft.hyperion.plugin.visualization.VisToolWindowFactory
 
 class OpenFileGraphAction : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
@@ -12,12 +14,14 @@ class OpenFileGraphAction : AnAction() {
         val currentFile = e.getData(CommonDataKeys.VIRTUAL_FILE)
 
         if (currentProject == null || currentFile == null) {
-            ErrorDialog("Current open file is not linked to a project").show()
+            ErrorDialog("Current open file is not linked to a project")
+                .show()
             return
         }
 
         if (!currentFile.path.startsWith(currentProject.basePath!!)) {
-            ErrorDialog("file $currentFile is not in project ${currentProject.name}").show()
+            ErrorDialog("file $currentFile is not in project ${currentProject.name}")
+                .show()
             return
         }
 
@@ -35,10 +39,10 @@ class OpenFileGraphAction : AnAction() {
         ToolWindowManager
             .getInstance(currentProject)
             .getToolWindow("Visualization")
-            ?.show(null)
-
-        VisWindowFactory.histogramTab.updateAllSettings()
-        VisWindowFactory.histogramTab.queryAndUpdate()
-        VisWindowFactory.histogramTab.root.repaint()
+            ?.show {
+                VisToolWindowFactory.histogramTab.updateAllSettings()
+                VisToolWindowFactory.histogramTab.queryAndUpdate()
+                VisToolWindowFactory.histogramTab.root.repaint()
+            }
     }
 }

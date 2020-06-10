@@ -52,22 +52,22 @@
     <!-- Minimum and maximum build of IDE compatible with the plugin -->
     <idea-version since-build="201.4163"/>
     <actions>
-        <action class="nl.tudelft.hyperion.plugin.visualization.RefreshTooltipAction"
+        <action class="nl.tudelft.hyperion.plugin.visualization.actions.RefreshTooltipAction"
                 text="Hyperion: Refresh Metrics" description="Refresh/Gather all Metrics">
             <override-text place="MainMenu" text="Refresh Metrics"/>
             <keyboard-shortcut first-keystroke="control alt H" second-keystroke="F" keymap="$default"/>
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </action>
-        <action id="nl.tudelft.hyperion.plugin.visualization.OpenFileGraphAction"
-                class="nl.tudelft.hyperion.plugin.visualization.OpenFileGraphAction"
+        <action id="nl.tudelft.hyperion.plugin.visualization.actions.OpenFileGraphAction"
+                class="nl.tudelft.hyperion.plugin.visualization.actions.OpenFileGraphAction"
                 text="Hyperion: Visualize Current File" description="Show log metrics of current open file"
-                icon="/placeholder_logo.png">
+                icon="/tool_window_icon.png">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="after" relative-to-action="ConsoleView.PopupMenu"/>
         </action>
-        <action id="nl.tudelft.hyperion.plugin.visualization.OpenGraphAction"
-                class="nl.tudelft.hyperion.plugin.visualization.OpenGraphAction" text="Hyperion: Visualize"
+        <action id="nl.tudelft.hyperion.plugin.visualization.actions.OpenGraphAction"
+                class="nl.tudelft.hyperion.plugin.visualization.actions.OpenGraphAction" text="Hyperion: Visualize"
                 description="Show log metrics of entire project"
-                icon="/placeholder_logo.png"/>
+                icon="/tool_window_icon.png"/>
     </actions>
     <extensions defaultExtensionNs="com.intellij">
         <projectService serviceImplementation="nl.tudelft.hyperion.plugin.settings.HyperionSettings"/>
@@ -76,7 +76,7 @@
         <highlightingPassFactory implementation="nl.tudelft.hyperion.plugin.doc.MetricInlayRenderPassFactory" />
         <search.optionContributor implementation="nl.tudelft.hyperion.plugin.settings.HyperionOptionContributor"/>
         <toolWindow id="Visualization" anchor="bottom"
-                    factoryClass="nl.tudelft.hyperion.plugin.visualization.VisWindowFactory"
-                    icon="/placeholder_logo.png"/>
+                    factoryClass="nl.tudelft.hyperion.plugin.visualization.VisToolWindowFactory"
+                    icon="/tool_window_icon.png"/>
     </extensions>
 </idea-plugin>
