@@ -29,7 +29,7 @@ object APIRequestor {
         val project = state.project
 
         val json: String = httpClient.get(
-                "${state.address}/api/v1/metrics?project=$project&file=$filePath&intervals=$intervals"
+            "${state.address}/api/v1/metrics?project=$project&file=$filePath&intervals=$intervals"
         )
 
         return FileMetrics.fromMetricsResults(mapper.readValue(json))

@@ -18,6 +18,7 @@ public enum Period {
 
     /**
      * Instantiate Period with given amount of seconds.
+     *
      * @param inSeconds this periods value in seconds.
      */
     Period(int inSeconds) {

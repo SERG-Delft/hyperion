@@ -9,8 +9,8 @@ import com.intellij.openapi.project.Project
  * Class that holds persistent states for Hyperion's project scope settings.
  */
 @State(
-        name = "HyperionProjectSettings",
-        storages = [Storage("/hyperion.xml")]
+    name = "HyperionProjectSettings",
+    storages = [Storage("/hyperion.xml")]
 )
 class HyperionSettings(private val relatedProject: Project) : PersistentStateComponent<HyperionSettings.State> {
     private var currentState = State().apply {

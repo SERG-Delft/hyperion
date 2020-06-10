@@ -2,18 +2,9 @@ package nl.tudelft.hyperion.pipeline.renamer
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
-
-/**
- * Helper function that will get or create an object child
- * of the current object node.
- */
-fun ObjectNode.findOrCreateChild(name: String): ObjectNode? {
-    if (this.get(name) != null) {
-        return this.get(name) as? ObjectNode
-    }
-
-    return this.putObject(name)
-}
+import nl.tudelft.hyperion.pipeline.JsonFieldNotFoundException
+import nl.tudelft.hyperion.pipeline.findOrCreateChild
+import nl.tudelft.hyperion.pipeline.findParent
 
 private val mapper = ObjectMapper()
 
@@ -24,7 +15,7 @@ private val mapper = ObjectMapper()
  * @param config the renaming configuration
  * @return A JSON string with renamed fields
  */
-@Suppress("TooGenericExceptionCaught")
+@Suppress("TooGenericExceptionCaught", "LoopWithTooManyJumpStatements")
 fun rename(json: String, config: Configuration): String {
     val tree = try {
         mapper.readTree(json) as ObjectNode
@@ -33,10 +24,9 @@ fun rename(json: String, config: Configuration): String {
     }
 
     for (rename in config.rename) {
-        val parent = tree.findParent(rename.from)
-
-        if (parent != null) {
-            val value = tree.findPath(rename.from)
+        try {
+            val parent = findParent(tree, rename.from)
+            val value = parent.findValue(rename.fromFieldName)
 
             val target = rename.toPath.fold(tree as ObjectNode?, { p, c ->
                 p?.findOrCreateChild(c)
@@ -44,6 +34,8 @@ fun rename(json: String, config: Configuration): String {
 
             target.put(rename.toFieldName, value)
             parent.remove(rename.fromFieldName)
+        } catch (ex: JsonFieldNotFoundException) {
+            continue
         }
     }
 

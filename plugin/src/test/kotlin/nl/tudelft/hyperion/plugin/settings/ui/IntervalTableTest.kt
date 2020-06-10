@@ -15,9 +15,9 @@ import java.lang.reflect.Method
  */
 class IntervalTableTest {
     private val data = listOf(
-            Row.parse(3600),
-            Row.parse(50),
-            Row.parse(420999)
+        Row.parse(3600),
+        Row.parse(50),
+        Row.parse(420999)
     )
     private lateinit var intervalTable: IntervalTable
 
@@ -25,6 +25,7 @@ class IntervalTableTest {
     fun setup() {
         intervalTable = IntervalTable(data)
     }
+
     @Test
     fun `Test IntervalTable constructor and various methods`() {
         assertEquals(data, intervalTable.currentData)
@@ -83,12 +84,12 @@ class IntervalTableTest {
 
     @ParameterizedTest
     @CsvSource(
-            "0, 0",
-            "0, 1",
-            "1, 0",
-            "1, 1",
-            "2, 0",
-            "2, 1"
+        "0, 0",
+        "0, 1",
+        "1, 0",
+        "1, 1",
+        "2, 0",
+        "2, 1"
     )
     fun `Test IntervalTableModel#isCellEditable to allows return true`(row: Int, column: Int) {
         assertTrue(intervalTable.intervalTableModel.isCellEditable(row, column))

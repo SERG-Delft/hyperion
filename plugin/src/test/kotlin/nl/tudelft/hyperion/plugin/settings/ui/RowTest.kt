@@ -1,12 +1,12 @@
 package nl.tudelft.hyperion.plugin.settings.ui
 
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotEquals
 
 class RowTest {
     @Test
@@ -39,19 +39,21 @@ class RowTest {
 
     @TestFactory
     fun `Test various row parses`() = listOf(
-            2*7*24*3600 to Row(2, Period.WEEKS),
-            7*24*3600 to Row(1, Period.WEEKS),
-            8*24*3600 to Row(8, Period.DAYS),
-            24*3600 to Row(1, Period.DAYS),
-            25*3600 to Row(25, Period.HOURS),
-            3600 to Row(1, Period.HOURS),
-            3660 to Row(61, Period.MINUTES),
-            60 to Row(1, Period.MINUTES),
-            61 to Row(61, Period.SECONDS),
-            1 to Row(1, Period.SECONDS)
+        2 * 7 * 24 * 3600 to Row(2, Period.WEEKS),
+        7 * 24 * 3600 to Row(1, Period.WEEKS),
+        8 * 24 * 3600 to Row(8, Period.DAYS),
+        24 * 3600 to Row(1, Period.DAYS),
+        25 * 3600 to Row(25, Period.HOURS),
+        3600 to Row(1, Period.HOURS),
+        3660 to Row(61, Period.MINUTES),
+        60 to Row(1, Period.MINUTES),
+        61 to Row(61, Period.SECONDS),
+        1 to Row(1, Period.SECONDS)
     ).map {
-        DynamicTest.dynamicTest("${it.first} should return a Row with interval ${it.second.getColumn(0)}" +
-            " and period ${it.second.getColumn(1)}") {
+        DynamicTest.dynamicTest(
+            "${it.first} should return a Row with interval ${it.second.getColumn(0)}" +
+                " and period ${it.second.getColumn(1)}"
+        ) {
             assertEquals(Row.parse(it.first), it.second)
         }
     }

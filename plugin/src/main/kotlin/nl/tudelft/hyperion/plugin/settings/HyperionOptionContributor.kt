@@ -12,7 +12,9 @@ class HyperionOptionContributor : SearchableOptionContributor() {
     }
 
     fun processOptions(text: String, hit: String, processor: SearchableOptionProcessor) {
-        processor.addOptions(text, null, hit,
-                HyperionSettingsConfigurable.ID, HyperionSettingsConfigurable.DISPLAY_NAME, true)
+        processor.addOptions(
+            text, null, hit,
+            HyperionSettingsConfigurable.ID, HyperionSettingsConfigurable.DISPLAY_NAME, true
+        )
     }
 }

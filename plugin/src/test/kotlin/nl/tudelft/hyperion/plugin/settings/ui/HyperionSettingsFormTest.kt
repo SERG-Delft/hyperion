@@ -3,7 +3,9 @@ package nl.tudelft.hyperion.plugin.settings.ui
 import com.intellij.openapi.project.Project
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.unmockkAll
 import nl.tudelft.hyperion.plugin.settings.HyperionSettings
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -40,10 +42,15 @@ class HyperionSettingsFormTest {
         hyperionSettingsForm.createTable()
     }
 
+    @AfterEach
+    fun cleanup() {
+        unmockkAll()
+    }
+
     @Test
     fun `Test createTable() and getIntervalRows() method`() {
 
-        val expectedData = listOf(1, 3600, 3600*24, 3600*24*7)
+        val expectedData = listOf(1, 3600, 3600 * 24, 3600 * 24 * 7)
         hyperionSettings.loadState(HyperionSettings.State().apply { intervals = expectedData })
 
         // We need the table to be constructed so we call the createTable method.

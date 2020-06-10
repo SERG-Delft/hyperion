@@ -32,12 +32,10 @@ class AdderPluginIntegrationTest {
         dummyPluginManager(39181)
         val plugin = Thread(AdderPluginRunnable(temporaryFile.absolutePath))
         plugin.start()
-        println("Started Adder Plugin")
 
         val recvData = mutableListOf<String>()
         val sink = Thread(SinkRunnable("tcp://localhost:39183", recvData))
         sink.start()
-        println("Started sink")
         Thread.sleep(2000)
 
         val (pusher, channel) = runDummyZMQPublisher(39182);
@@ -125,7 +123,6 @@ class SinkRunnable(
         ZContext().use {
             val puller = it.createSocket(SocketType.PULL)
             puller.connect(host)
-            println("sink connected")
             for (msgCount in 0..2) {
                 val msg = puller.recvStr()
                 recvData.add(0, msg)

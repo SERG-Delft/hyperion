@@ -3,7 +3,7 @@ plugins {
 }
 
 setupKotlinPlugins()
-setupJacocoPlugin(branchCoverage = 0.5, lineCoverage = 0.5)
+setupJacocoPlugin(branchCoverage = 0.8, lineCoverage = 0.5)
 
 application {
     mainClassName = "nl.tudelft.hyperion.pipeline.pathextractor.Main"

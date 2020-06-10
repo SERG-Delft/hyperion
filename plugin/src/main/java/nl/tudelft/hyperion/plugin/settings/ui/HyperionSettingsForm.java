@@ -16,13 +16,16 @@ import java.util.stream.Collectors;
 /**
  * Class that represents the visual layout of the settings page.
  * Saving the settings is handled by {@link HyperionSettings}.
- *
+ * <p>
  * Some fields are unused in this class but are necessary in order to bind and display
  * them through HyperionSettingsForm.form.
  */
 @SuppressWarnings("unused")
 public class HyperionSettingsForm {
 
+    IntervalTable intervalTable;
+    JTextField addressField;
+    JTextField projectField;
     /**
      * UI Components.
      */
@@ -31,10 +34,6 @@ public class HyperionSettingsForm {
     private JLabel addressTitle;
     private JLabel intervalsTitle;
     private JLabel projectLabel;
-    IntervalTable intervalTable;
-    JTextField addressField;
-    JTextField projectField;
-
     /**
      * Other data needed.
      */
@@ -44,6 +43,7 @@ public class HyperionSettingsForm {
 
     /**
      * Instantiate Settings for given Project.
+     *
      * @param project relates to the settings we need to load. {@see HyperionSettings#getInstance(Project)}
      */
     public HyperionSettingsForm(Project project) {
@@ -52,7 +52,8 @@ public class HyperionSettingsForm {
 
     /**
      * Instantiate Settings for given Project.
-     * @param project relates to the settings we need to load. {@see HyperionSettings#getInstance(Project)}
+     *
+     * @param project  relates to the settings we need to load. {@see HyperionSettings#getInstance(Project)}
      * @param headless tells the Form whether it should run headless, which means it doesn't initialize itself but
      *                 it needs to be initialized manually.
      */
@@ -92,6 +93,7 @@ public class HyperionSettingsForm {
     /**
      * Obtains the intervals (in seconds) from the state {@link HyperionSettings#getState()} and converts
      * them to rows {@link Row} for use in the IntervalTable.
+     *
      * @return a List of rows {@link Row}
      */
     @NotNull
@@ -107,6 +109,7 @@ public class HyperionSettingsForm {
     /**
      * Asks the editable fields in the settings form if they have been modified or not.
      * This returns true only if the values differ compared to the last time {@link #apply()} has been called.
+     *
      * @return true if any editable values were changed compared to last {@link #apply()} call.
      */
     public boolean isModified() {

@@ -4,7 +4,7 @@
 // script. Functions should be in Setup.kt instead.
 
 // Version of Jackson used for (de)serialization.
-const val JACKSON_VERSION = "2.9.4"
+const val JACKSON_VERSION = "2.10.3"
 
 // Version of JeroMQ used for networking.
 const val JEROMQ_VERSION = "0.5.2"
