@@ -28,4 +28,5 @@ RUN mkdir -p /home/gradle/cache
 ENV GRADLE_USER_HOME /home/gradle/cache
 WORKDIR /home/gradle/project/
 CMD gradle -i --no-daemon :aggregator:shadowJar :datasource:plugins:elasticsearch:shadowJar \
-    :pluginmanager:shadowJar :pipeline:plugins:renamer:shadowJar
+    :pluginmanager:shadowJar :pipeline:plugins:renamer:shadowJar :pipeline:plugins:adder:shadowJar \
+    :pipeline:plugins:pathextractor:shadowJar
