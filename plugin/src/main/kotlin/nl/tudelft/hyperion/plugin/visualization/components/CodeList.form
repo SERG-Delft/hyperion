@@ -25,7 +25,10 @@
         <children>
           <component id="2f0c3" class="javax.swing.JTable" binding="metricsTable" custom-create="true">
             <constraints/>
-            <properties/>
+            <properties>
+              <autoResizeMode value="4"/>
+              <toolTipText value="Click on a row to navigate to that line"/>
+            </properties>
           </component>
         </children>
       </scrollpane>

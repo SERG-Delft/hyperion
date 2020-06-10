@@ -10,6 +10,7 @@ import nl.tudelft.hyperion.plugin.visualization.CodeList
 import nl.tudelft.hyperion.plugin.visualization.VisToolWindowFactory
 import nl.tudelft.hyperion.plugin.visualization.VisWindow
 import org.joda.time.DateTime
+import java.nio.file.Paths
 
 fun clickHandler(clickCtx: ClickContext) {
     getLogger<VisWindow>().debug { "Clicked with context $clickCtx" }
@@ -69,7 +70,7 @@ private fun createdSortedTableEntries(apiMetric: List<BaseAPIMetric>): List<Code
         apiMetric.map { m ->
             CodeList.Companion.TableEntry(
                 VisWindow.settings.visualization.filePath!!,
-                "",
+                Paths.get(VisWindow.settings.visualization.filePath!!).fileName.toString(),
                 m.line.toString(),
                 m.severity,
                 m.count.toString()
@@ -80,7 +81,7 @@ private fun createdSortedTableEntries(apiMetric: List<BaseAPIMetric>): List<Code
             check(m is FileAPIMetric)
             CodeList.Companion.TableEntry(
                 m.file,
-                "",
+                Paths.get(m.file).fileName.toString(),
                 m.line.toString(),
                 m.severity,
                 m.count.toString()

@@ -34,20 +34,26 @@ class CodeList {
             ProjectManager.getInstance().openProjects[0].let {
                 val file = File(it.basePath!!)
                 val baseDir: VirtualFile? = LocalFileSystem.getInstance().findFileByIoFile(file)
-                val targetFile = baseDir?.findFileByRelativePath(tableData[row].file)
-                OpenFileDescriptor(it, targetFile!!).navigate(true)
+                val targetFile = baseDir?.findFileByRelativePath(tableData[row].path)
+
+                // XXX: Naive assumption that the line has not moved and that column is 0
+                OpenFileDescriptor(it, targetFile!!, tableData[row].lineNr.toInt() - 1, 0).navigate(true)
             }
         }
     }
 
     companion object {
         data class TableEntry(
+            val path: String,
             val file: String,
-            val className: String,
             val lineNr: String,
             val severity: String,
             val triggerCount: String
         )
+    }
+
+    init {
+        metricsTable.addMouseListener(metricsTableListener)
     }
 
     val content
@@ -56,11 +62,10 @@ class CodeList {
     fun createUIComponents() {
         metricsTable = JBTable(
             DefaultTableModel(
-                arrayOf("File", "Class", "Line Number", "Severity", "Trigger Count"),
+                arrayOf("Path", "File", "Line Number", "Severity", "Trigger Count"),
                 0
             )
         )
-        metricsTable.addMouseListener(metricsTableListener)
     }
 
     fun updateTable(title: String, tableData: List<TableEntry>) {
@@ -74,7 +79,7 @@ class CodeList {
         model.rowCount = 0
 
         for (entry in tableData) {
-            model.addRow(arrayOf(entry.file, entry.className, entry.lineNr, entry.severity, entry.triggerCount))
+            model.addRow(arrayOf(entry.path, entry.file, entry.lineNr, entry.severity, entry.triggerCount))
         }
     }
 }

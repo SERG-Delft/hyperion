@@ -15,6 +15,19 @@ data class APIMetricsResult(
 )
 
 /**
+ * Represents the response from an /api/v1/metrics/period API call.
+ *
+ * @param T signifies if this is project wide or file specific bin metrics.
+ * @property interval the time in seconds between each [APIBinMetricsResult].
+ * @property results a list of metrics for each interval which contains a map
+ *  of versions and corresponding line metrics.
+ */
+data class APIBinMetricsResponse<T : BaseAPIMetric>(
+    val interval: Int,
+    val results: List<APIBinMetricsResult<T>>
+)
+
+/**
  * Represents an element as the result of an /api/v1/metrics/period API call.
  * The API call returns a list of bins where each bin is the aggregated log
  * counts starting from the given start time.
@@ -29,11 +42,13 @@ data class APIBinMetricsResult<T : BaseAPIMetric>(
     val versions: Map<String, List<T>>
 )
 
-data class APIBinMetricsResponse<T : BaseAPIMetric>(
-    val interval: Int,
-    val results: List<APIBinMetricsResult<T>>
-)
-
+/**
+ * The base class for all metrics.
+ *
+ * @property line the log line for which this metrics was triggered.
+ * @property severity the log severity of this log line.
+ * @property count the number of times this line has been triggered.
+ */
 sealed class BaseAPIMetric(
     open val line: Int,
     open val severity: String,
