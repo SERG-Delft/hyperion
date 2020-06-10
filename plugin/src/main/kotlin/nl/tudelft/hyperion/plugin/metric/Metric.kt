@@ -22,17 +22,26 @@ data class FileMetrics(
                 }.groupBy {
                     it.first
                 }.mapValues {
-                    LineMetrics(
-                        it.value.map {
-                            it.second
-                        }.groupBy {
-                            it.first
-                        }.mapValues {
-                            it.value.map { it.second }
-                        }.mapValues {
-                            it.value.map { LineIntervalMetric(it.first, it.second) }
-                        }
-                    )
+                    mapToLineMetrics(it)
+                }
+            )
+        }
+
+        /**
+         * Converts a
+         * Map.Entry<line(Int), List<Pair<line(Int), Pair<interval(Int), Pair<version(String), count(Int)>>>>>
+         * to LineMetrics.
+         */
+        private fun mapToLineMetrics(it: Map.Entry<Int, List<Pair<Int, Pair<Int, Pair<String, Int>>>>>): LineMetrics {
+            return LineMetrics(
+                it.value.map {
+                    it.second
+                }.groupBy {
+                    it.first
+                }.mapValues {
+                    it.value.map { it.second }
+                }.mapValues {
+                    it.value.map { LineIntervalMetric(it.first, it.second) }
                 }
             )
         }
