@@ -21,20 +21,25 @@ import java.awt.Color
 import java.awt.event.ItemEvent
 import java.nio.file.Paths
 import javax.swing.JButton
-import javax.swing.JCheckBox
 import javax.swing.JComboBox
 import javax.swing.JLabel
 import javax.swing.JPanel
-import javax.swing.JTextField
 
+/**
+ * Represents the main tab of the plugin's Visualization tool window.
+ * It shows a single graph with some controls for changing the parameters of
+ * the graph, the parameters are linked with those from the currently open
+ * project's [HyperionSettings.State].
+ *
+ * The graph's view should not be updated manually, but by calling
+ * [queryAndUpdate], which uses [HyperionSettings.State].
+ */
 class VisWindow {
     lateinit var root: JPanel
     lateinit var main: JPanel
     lateinit var granularityComboBox: JComboBox<HistogramInterval>
     lateinit var barCountComboBox: JComboBox<CustomTextItem<Int>>
-    lateinit var onlyFileCheckBox: JCheckBox
     lateinit var refreshButton: JButton
-    lateinit var fileField: JTextField
     lateinit var countLabel: JLabel
     lateinit var titleLabel: JLabel
 
@@ -46,7 +51,6 @@ class VisWindow {
         // TODO: make color scheme configurable
         //  or make the severities in the aggregator unique
         private val HISTOGRAM_DEFAULT_COLOR: Color = Color.GRAY
-
         private val HISTOGRAM_COLOR_SCHEME = mapOf(
             "emerg" to Color.RED,
             "alert" to Color.RED,
@@ -60,6 +64,8 @@ class VisWindow {
             "debug" to Color.BLUE
         )
 
+        private val DATETIME_FORMATTER: DateTimeFormatter = DateTimeFormat.forPattern("kk:mm:ss\nMMM dd")
+
         private var ideProject: Project = ProjectManager.getInstance().openProjects[0]
             get() {
                 if (field.isDisposed) {
@@ -71,8 +77,6 @@ class VisWindow {
 
         private val settings: HyperionSettings.State
             get() = HyperionSettings.getInstance(ideProject).state
-
-        private val DATETIME_FORMATTER: DateTimeFormatter = DateTimeFormat.forPattern("kk:mm:ss\nMMM dd")
 
         data class CustomTextItem<T>(
             val v: T,
@@ -87,16 +91,23 @@ class VisWindow {
     val content
         get() = root
 
+    /**
+     * Creates all Swing components, is called by Intellij.
+     */
     fun createUIComponents() {
         createGranularityComboBox()
-        // createFileField()
-        // createFileCheckBox()
         createRefreshButton()
         createBarCountComboBox()
+        createHistogramComponent()
 
-        main = createHistogramComponent()
+        // TODO: remove mock values later
+        (main as InteractiveHistogram).update(createMockData())
     }
 
+    /**
+     * Creates the refresh button that executes the API call and repaints the
+     * histogram when clicked.
+     */
     private fun createRefreshButton() {
         refreshButton = JButton()
         refreshButton.addActionListener {
@@ -104,16 +115,9 @@ class VisWindow {
         }
     }
 
-    private fun createFileField() {
-        fileField = JTextField()
-        if (settings.visualization.fileOnly) {
-            fileField.isVisible = true
-            fileField.text = settings.visualization.filePath ?: ""
-        } else {
-            fileField.isVisible = false
-        }
-    }
-
+    /**
+     * Creates the granularity combobox that updates the settings when changed.
+     */
     private fun createGranularityComboBox() {
         granularityComboBox = ComboBox(HistogramInterval.values())
         granularityComboBox.selectedItem = settings.visualization.interval
@@ -126,6 +130,9 @@ class VisWindow {
         }
     }
 
+    /**
+     * Creates the bar count combobox that updates the settings when changed.
+     */
     private fun createBarCountComboBox() {
         barCountComboBox = ComboBox(TIME_STEPS)
         // TODO: Add restrictions on legal time steps
@@ -136,16 +143,6 @@ class VisWindow {
                 settings.visualization.timesteps = selectedItem.v as Int
                 queryAndUpdate()
             }
-        }
-    }
-
-    private fun createFileCheckBox() {
-        onlyFileCheckBox = JCheckBox()
-        onlyFileCheckBox.isSelected = settings.visualization.fileOnly
-        onlyFileCheckBox.addItemListener {
-            val isSelected = it.stateChange == ItemEvent.SELECTED
-            fileField.isVisible = isSelected
-            settings.visualization.fileOnly = isSelected
         }
     }
 
@@ -190,9 +187,6 @@ class VisWindow {
      *
      */
     fun updateAllSettings() {
-        // fileField.isVisible = settings.visualization.fileOnly
-        // fileField.text = settings.visualization.filePath ?: ""
-        // onlyFileCheckBox.isSelected = settings.visualization.fileOnly
         granularityComboBox.selectedItem = settings.visualization.interval
         if (settings.visualization.fileOnly) {
             // Assume that filename is a local path
@@ -206,48 +200,52 @@ class VisWindow {
 
     /**
      * Creates an empty [InteractiveHistogram] component.
-     *
-     * TODO: remove mock values later
-     *
-     * @return the created Swing component.
      */
-    private fun createHistogramComponent(): InteractiveHistogram =
-        InteractiveHistogram(
+    private fun createHistogramComponent() {
+        main = InteractiveHistogram(
             HistogramData(
-                arrayOf(
-                    arrayOf(10),
-                    arrayOf(10, 30, 5),
-                    arrayOf(),
-                    arrayOf(20, 15, 40, 5),
-                    arrayOf(20, 15, 30, 5),
-                    arrayOf(20, 15, 50, 5),
-                    arrayOf(20, 15, 50, 5),
-                    arrayOf(20, 15, 60, 5)
-                ),
-                arrayOf(
-                    arrayOf(Color.RED),
-                    arrayOf(Color.ORANGE, Color.GREEN, Color.BLUE),
-                    arrayOf(),
-                    arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
-                    arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
-                    arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
-                    arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
-                    arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE)
-                ),
-                arrayOf(
-                    arrayOf("ERROR"),
-                    arrayOf("WARN", "INFO", "DEBUG"),
-                    arrayOf(),
-                    arrayOf("ERROR", "WARN", "INFO", "DEBUG"),
-                    arrayOf("ERROR", "WARN", "INFO", "DEBUG"),
-                    arrayOf("ERROR", "WARN", "INFO", "DEBUG"),
-                    arrayOf("ERROR", "WARN", "INFO", "DEBUG"),
-                    arrayOf("ERROR", "WARN", "INFO", "DEBUG")
-                ),
-                arrayOf("10:00:00", "10:00:05", "10:00:10", "10:00:15", "10:00:20", "10:00:25", "10:00:30", "10:00:35")
+                arrayOf(arrayOf()),
+                arrayOf(),
+                arrayOf(arrayOf()),
+                arrayOf()
             ),
             HISTOGRAM_X_MARGIN,
             HISTOGRAM_Y_MARGIN,
             HISTOGRAM_BAR_SPACING
         )
+    }
+
+    private fun createMockData(): HistogramData = HistogramData(
+        arrayOf(
+            arrayOf(10),
+            arrayOf(10, 30, 5),
+            arrayOf(),
+            arrayOf(20, 15, 40, 5),
+            arrayOf(20, 15, 30, 5),
+            arrayOf(20, 15, 50, 5),
+            arrayOf(20, 15, 50, 5),
+            arrayOf(20, 15, 60, 5)
+        ),
+        arrayOf(
+            arrayOf(Color.RED),
+            arrayOf(Color.ORANGE, Color.GREEN, Color.BLUE),
+            arrayOf(),
+            arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
+            arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
+            arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
+            arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE),
+            arrayOf(Color.RED, Color.ORANGE, Color.GREEN, Color.BLUE)
+        ),
+        arrayOf(
+            arrayOf("ERROR"),
+            arrayOf("WARN", "INFO", "DEBUG"),
+            arrayOf(),
+            arrayOf("ERROR", "WARN", "INFO", "DEBUG"),
+            arrayOf("ERROR", "WARN", "INFO", "DEBUG"),
+            arrayOf("ERROR", "WARN", "INFO", "DEBUG"),
+            arrayOf("ERROR", "WARN", "INFO", "DEBUG"),
+            arrayOf("ERROR", "WARN", "INFO", "DEBUG")
+        ),
+        arrayOf("10:00:00", "10:00:05", "10:00:10", "10:00:15", "10:00:20", "10:00:25", "10:00:30", "10:00:35")
+    )
 }

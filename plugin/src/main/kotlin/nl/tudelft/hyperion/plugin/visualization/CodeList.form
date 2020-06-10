@@ -23,7 +23,7 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="1fe13" class="javax.swing.JList" binding="codeList">
+          <component id="2f0c3" class="javax.swing.JTable" binding="metricsTable" custom-create="true">
             <constraints/>
             <properties/>
           </component>
