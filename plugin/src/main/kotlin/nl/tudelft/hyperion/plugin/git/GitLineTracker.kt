@@ -100,7 +100,7 @@ object GitLineTracker {
     }
 
     private fun setupHandler(project: Project, root: VirtualFile, params: List<String>, file: VirtualFile):
-            GitLineHandler {
+        GitLineHandler {
         val handler = GitLineHandler(project, root, GitCommand.BLAME)
         handler.addParameters(params)
         handler.endOptions()
