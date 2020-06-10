@@ -9,11 +9,13 @@ import io.ktor.http.fullPath
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
+import io.mockk.unmockkAll
 import kotlinx.coroutines.runBlocking
 import nl.tudelft.hyperion.plugin.metric.FileMetrics
 import nl.tudelft.hyperion.plugin.metric.LineIntervalMetric
 import nl.tudelft.hyperion.plugin.metric.LineMetrics
 import nl.tudelft.hyperion.plugin.settings.HyperionSettings
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -50,6 +52,11 @@ class APIRequestorTest {
                 }
             }
         })
+    }
+
+    @AfterAll
+    fun cleanup() {
+        unmockkAll()
     }
 
     @Test

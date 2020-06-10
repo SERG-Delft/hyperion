@@ -5,7 +5,9 @@ import com.intellij.openapi.vfs.VirtualFile
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
+import io.mockk.unmockkAll
 import nl.tudelft.hyperion.plugin.git.GitLineTracker
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import kotlin.test.assertEquals
@@ -20,6 +22,11 @@ class MetricConversionTest {
 
     init {
         mockkObject(GitLineTracker)
+    }
+
+    @AfterAll
+    fun cleanup() {
+        unmockkAll()
     }
 
     @Test

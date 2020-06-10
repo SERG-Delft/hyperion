@@ -3,7 +3,9 @@ package nl.tudelft.hyperion.plugin.settings.ui
 import com.intellij.openapi.project.Project
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.unmockkAll
 import nl.tudelft.hyperion.plugin.settings.HyperionSettings
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -38,6 +40,11 @@ class HyperionSettingsFormTest {
         }
 
         hyperionSettingsForm.createTable()
+    }
+
+    @AfterEach
+    fun cleanup() {
+        unmockkAll()
     }
 
     @Test
