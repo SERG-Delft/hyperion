@@ -82,8 +82,12 @@ private fun calculateInlayOffset(editor: Editor, line: Int): Int {
     return inlayOffset
 }
 
-private fun createInlay(editor: Editor, offset: Int, text: String?, highlighter: RangeHighlighter):
-    Inlay<MetricTooltipRenderer> {
+private fun createInlay(
+    editor: Editor,
+    offset: Int,
+    text: String?,
+    highlighter: RangeHighlighter
+): Inlay<MetricTooltipRenderer> {
     return editor.inlayModel.addBlockElement(
         offset,
         false,
