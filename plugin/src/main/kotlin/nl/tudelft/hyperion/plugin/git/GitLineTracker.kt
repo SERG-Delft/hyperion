@@ -37,19 +37,8 @@ object GitLineTracker {
         val repo = GitUtil.getRepositoryManager(project).getRepositoryForFileQuick(file) ?: return null
 
         // Run our blames
-        return runBlame(project, repo, file, oldCommit, oldLine)?.currentLine
-    }
-
-    private fun runBlame(
-        project: Project,
-        repo: GitRepository,
-        file: VirtualFile,
-        oldCommit: String,
-        oldLine: Int
-    ): CurrentBlameReadResult? {
         val originBlameResult = runOriginBlame(project, repo, file, oldCommit, oldLine) ?: return null
-        val currentBlameResult = runCurrentBlame(project, repo, file, originBlameResult) ?: return null
-        return currentBlameResult
+        return runCurrentBlame(project, repo, file, originBlameResult)?.currentLine ?: return null
     }
 
     /**
