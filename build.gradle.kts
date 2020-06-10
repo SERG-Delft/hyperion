@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "1.3.71"
+    id("com.bmuschko.docker-remote-api") version "6.4.0"
 }
 
 group = "nl.tudelft.hyperion"
@@ -67,6 +68,33 @@ subprojects {
     }
 }
 
+val releaseArtifacts = listOf(":pluginmanager:", ":datasource:plugins:elasticsearch:", ":aggregator:",
+                              ":pipeline:plugins:adder:", ":pipeline:plugins:extractor:",
+                              ":pipeline:plugins:loadbalancer:", ":pipeline:plugins:pathextractor:",
+                              ":pipeline:plugins:printer:", ":pipeline:plugins:rate:",
+                              ":pipeline:plugins:reader:", ":pipeline:plugins:renamer:",
+                              ":pipeline:plugins:stresser:", ":pipeline:plugins:versiontracker:")
+
+
+tasks.register<DefaultTask>("docker-release") {
+    group = "docker"
+    description = "Release all artifacts as docker image on docker hub"
+    val dockerUrl = "hub.docker.com/username/"
+    val version = "0.1.0"
+
+    //dependsOn("build-artifacts-release")
+
+    for (artifact in releaseArtifacts) {
+        val artifactParts = artifact.split(":")
+        val artifactName =  artifactParts[artifactParts.size - 2]
+
+        val dockerArtifactUrl = "$dockerUrl$artifactName:$version"
+        val dockerArtifactPath = File("/release-artifacts/$artifactName-all.jar")
+        val dockerfileArtifactPath = File(artifactParts.joinToString("/", limit= -1) + "Dockerfile")
+    }
+
+}
+
 tasks.register<DefaultTask>("build-artifacts-release") {
     group = "build"
     description = "Produces all necessary artifacts for a GitHub Release"
@@ -82,19 +110,7 @@ tasks.register<DefaultTask>("build-artifacts-release") {
         }
     }
 
-    // build all artifacts with shadowJar
-    dependsOn(":pluginmanager:shadowJar")
-    dependsOn(":datasource:plugins:elasticsearch:shadowJar")
-    dependsOn(":aggregator:shadowJar")
-
-    dependsOn(":pipeline:plugins:adder:shadowJar")
-    dependsOn(":pipeline:plugins:extractor:shadowJar")
-    dependsOn(":pipeline:plugins:loadbalancer:shadowJar")
-    dependsOn(":pipeline:plugins:pathextractor:shadowJar")
-    dependsOn(":pipeline:plugins:printer:shadowJar")
-    dependsOn(":pipeline:plugins:rate:shadowJar")
-    dependsOn(":pipeline:plugins:reader:shadowJar")
-    dependsOn(":pipeline:plugins:renamer:shadowJar")
-    dependsOn(":pipeline:plugins:stresser:shadowJar")
-    dependsOn(":pipeline:plugins:versiontracker:shadowJar")
+    for (artifact in releaseArtifacts) {
+        dependsOn(artifact + "shadowJar")
+    }
 }
