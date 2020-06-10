@@ -79,7 +79,7 @@ fun handlePeriodicMetrics(configuration: Configuration, ctx: Context) {
     ))
         .also {
             if (Regex("[^0-9]").containsMatchIn(it)) {
-                throw BadRequestResponse("'startTime' query parameter must be a number")
+                throw BadRequestResponse("'relative-time' query parameter must be a number")
             }
         }
     val steps = (ctx.queryParam("steps") ?: throw BadRequestResponse("Missing steps query parameter"))
