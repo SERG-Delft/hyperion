@@ -2,10 +2,16 @@ package nl.tudelft.hyperion.pipeline.loadbalancer
 
 import io.mockk.coVerify
 import io.mockk.spyk
-import kotlinx.coroutines.*
-import nl.tudelft.hyperion.pipeline.AbstractPipelinePlugin
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import nl.tudelft.hyperion.pipeline.PeerConnectionInformation
 import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
+import nl.tudelft.hyperion.pipeline.TransformingPipelinePlugin
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -51,11 +57,11 @@ class LoadBalancerIntegrationTest {
         WorkerManager.managerScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
     }
 
-    private class LowerCasePlugin(id: String, workerManagerPort: Int) : AbstractPipelinePlugin(
-            PipelinePluginConfiguration(
-                    id,
-                    "localhost:$workerManagerPort"
-            )
+    private class LowerCasePlugin(id: String, workerManagerPort: Int) : TransformingPipelinePlugin(
+        PipelinePluginConfiguration(
+            id,
+            "localhost:$workerManagerPort"
+        )
     ) {
         override suspend fun process(input: String): String? {
             return input.toLowerCase()
@@ -72,14 +78,14 @@ class LoadBalancerIntegrationTest {
         val sinkPort = ns.allocatePort()
 
         val config = LoadBalancerPluginConfiguration(
-                PipelinePluginConfiguration(
-                        "lb",
-                        "foo:1234"
-                ),
-                "localhost",
-                workerManagerPort,
-                ventPort,
-                sinkPort
+            PipelinePluginConfiguration(
+                "lb",
+                "foo:1234"
+            ),
+            "localhost",
+            workerManagerPort,
+            ventPort,
+            sinkPort
         )
 
         val lb = LoadBalancer(config)
@@ -96,9 +102,9 @@ class LoadBalancerIntegrationTest {
 
         // Next, start 3 plugins aimed at the load balancer
         val mockPlugins = listOf(
-                spyk(LowerCasePlugin("mock1", workerManagerPort)),
-                spyk(LowerCasePlugin("mock2", workerManagerPort)),
-                spyk(LowerCasePlugin("mock3", workerManagerPort))
+            spyk(LowerCasePlugin("mock1", workerManagerPort)),
+            spyk(LowerCasePlugin("mock2", workerManagerPort)),
+            spyk(LowerCasePlugin("mock3", workerManagerPort))
         )
 
         val jobs = mockPlugins.map {

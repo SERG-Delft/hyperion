@@ -29,10 +29,10 @@ object WorkerManager {
      *
      * @param hostname the hostname of the load balancer
      * @param port the port that the manager should listen on
-     * @param sinkPort the port of the sink
-     * @param ventilatorPort the port of the distributor
+     * @param sinkPort the port of the sink, null if this is a sender only
+     * @param ventilatorPort the port of the distributor, null if this is a receiver only
      */
-    fun run(hostname: String, port: Int, sinkPort: Int, ventilatorPort: Int) = managerScope.launch {
+    fun run(hostname: String, port: Int, sinkPort: Int?, ventilatorPort: Int?) = managerScope.launch {
         val ctx = ZContext()
         val sock = ctx.createSocket(SocketType.REP)
 
@@ -59,7 +59,7 @@ object WorkerManager {
      *  ventilator
      */
     @Suppress("TooGenericExceptionCaught")
-    fun pollRequest(sock: ZMQ.Socket, hostname: String, sinkPort: Int, ventilatorPort: Int) {
+    fun pollRequest(sock: ZMQ.Socket, hostname: String, sinkPort: Int?, ventilatorPort: Int?) {
         val workerInfo: WorkerInfo?
 
         try {
@@ -71,13 +71,22 @@ object WorkerManager {
             return
         }
 
+        val pushMessage = if (sinkPort != null) {
+            """{"host":"${createAddress(hostname, sinkPort)}", "isBind": "false"}"""
+        } else {
+            """{"host":null,"isBind":false}"""
+        }
+
+        val pullMessage = if (ventilatorPort != null) {
+            """{"host":"${createAddress(hostname, ventilatorPort)}", "isBind": "false"}"""
+        } else {
+            """{"host":null,"isBind":false}"""
+        }
+
         // does not do failure handling
         val isSuccess = when (workerInfo.type) {
-            ConnectionType.PUSH ->
-                sock.send("""{"host":"${createAddress(hostname, sinkPort)}", "isBind": "false"}""")
-
-            ConnectionType.PULL ->
-                sock.send("""{"host":"${createAddress(hostname, ventilatorPort)}", "isBind": "false"}""")
+            ConnectionType.PUSH -> sock.send(pushMessage)
+            ConnectionType.PULL -> sock.send(pullMessage)
         }
 
         // add worker id to list of connected workers on first request

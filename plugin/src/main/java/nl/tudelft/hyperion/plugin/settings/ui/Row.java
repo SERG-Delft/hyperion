@@ -9,8 +9,9 @@ class Row implements Cloneable {
 
     /**
      * Instantiate Row with given interval and period {@link Period}.
+     *
      * @param interval interval value (not necessarily in seconds).
-     * @param period the period for the interval.
+     * @param period   the period for the interval.
      */
     Row(int interval, Period period) {
         this.interval = interval;
@@ -45,6 +46,7 @@ class Row implements Cloneable {
     /**
      * Returns the column value of the row.
      * If columnIndex is 0 we return the first column (interval), otherwise we return the second column (period)
+     *
      * @param columnIndex column to retrieve.
      * @return column relating to given index.
      */
@@ -56,8 +58,9 @@ class Row implements Cloneable {
     /**
      * Sets the specified column to specified value.
      * Will do nothing if value is not of correct type.
+     *
      * @param columnIndex column to change.
-     * @param value value to apply.
+     * @param value       value to apply.
      */
     void setColumn(int columnIndex, Object value) {
         if (columnIndex == 0 && value instanceof Integer) interval = ((Integer) value);
@@ -77,14 +80,12 @@ class Row implements Cloneable {
 
     /**
      * Clones the values of this row to a new one.
+     *
      * @return a new Row with the same values.
      */
+    @Override
     public Row clone() {
-        try {
-            return ((Row) super.clone());
-        } catch (CloneNotSupportedException e) {
-            return new Row(interval, period);
-        }
+        return new Row(interval, period);
     }
 
     @Override

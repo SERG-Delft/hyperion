@@ -4,13 +4,14 @@ import javax.swing.table.AbstractTableModel;
 import java.util.List;
 
 class IntervalTableModel extends AbstractTableModel {
-    private List<Row> data;
     private final String[] columnNames = new String[]{"Interval", "Period"};
+    private List<Row> data;
 
     IntervalTableModel(List<Row> data) {
         super();
         this.data = data;
     }
+
     public List<Row> getData() {
         return data;
     }

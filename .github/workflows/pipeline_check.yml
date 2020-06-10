@@ -27,9 +27,9 @@ jobs:
       - uses: actions/cache@v1
         with:
           path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          key: ${{ runner.os }}-pipeline-gradle-${{ hashFiles('**/*.gradle*') }}
           restore-keys: |
-            ${{ runner.os }}-gradle-
+            ${{ runner.os }}-pipeline-gradle-
 
       - name: gradle check pipeline common
         uses: eskatos/gradle-command-action@v1

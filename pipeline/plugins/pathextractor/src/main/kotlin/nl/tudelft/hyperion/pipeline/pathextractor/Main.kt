@@ -8,4 +8,3 @@ fun main(vararg args: String) = runPipelinePlugin(
     args[0],
     ::ExtractPathPlugin
 )
-

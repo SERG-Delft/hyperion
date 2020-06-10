@@ -23,12 +23,15 @@ object APIRequestor {
         mapper.registerModule(module)
     }
 
-    suspend fun getMetricForFile(filePath: String, ideProject: Project): FileMetrics {
+    suspend fun getMetricForFile(filePath: String, ideProject: Project, httpClient: HttpClient = this.client):
+        FileMetrics {
         val state = HyperionSettings.getInstance(ideProject).state
         val intervals = state.intervals.joinToString(",")
         val project = state.project
 
-        val json: String = client.get("${state.address}?project=$project&file=$filePath&intervals=$intervals")
+        val json: String = httpClient.get(
+            "${state.address}/api/v1/metrics?project=$project&file=$filePath&intervals=$intervals"
+        )
 
         return FileMetrics.fromMetricsResults(mapper.readValue(json))
     }
@@ -53,7 +56,7 @@ object APIRequestor {
         steps: Int,
         filePath: String?
     ): APIBinMetricsResponse<out BaseAPIMetric> {
-        var getURL = "$address/period?project=$project&relative-time=$relativeTime&steps=$steps"
+        var getURL = "$address/api/v1/metrics/period?project=$project&relative-time=$relativeTime&steps=$steps"
 
         val isFileOnly = filePath != null
 
@@ -72,4 +75,3 @@ object APIRequestor {
         }
     }
 }
-

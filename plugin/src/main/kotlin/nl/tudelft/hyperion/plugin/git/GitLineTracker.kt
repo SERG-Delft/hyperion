@@ -2,7 +2,6 @@ package nl.tudelft.hyperion.plugin.git
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vcs.impl.LineStatusTrackerManager
 import com.intellij.openapi.vfs.VirtualFile
 import git4idea.GitUtil
 import git4idea.commands.Git

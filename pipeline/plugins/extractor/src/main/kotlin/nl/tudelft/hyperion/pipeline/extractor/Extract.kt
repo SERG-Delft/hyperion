@@ -2,19 +2,12 @@ package nl.tudelft.hyperion.pipeline.extractor
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
+import nl.tudelft.hyperion.pipeline.JsonFieldNotFoundException
+import nl.tudelft.hyperion.pipeline.findOrCreateChild
+import nl.tudelft.hyperion.pipeline.findParent
 
-/**
- * Function that checks whether a child exists and creates it otherwise
- * @param name The name of the child to be found or created
- * @return The child node as ObjectNode
- */
-fun ObjectNode.findOrCreateChild(name: String): ObjectNode {
-    if (this.get(name) != null) {
-        return this.get(name) as ObjectNode
-    }
-
-    return this.putObject(name)
-}
+private val logger = mu.KotlinLogging.logger {}
+private val mapper = ObjectMapper()
 
 /**
  * Function that adds a new node with a (possibly hierarchical) path and a value to an ObjectNode
@@ -27,28 +20,37 @@ fun ObjectNode.put(type: Type, value: String, name: String): ObjectNode {
     val parts = name.split(".")
 
     if (parts.size == 1) {
-        when (type) {
-            Type.NUMBER -> this.put(parts[0], value.toInt())
-            Type.DOUBLE -> this.put(parts[0], value.toDouble())
-            Type.STRING -> this.put(parts[0], value)
+        try {
+            when (type) {
+                Type.NUMBER -> this.put(parts[0], value.toInt())
+                Type.DOUBLE -> this.put(parts[0], value.toDouble())
+                Type.STRING -> this.put(parts[0], value)
+            }
+        } catch (ex: NumberFormatException) {
+            this.put(parts[0], value)
+            logger.error("$ex")
         }
     } else {
         val target = parts.subList(1, parts.size - 1).fold(this.findOrCreateChild(parts[0]), { p, c ->
-            p.findOrCreateChild(c)
+            p?.findOrCreateChild(c)
         })
 
         val leafName = parts.last()
-        when (type) {
-            Type.NUMBER -> target.put(leafName, value.toInt())
-            Type.DOUBLE -> target.put(leafName, value.toDouble())
-            Type.STRING -> target.put(leafName, value)
+
+        try {
+            when (type) {
+                Type.NUMBER -> target?.put(leafName, value.toInt())
+                Type.DOUBLE -> target?.put(leafName, value.toDouble())
+                Type.STRING -> target?.put(leafName, value)
+            }
+        } catch (ex: NumberFormatException) {
+            target!!.put(leafName, value) // Target can never be null if number format exception was thrown
+            logger.error("$ex")
         }
     }
 
     return this
 }
-
-private val mapper = ObjectMapper()
 
 /**
  * Function that extracts information from a JSON string according to a configuration
@@ -65,14 +67,17 @@ fun extract(input: String, config: Configuration): String {
     }
 
     for (extractableField in config.fields) {
-        if (!tree.has(extractableField.field)) continue
+        try {
+            val parent = findParent(tree, extractableField.field)
+            val value = parent.findValue(extractableField.fieldName).toString()
+            val pattern = extractableField.regex
+            val matches = pattern.find(value)
 
-        val fieldValue = tree.findValue(extractableField.field).toString()
-        val pattern = extractableField.regex
-        val matches = pattern.find(fieldValue)
-
-        matches?.groupValues?.drop(1)?.zip(extractableField.extract)?.forEach { (match, extract) ->
-            (tree.findParent(extractableField.field) as ObjectNode).put(extract.type, match, extract.to)
+            matches?.groupValues?.drop(1)?.zip(extractableField.extract)?.forEach { (match, extract) ->
+                tree.put(extract.type, match, extract.to)
+            }
+        } catch (ex: JsonFieldNotFoundException) {
+            continue
         }
     }
 

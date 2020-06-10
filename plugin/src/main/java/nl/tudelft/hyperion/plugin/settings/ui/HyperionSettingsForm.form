@@ -45,6 +45,7 @@
             </constraints>
             <properties>
               <text value="API Address:"/>
+              <toolTipText value="The address of the API."/>
             </properties>
           </component>
           <component id="c9c0" class="javax.swing.JLabel" binding="intervalsTitle">
@@ -52,7 +53,8 @@
               <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="10" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Intervals:"/>
+              <text value="Displayed metric intervals:"/>
+              <toolTipText value="The intervals to be displayed in the metric inlays in the editor. These should fall within the bounds specified by the API."/>
             </properties>
           </component>
           <component id="3bcd1" class="javax.swing.JTextField" binding="projectField">
@@ -70,7 +72,8 @@
               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Project:"/>
+              <text value="Project name:"/>
+              <toolTipText value="Project name to be used in the API call"/>
             </properties>
           </component>
         </children>

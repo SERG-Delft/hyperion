@@ -8,7 +8,7 @@
     <!-- Unique identifier of the plugin. Should be FQN.
          Cannot be changed between the plugin versions.
          If not specified, <name> will be used (not recommended). -->
-    <id>nl.sapmannen.hyperion</id>
+    <id>nl.tudelft.hyperion</id>
 
     <!-- Description of the plugin.
          Should be short and to the point.
@@ -21,7 +21,9 @@
          Don't mention the IDE compatibility. E.g. don't say "Adds support to IntelliJ IDEA for..."
          Displayed in the "Plugins" settings dialog and the plugin repository Web interface.
          Simple HTML elements can be included between <![CDATA[  ]]> tags.  -->
-    <description>Front end plugin that connects with an aggregrator to display monitoring data within the IDE</description>
+    <description>
+        Front end plugin that connects with an aggregrator to display monitoring data within the IDE
+    </description>
 
     <!-- Description of changes in the latest version of the plugin.
          Displayed in the "Plugins" settings dialog and the plugin repository Web interface.
@@ -49,14 +51,8 @@
 
     <!-- Minimum and maximum build of IDE compatible with the plugin -->
     <idea-version since-build="201.4163"/>
-
-    <projectListeners>
-<!--            <listener class="nl.tudelft.hyperion.plugin.visualization.FileOpenedListener"-->
-<!--                      topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>-->
-    </projectListeners>
     <actions>
-        <action id="nl.tudelft.hyperion.plugin.visualization.RefreshTooltipAction"
-                class="nl.tudelft.hyperion.plugin.visualization.RefreshTooltipAction"
+        <action class="nl.tudelft.hyperion.plugin.visualization.RefreshTooltipAction"
                 text="Hyperion: Refresh Metrics" description="Refresh/Gather all Metrics">
             <override-text place="MainMenu" text="Refresh Metrics"/>
             <keyboard-shortcut first-keystroke="control alt H" second-keystroke="F" keymap="$default"/>
@@ -78,6 +74,7 @@
         <projectConfigurable displayName="Hyperion" groupId="tools"
                              instance="nl.tudelft.hyperion.plugin.settings.HyperionSettingsConfigurable"/>
         <highlightingPassFactory implementation="nl.tudelft.hyperion.plugin.doc.MetricInlayRenderPassFactory" />
+        <search.optionContributor implementation="nl.tudelft.hyperion.plugin.settings.HyperionOptionContributor"/>
         <toolWindow id="Visualization" anchor="bottom"
                     factoryClass="nl.tudelft.hyperion.plugin.visualization.VisWindowFactory"
                     icon="/placeholder_logo.png"/>

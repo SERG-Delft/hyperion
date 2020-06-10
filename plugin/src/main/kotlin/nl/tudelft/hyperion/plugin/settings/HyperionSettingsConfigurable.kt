@@ -8,15 +8,19 @@ import javax.swing.JComponent
 /**
  * Class that represents the Project Configurable for the Hyperion Plugin.
  */
-class HyperionSettingsConfigurable(project: Project) : SearchableConfigurable {
-    private val settingsPane: HyperionSettingsForm = HyperionSettingsForm(project)
+class HyperionSettingsConfigurable(val project: Project) : SearchableConfigurable {
+    lateinit var settingsPane: HyperionSettingsForm
 
+    companion object {
+        const val ID = "hyperion.settings"
+        const val DISPLAY_NAME = "Hyperion"
+    }
 
     /**
      * Unique configurable id for the Hyperion Settings.
      */
     override fun getId(): String {
-        return "hyperion.settings"
+        return ID
     }
 
     /**
@@ -27,6 +31,8 @@ class HyperionSettingsConfigurable(project: Project) : SearchableConfigurable {
      * @return new Swing form to show, or `null` if it cannot be created
      */
     override fun createComponent(): JComponent? {
+        // If settingsPane hasn't been initialized yet we need to create it.
+        if (!this::settingsPane.isInitialized) settingsPane = HyperionSettingsForm(project)
         return settingsPane.root
     }
 
@@ -36,6 +42,7 @@ class HyperionSettingsConfigurable(project: Project) : SearchableConfigurable {
     override fun reset() {
         settingsPane.reset()
     }
+
     /**
      * Indicates whether the Swing form was modified or not.
      * This method is called very often, so it should not take a long time.
@@ -55,7 +62,7 @@ class HyperionSettingsConfigurable(project: Project) : SearchableConfigurable {
      * @return the visible name of the configurable component
      */
     override fun getDisplayName(): String {
-        return "Hyperion"
+        return DISPLAY_NAME
     }
 
     /**

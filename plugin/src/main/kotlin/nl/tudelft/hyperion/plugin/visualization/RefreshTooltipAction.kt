@@ -12,6 +12,5 @@ class RefreshTooltipAction : AnAction() {
         if (editor != null && psiFile != null) {
             MetricInlayRenderPass.forceRefresh(editor, psiFile)
         }
-
     }
 }

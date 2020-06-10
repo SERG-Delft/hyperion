@@ -9,16 +9,16 @@ import io.ktor.http.fullPath
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
+import io.mockk.unmockkAll
 import kotlinx.coroutines.runBlocking
 import nl.tudelft.hyperion.plugin.metric.FileMetrics
 import nl.tudelft.hyperion.plugin.metric.LineIntervalMetric
 import nl.tudelft.hyperion.plugin.metric.LineMetrics
 import nl.tudelft.hyperion.plugin.settings.HyperionSettings
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import java.lang.reflect.Field
-import java.lang.reflect.Modifier
 import java.net.URLEncoder
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -36,10 +36,10 @@ class APIRequestorTest {
         val json = """[{"interval":60,"versions":{"abc":[{"line":10,"count":20,"severity":"INFO"}],
             |"def":[{"line":20,"count":1,"severity":"DEBUG"}]}},{"interval":120,"versions":
 |           {"abc":[{"line":10,"count":20,"severity":"INFO"}],"def":[{"line":20,"count":1,"severity":"DEBUG"}]}}]"""
-                .trimMargin()
+            .trimMargin()
 
-        val expectedRequest = "/?project=${enc(testProject)}&file=${enc(filePath)}" +
-                "&intervals=${enc(testIntervals.joinToString(","))}"
+        val expectedRequest = "/api/v1/metrics?project=${enc(testProject)}&file=${enc(filePath)}" +
+            "&intervals=${enc(testIntervals.joinToString(","))}"
         // Handlers are required to be specified when the client is constructed.
         // Since we only have one test everything is done globally and the client is initialized here.
         mockClient = spyk(HttpClient(MockEngine) {
@@ -52,19 +52,11 @@ class APIRequestorTest {
                 }
             }
         })
+    }
 
-        // Since we are setting a val here we need to use Java's reflection.
-        val field = APIRequestor::class.java.getDeclaredField("client").apply {
-            isAccessible = true
-        }
-
-        // Kotlin's val are final in java, we need to remove this modifier.
-        Field::class.java.getDeclaredField("modifiers").apply {
-            trySetAccessible()
-            setInt(field, field.modifiers and Modifier.FINAL.inv())
-        }
-        // Finally we set the client field to our mocked client.
-        field.set(APIRequestor, mockClient)
+    @AfterAll
+    fun cleanup() {
+        unmockkAll()
     }
 
     @Test
@@ -73,35 +65,33 @@ class APIRequestorTest {
         every { mockProject.name } returns testProject
 
         every { mockProject.getService(HyperionSettings::class.java) } returns HyperionSettings(mockProject)
-                .apply {
-                    loadState(HyperionSettings.State().apply {
-                        intervals = testIntervals
-                        address = testAddress
-                        project = testProject
-                    })
-                }
+            .apply {
+                loadState(HyperionSettings.State().apply {
+                    intervals = testIntervals
+                    address = testAddress
+                    project = testProject
+                })
+            }
         val expected = FileMetrics(
-                mapOf(
-                        10 to LineMetrics(
-                                mapOf(
-                                        60 to listOf(LineIntervalMetric("abc", 20)),
-                                        120 to listOf(LineIntervalMetric("abc", 20))
-                                )
-                        ),
-                        20 to LineMetrics(
-                                mapOf(
-                                        60 to listOf(LineIntervalMetric("def", 1)),
-                                        120 to listOf(LineIntervalMetric("def", 1))
-                                )
-                        )
+            mapOf(
+                10 to LineMetrics(
+                    mapOf(
+                        60 to listOf(LineIntervalMetric("abc", 20)),
+                        120 to listOf(LineIntervalMetric("abc", 20))
+                    )
+                ),
+                20 to LineMetrics(
+                    mapOf(
+                        60 to listOf(LineIntervalMetric("def", 1)),
+                        120 to listOf(LineIntervalMetric("def", 1))
+                    )
                 )
+            )
         )
         runBlocking {
-            val result = APIRequestor.getMetricForFile(filePath, mockProject)
+            val result = APIRequestor.getMetricForFile(filePath, mockProject, mockClient)
             assertEquals(expected, result)
         }
-
-
     }
 
     fun enc(string: String): String {
