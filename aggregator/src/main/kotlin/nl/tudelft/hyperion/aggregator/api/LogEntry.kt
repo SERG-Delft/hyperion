@@ -49,9 +49,11 @@ data class LogEntry(
     val location: LogLocation,
 
     /**
-     * The time at which this log statement happened.
+     * The time at which this log statement happened. Note that this is nullable.
+     * When null, the [Configuration.verifyTimestamp] property determines whether
+     * or not this message is rejected.
      */
-    val timestamp: DateTime
+    val timestamp: DateTime? = null
 ) {
     companion object {
         private val mapper = ObjectMapper(JsonFactory())

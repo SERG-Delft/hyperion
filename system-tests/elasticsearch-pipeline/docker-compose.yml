@@ -52,6 +52,34 @@ services:
     depends_on:
       - pluginmanager
 
+  adder:
+    build:
+      context: ${HYPERION_ROOT_DIR}/pipeline/plugins/adder
+    volumes:
+      - type: bind
+        source: ./adder.yml
+        target: /usr/config.yml
+    environment:
+      - CONFIGPATH=/usr/config.yml
+    networks:
+      - hyperion
+    depends_on:
+      - pluginmanager
+
+  pathextractor:
+    build:
+      context: ${HYPERION_ROOT_DIR}/pipeline/plugins/pathextractor
+    volumes:
+      - type: bind
+        source: ./pathextractor.yml
+        target: /usr/config.yml
+    environment:
+      - CONFIGPATH=/usr/config.yml
+    networks:
+      - hyperion
+    depends_on:
+      - pluginmanager
+
   aggregator:
     build:
       context: ${HYPERION_ROOT_DIR}/aggregator

@@ -25,10 +25,10 @@ class AbstractPipelinePluginTest {
         pmConn = mockk<ConfigZMQ>(relaxed = true)
         every {
             pmConn.requestConfig("Plugin", ConfigType.PULL)
-        } returns """{"isBind":"true","host":"tcp://localhost:1200"}"""
+        } returns """{"host":"tcp://localhost:1200","isBind":true}"""
         every {
             pmConn.requestConfig("Plugin", ConfigType.PUSH)
-        } returns """{"isBind":"false","host":"tcp://localhost:1201"}"""
+        } returns """{"host":"tcp://localhost:1201","isBind":false}"""
     }
 
     @AfterEach
@@ -79,7 +79,7 @@ class TestPlugin : AbstractPipelinePlugin {
     constructor(config: PipelinePluginConfiguration, pmConn: ConfigZMQ)
         : super(config, pmConn)
 
-    override suspend fun process(input: String): String? {
-        return input
+    override suspend fun onMessageReceived(msg: String) {
+
     }
 }

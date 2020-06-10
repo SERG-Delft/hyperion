@@ -86,6 +86,8 @@ Please note that the docker container for this plugin will load the configuratio
 
 ## Configuration
 
+> **Note**: Unlike many other pipeline plugins, the adder plugin is able to watch the configuration file for changes and automatically update without the need to restart. This allows you to write to the file dynamically when you want to change a value, without the need to write a completely custom plugin.
+
 This plugin accepts configuration in a YAML file supplied as a command line argument. The following options are accepted:
 
 ```yaml
