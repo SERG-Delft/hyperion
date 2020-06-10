@@ -5,13 +5,12 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.intellij.openapi.project.Project
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO
 import io.ktor.client.request.get
 import nl.tudelft.hyperion.plugin.metric.FileMetrics
 import nl.tudelft.hyperion.plugin.settings.HyperionSettings
 
 object APIRequestor {
-    private val client = HttpClient(CIO)
+    private val client = HttpClient()
     private val mapper = ObjectMapper()
 
     init {
