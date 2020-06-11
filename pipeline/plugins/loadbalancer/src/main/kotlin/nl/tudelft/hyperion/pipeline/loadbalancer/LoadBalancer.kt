@@ -42,9 +42,9 @@ class LoadBalancer(
     }
 
     /**
-     * Will start a thread for with a sender proxy if the plugin is set to be a
-     * sender and a thread for with a receiver proxy if this plugin is set to
-     * be a receiver.
+     * Will start a thread with a sender proxy if the plugin is set to be a
+     * sender and a thread with a receiver proxy if this plugin is set to be a
+     * receiver.
      *
      * @return a [Pair] of the possible sender and receiver thread.
      */
@@ -73,7 +73,7 @@ class LoadBalancer(
      * only occurs in the event of an exception or if the job is forcefully
      * cancelled.
      *
-     * Will cleans up all other threads.
+     * Will clean up all other threads.
      *
      * @param pluginManagerWorker the main job to run forever.
      * @param senderThread the thread for the sender proxy.
