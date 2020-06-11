@@ -5,9 +5,10 @@ import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.editor.markup.GutterIconRenderer
 import nl.tudelft.hyperion.plugin.visualization.GUTTER_ICON
+import nl.tudelft.hyperion.plugin.visualization.actions.OpenLineGraphAction
 import javax.swing.Icon
 
-class MetricGutterIconRenderer : GutterIconRenderer() {
+class MetricGutterIconRenderer(private val logicalLine: Int) : GutterIconRenderer() {
     companion object {
         const val CLICK_GROUP_ID = "nl.tudelft.hyperion.plugin.visualization.actions.GraphActionGroup"
     }
@@ -19,16 +20,22 @@ class MetricGutterIconRenderer : GutterIconRenderer() {
         return 1
     }
 
-    @SuppressWarnings("EqualsAlwaysReturnsTrueOrFalse")
     override fun equals(other: Any?): Boolean {
         logger<MetricGutterIconRenderer>().warn("${this.javaClass.name}.equals() should not be used")
-        return false
+        return this === other
     }
 
     override fun getPopupMenuActions(): ActionGroup? {
         val actionManager = ActionManager.getInstance()
+
+        // Save the line number of this gutter icon when the popup menu is
+        // opened, this is for when the current line number action is chosen,
+        OpenLineGraphAction.cachedLogicalLine = logicalLine
+
         return actionManager.getAction(CLICK_GROUP_ID) as ActionGroup
     }
+
+    override fun getTooltipText(): String? = "Click to view all actions"
 
     override fun isNavigateAction(): Boolean = true
 }

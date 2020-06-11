@@ -3,7 +3,6 @@ package nl.tudelft.hyperion.plugin.visualization.actions
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
-import com.intellij.openapi.editor.Caret
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ToolWindowManager
@@ -19,6 +18,14 @@ import nl.tudelft.hyperion.plugin.visualization.VisToolWindowFactory
 import nl.tudelft.hyperion.plugin.visualization.errorDialog
 
 class OpenLineGraphAction : AnAction() {
+    companion object {
+        // Updated when a gutter icon action is invoked
+        // This is necessary due to action group popups resulting from gutter
+        // icons not being bound to the line position, so it must be manually
+        // stored somewhere to locate the originating line
+        var cachedLogicalLine: Int? = null
+    }
+
     @SuppressWarnings("TooGenericExceptionCaught")
     override fun actionPerformed(e: AnActionEvent) {
         val currentProject = e.getData(CommonDataKeys.PROJECT)
@@ -31,13 +38,24 @@ class OpenLineGraphAction : AnAction() {
                 errorDialog { "Current open file is not linked to a project" }
                 return@actionPerformed
             }
-        val currentCaret = e.getData(CommonDataKeys.CARET)
-            ?: errorDialog { "Action was triggered outside of PSI context" }
+
+        // If the action was triggered from the gutter, use the cached line number
+        // Otherwise use the line number at the caret
+        val lineNumber = if (e.place == "ICON_NAVIGATION_SECONDARY_BUTTON" && cachedLogicalLine != null) {
+            cachedLogicalLine!!
+        } else {
+            val currentCaret = e.getData(CommonDataKeys.CARET)
+                ?: run {
+                    errorDialog { "Action was triggered outside of PSI context" }
+                    return
+                }
+            currentCaret.logicalPosition.line
+        }
 
         val originInfo =
             try {
                 getLineOriginInfo(
-                    (currentCaret as Caret).logicalPosition.line,
+                    lineNumber,
                     currentProject,
                     currentFile
                 ) ?: run {
@@ -74,7 +92,8 @@ class OpenLineGraphAction : AnAction() {
             ?.show {
                 VisToolWindowFactory.histogramTab.updateAllSettings()
                 VisToolWindowFactory.histogramTab.queryAndUpdate(
-                    lineNumber = (originInfo as OriginBlameReadResult).lastSeenLine
+                    // Increment because the API stores it as visible lines instead of logical line
+                    lineNumber = (originInfo as OriginBlameReadResult).lastSeenLine + 1
                 )
                 VisToolWindowFactory.histogramTab.root.repaint()
             }

@@ -70,7 +70,7 @@
 
             <action id="nl.tudelft.hyperion.plugin.visualization.actions.OpenFileGraphAction"
                     class="nl.tudelft.hyperion.plugin.visualization.actions.OpenFileGraphAction"
-                    text="Hyperion: Visualize Current File Metrics" description="Show log metrics of current open file"
+                    text="Hyperion: Visualize File Metrics" description="Show log metrics of current open file"
                     icon="/icons/tool_window_icon.png">
                 <!-- Add to right click in the project view -->
                 <add-to-group group-id="ProjectViewPopupMenu" anchor="after"

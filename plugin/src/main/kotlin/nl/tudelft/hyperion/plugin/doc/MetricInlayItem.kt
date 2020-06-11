@@ -71,7 +71,8 @@ fun createInlayForLine(editor: Editor, line: Int, counts: Map<Int, Int>): Metric
         HighlighterTargetArea.EXACT_RANGE
     )
 
-    highlighter.gutterIconRenderer = MetricGutterIconRenderer()
+    // Subtract 1 from the visible line number because the logical line is required
+    highlighter.gutterIconRenderer = MetricGutterIconRenderer(line - 1)
 
     // And attach an inlay to that highlighter
     val inlay = editor.inlayModel.addBlockElement(
