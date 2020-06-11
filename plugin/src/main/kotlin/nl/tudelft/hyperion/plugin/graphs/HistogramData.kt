@@ -1,7 +1,7 @@
 package nl.tudelft.hyperion.plugin.graphs
 
+import com.jetbrains.rd.util.debug
 import com.jetbrains.rd.util.getLogger
-import com.jetbrains.rd.util.warn
 import nl.tudelft.hyperion.plugin.metric.APIBinMetricsResponse
 import nl.tudelft.hyperion.plugin.metric.BaseAPIMetric
 import org.joda.time.DateTime
@@ -45,7 +45,7 @@ data class HistogramData(
     val labels
         get() = bins.map { it.map(BinComponent::label) }
 
-    //<editor-fold desc="Hide generated">
+    // <editor-fold desc="Hide generated">
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -63,7 +63,7 @@ data class HistogramData(
         result = 31 * result + timestamps.contentHashCode()
         return result
     }
-    //</editor-fold>
+    // </editor-fold>
 }
 
 fun parseAPIBinResponse(
@@ -84,25 +84,18 @@ fun parseAPIBinResponse(
         // Check if the given version exists
         if (version !in it.versions) {
             // TODO: add better missing version handling
-            getLogger<HistogramData>().warn {
+            getLogger<HistogramData>().debug {
                 "Version=$version missing from API response, setting count to 0"
             }
 
             bins.add(arrayOf())
-
             return@forEach
         }
 
         val bin = it.versions[version] ?: error("version=$version removed at runtime")
 
         // Add the count, color and severity per box from the metrics
-        bins.add(bin.map { part ->
-            BinComponent(
-                part.count,
-                colorScheme.getOrDefault(part.severity.toLowerCase(), defaultColor),
-                part.severity
-            )
-        }.toTypedArray())
+        bins.add(groupAndParseBin(bin, colorScheme, defaultColor))
     }
 
     return HistogramData(
@@ -110,3 +103,18 @@ fun parseAPIBinResponse(
         timestamps.toTypedArray()
     )
 }
+
+private fun groupAndParseBin(
+    bin: List<BaseAPIMetric>,
+    colorScheme: Map<String, Color>,
+    defaultColor: Color
+): Array<BinComponent> =
+    bin
+        .groupBy { it.severity }
+        .map {
+            BinComponent(
+                it.value.map(BaseAPIMetric::count).sum(),
+                colorScheme.getOrDefault(it.key.toLowerCase(), defaultColor),
+                it.key
+            )
+        }.toTypedArray()

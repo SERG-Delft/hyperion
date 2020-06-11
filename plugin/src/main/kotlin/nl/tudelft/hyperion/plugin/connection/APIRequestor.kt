@@ -3,7 +3,6 @@ package nl.tudelft.hyperion.plugin.connection
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO

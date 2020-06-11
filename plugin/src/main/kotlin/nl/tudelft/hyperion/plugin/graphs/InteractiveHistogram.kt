@@ -9,7 +9,6 @@ import java.awt.event.MouseEvent
 import java.awt.event.MouseMotionAdapter
 import java.awt.geom.AffineTransform
 import javax.swing.JPanel
-import javax.swing.event.MouseInputAdapter
 import kotlin.math.PI
 import kotlin.math.round
 

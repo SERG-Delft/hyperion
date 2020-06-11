@@ -25,7 +25,10 @@ data class APIMetricsResult(
 data class APIBinMetricsResponse<T : BaseAPIMetric>(
     val interval: Int,
     val results: List<APIBinMetricsResult<T>>
-)
+) {
+    fun filterVersion(version: String, lineNumber: Int) =
+        results.map { it.filterVersion(version, lineNumber) }
+}
 
 /**
  * Represents an element as the result of an /api/v1/metrics/period API call.
@@ -39,8 +42,14 @@ data class APIBinMetricsResponse<T : BaseAPIMetric>(
  */
 data class APIBinMetricsResult<T : BaseAPIMetric>(
     val startTime: Int,
-    val versions: Map<String, List<T>>
-)
+    val versions: MutableMap<String, List<T>>
+) {
+    fun filterVersion(version: String, lineNumber: Int) {
+        if (version in versions) {
+            versions[version] = versions[version]?.filter { it.line == lineNumber }!!
+        }
+    }
+}
 
 /**
  * The base class for all metrics.

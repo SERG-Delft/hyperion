@@ -19,6 +19,7 @@ class MetricGutterIconRenderer : GutterIconRenderer() {
         return 1
     }
 
+    @SuppressWarnings("EqualsAlwaysReturnsTrueOrFalse")
     override fun equals(other: Any?): Boolean {
         logger<MetricGutterIconRenderer>().warn("${this.javaClass.name}.equals() should not be used")
         return false

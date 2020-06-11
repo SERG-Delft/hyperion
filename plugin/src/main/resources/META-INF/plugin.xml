@@ -65,7 +65,8 @@
 
             <action id="nl.tudelft.hyperion.plugin.visualization.actions.OpenLineGraphAction"
                     class="nl.tudelft.hyperion.plugin.visualization.actions.OpenLineGraphAction"
-                    text="Hyperion: Visualize Line Metrics" description="Show metrics of current log line"/>
+                    text="Hyperion: Visualize Line Metrics" description="Show metrics of current log line"
+                    icon="/icons/tool_window_icon.png"/>
 
             <action id="nl.tudelft.hyperion.plugin.visualization.actions.OpenFileGraphAction"
                     class="nl.tudelft.hyperion.plugin.visualization.actions.OpenFileGraphAction"

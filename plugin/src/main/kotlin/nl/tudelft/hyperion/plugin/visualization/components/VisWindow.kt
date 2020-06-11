@@ -102,6 +102,7 @@ class VisWindow {
         createRefreshButton()
         createBarCountComboBox()
         createHistogramComponent()
+        createTitleLabel()
     }
 
     /**
@@ -112,6 +113,18 @@ class VisWindow {
         refreshButton = JButton()
         refreshButton.addActionListener {
             queryAndUpdate()
+        }
+    }
+
+    private fun createTitleLabel() {
+        titleLabel = JLabel()
+        if (settings.visualization.fileOnly) {
+            // Assume that filename is a local path
+            // TODO: fix assumption that filePath is local
+            val filename = Paths.get(settings.visualization.filePath!!).fileName.toString()
+            titleLabel.text = "Showing metrics for $filename"
+        } else {
+            titleLabel.text = "Showing metrics for all files"
         }
     }
 
@@ -151,7 +164,7 @@ class VisWindow {
      * results are used to update the histogram data and repaint the histogram
      * component.
      */
-    fun queryAndUpdate() = runBlocking {
+    fun queryAndUpdate(lineNumber: Int? = null) = runBlocking {
         launch(Dispatchers.IO) {
             val version = GitVersionResolver.getCurrentOriginCommit(ideProject)
 
@@ -168,6 +181,10 @@ class VisWindow {
                 settings.visualization.timesteps,
                 if (settings.visualization.fileOnly) settings.visualization.filePath else null
             )
+
+            if (lineNumber != null) {
+                apiMetrics.filterVersion(version, lineNumber)
+            }
 
             val params = parseAPIBinResponse(
                 version,
@@ -190,6 +207,7 @@ class VisWindow {
      */
     fun updateAllSettings() {
         granularityComboBox.selectedItem = settings.visualization.interval
+        barCountComboBox.selectedItem = settings.visualization.timesteps
         if (settings.visualization.fileOnly) {
             // Assume that filename is a local path
             // TODO: fix assumption that filePath is local
