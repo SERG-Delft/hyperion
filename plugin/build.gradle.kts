@@ -8,7 +8,12 @@ setupJacocoPlugin(branchCoverage = 0.3, lineCoverage = 0.4)
 
 intellij {
     setPlugins("git4idea")
+    version = "2020.1"
 }
+tasks.patchPluginXml {
+    sinceBuild("201.4163")
+}
+
 
 dependencies {
     // To establish a connection and make a get request to the API.
