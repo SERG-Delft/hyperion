@@ -7,6 +7,10 @@ plugins {
     signing
 }
 
+group = "com.github.sergdelft.hyperion"
+val pubGroup = group.toString()
+version = "0.1.0"
+
 setupKotlinPlugins()
 setupJacocoPlugin(branchCoverage = 0.4, lineCoverage = 0.7, runOnIntegrationTest = true)
 
@@ -45,8 +49,10 @@ val dokkaJar by tasks.creating(Jar::class) {
     from(tasks.dokka)
 }
 
-// groupId used for maven repository
-val pubGroup = "com.github.sergdelft.hyperion"
+signing {
+    sign(publishing.publications["pipeline-common"])
+}
+
 publishing {
     publications {
         create<MavenPublication>("pipeline-common") {
@@ -89,12 +95,12 @@ publishing {
 
     // set the repository for publishing the artifacts, properties can be found at:
     // https://docs.gradle.org/current/dsl/org.gradle.api.artifacts.repositories.MavenArtifactRepository.html
-    // repositories {
-    //     maven {
-    //         name = "$pubGroup:pipeline-common"
-    //         url = uri("file://${buildDir}/repo")
-    //     }
-    // }
+    repositories {
+        maven {
+            name = "$pubGroup:pipeline-common"
+            url = uri("file://${buildDir}/repo")
+        }
+    }
 }
 
 // bintray {
@@ -117,6 +123,3 @@ publishing {
 //     }
 // }
 
-signing {
-    sign(publishing.publications["pipeline-common"])
-}
