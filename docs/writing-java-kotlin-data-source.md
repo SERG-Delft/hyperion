@@ -74,32 +74,13 @@ CMD java -jar reader-all.jar ${CONFIGPATH}
 
 ## 2. Plugin configuration
 
-The plugin library uses YAML as the format for configuration files. The library also includes some utilities for parsing YAML files but any desired format could be used. For consistency, we will YAML in this example. The minimum required configuration for a plugin is the address of the plugin manager and a unique identifier for the plugin (see [protocol.md](https://github.com/SERG-Delft/monitoring-aware-ides/blob/more-documentation/docs/protocol.md)). The plugin library uses the following format for configuration.
+The plugin library uses YAML as the format for configuration files. The library also includes some utilities for parsing YAML files but any desired format could be used. For consistency, we will use YAML in this example. The minimum required configuration for a plugin is the address of the plugin manager and a unique identifier for the plugin (see [protocol.md](https://github.com/SERG-Delft/monitoring-aware-ides/blob/more-documentation/docs/protocol.md)). The plugin library uses the following format for configuration.
 
 ```yaml
 # config.yml
 manager-host: "localhost:5555"
 plugin-id: "Reader"
 ```
-
-<!-- To extend this configuration with additional parameters needed for our plugin we will create a wrapper data class containing the pipeline plugin configuration. A new file should be added to the package, in our case we will call it 'FileWatcherConfiguration.kt'. The data class will contain any fields needed for the configuration of this plugin specifically and include the abstract plugin configuration as well. In our example, it looks like this:
-
-```kotlin
-// FileWatcherConfiguration.kt
-
-import nl.tudelft.hyperion.pipeline.PipelinePluginConfiguration
-
-/**
- * Configuration for the file watcher plugin.
- *
- * @param file the path to the file to watch.
- * @param pipeline the general configuration for a pipeline plugin.
- */
-data class FileWatcherConfiguration(
-    val file: String,
-    val pipeline: PipelinePluginConfiguration
-)
-``` -->
 
 <!-- We can now add the additional information to our configuration file, after which it looks like this:
 
