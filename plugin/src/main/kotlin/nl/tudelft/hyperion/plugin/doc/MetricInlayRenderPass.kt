@@ -80,24 +80,34 @@ class MetricInlayRenderPass(editor: Editor, file: PsiFile) : EditorBoundHighligh
         if (metrics != null) return metrics
 
         val result = runBlocking {
-            val root = ProjectFileIndex.SERVICE.getInstance(myProject).getContentRootForFile(myFile.virtualFile)
-            val filePath = root?.let { VfsUtilCore.getRelativePath(myFile.virtualFile, it) }
-
-            if (filePath != null) {
-                try {
-                    APIRequestor.getMetricForFile(filePath, myProject)
-                } catch (e: Exception) {
-                    // Catch BindException or ConnectException indicating the http request failed.
-                    myEditor.drawDisabled = true
-                    FileMetrics(mapOf())
-                }
-            } else {
-                FileMetrics(mapOf())
-            }
+            requestFileMetrics()
         }
         myEditor.fileMetrics = result
 
         return result
+    }
+
+    /**
+     * Uses the APIRequestor to request Metrics for the current file and handles it accordingly.
+     * If the connection failed the exception is caught here and handled such that new requests won't be made
+     * unless the file is reopened (or the refresh metrics action is used).
+     */
+    @Suppress("TooGenericExceptionCaught")
+    private suspend fun requestFileMetrics(): FileMetrics {
+        val root = ProjectFileIndex.SERVICE.getInstance(myProject).getContentRootForFile(myFile.virtualFile)
+        val filePath = root?.let { VfsUtilCore.getRelativePath(myFile.virtualFile, it) }
+
+        return if (filePath != null) {
+            try {
+                APIRequestor.getMetricForFile(filePath, myProject)
+            } catch (e: Exception) {
+                // Catch BindException or ConnectException indicating the http request failed.
+                myEditor.drawDisabled = true
+                FileMetrics(mapOf())
+            }
+        } else {
+            FileMetrics(mapOf())
+        }
     }
 
     companion object {
