@@ -2,7 +2,7 @@ plugins {
     kotlin("jvm") version "1.3.71"
 }
 
-group = "nl.tudelft.hyperion"
+group = "com.github.sergdelft.hyperion"
 version = "0.1.0"
 
 allprojects {
