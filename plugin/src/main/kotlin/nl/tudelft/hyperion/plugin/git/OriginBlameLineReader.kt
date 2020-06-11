@@ -19,7 +19,11 @@ class OriginBlameLineReader : GitLineHandlerListener {
 
         hasReadHeader = true
 
-        val parts = getParts(line, outputType) ?: return
+        val parts = getParts(line, outputType)
+        if (parts == null) {
+            result = null
+            return
+        }
 
         result = OriginBlameReadResult(
             parts[0],
@@ -34,7 +38,6 @@ class OriginBlameLineReader : GitLineHandlerListener {
     private fun getParts(line: String, outputType: Key<*>): List<String>? {
         // If this isn't stdout, it means the resolve failed.
         if (!ProcessOutputType.isStdout(outputType)) {
-            result = null
             return null
         }
 
@@ -42,7 +45,6 @@ class OriginBlameLineReader : GitLineHandlerListener {
         val parts = line.split(" ")
         if (parts.size != 4) {
             // should never happen
-            result = null
             return null
         }
 
