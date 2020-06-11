@@ -8,6 +8,8 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import nl.tudelft.hyperion.plugin.metric.FileMetrics
 import nl.tudelft.hyperion.plugin.settings.HyperionSettings
+import java.net.BindException
+import java.net.ConnectException
 
 object APIRequestor {
     private val client = HttpClient()
@@ -18,6 +20,7 @@ object APIRequestor {
         mapper.registerModule(module)
     }
 
+    @Throws(ConnectException::class, BindException::class)
     suspend fun getMetricForFile(
         filePath: String,
         ideProject: Project,

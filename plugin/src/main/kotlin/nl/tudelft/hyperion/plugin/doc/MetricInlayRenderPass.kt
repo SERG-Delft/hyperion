@@ -27,7 +27,7 @@ class MetricInlayRenderPass(editor: Editor, file: PsiFile) : EditorBoundHighligh
 
         // If we don't have a resolved version or if any of our inlays
         // no longer has an anchor point, run a re-resolve from the file.
-        if (resolved == null || items.any { !it.isValid }) {
+        if (myEditor.drawDisabled != true && (resolved == null || items.any { !it.isValid })) {
             myEditor.needsRedraw = true
             myEditor.resolvedMetrics = ResolvedFileMetrics.resolve(metrics, myProject, myFile.virtualFile)
         }
@@ -84,7 +84,13 @@ class MetricInlayRenderPass(editor: Editor, file: PsiFile) : EditorBoundHighligh
             val filePath = root?.let { VfsUtilCore.getRelativePath(myFile.virtualFile, it) }
 
             if (filePath != null) {
-                APIRequestor.getMetricForFile(filePath, myProject)
+                try {
+                    APIRequestor.getMetricForFile(filePath, myProject)
+                } catch (e: Exception) {
+                    // Catch BindException or ConnectException indicating the http request failed.
+                    myEditor.drawDisabled = true
+                    FileMetrics(mapOf())
+                }
             } else {
                 FileMetrics(mapOf())
             }
@@ -107,15 +113,20 @@ class MetricInlayRenderPass(editor: Editor, file: PsiFile) : EditorBoundHighligh
         @JvmStatic
         private val NEEDS_REDRAW = Key.create<Boolean>("hyperion.redraw")
 
+        @JvmStatic
+        private val DRAW_DISABLED = Key.create<Boolean>("hyperion.disabled")
+
         var Editor.fileMetrics by KeyedProperty(FILE_METRICS)
         var Editor.resolvedMetrics by KeyedProperty(RESOLVED_METRICS)
         var Editor.items by KeyedProperty(ITEMS)
         var Editor.needsRedraw by KeyedProperty(NEEDS_REDRAW)
+        var Editor.drawDisabled by KeyedProperty(DRAW_DISABLED)
 
         fun forceRefresh(editor: Editor, file: PsiFile) {
             editor.resolvedMetrics = null
             editor.fileMetrics = null
             editor.modificationStamp = null
+            editor.drawDisabled = false
             DaemonCodeAnalyzer.getInstance(editor.project).restart(file)
         }
     }
