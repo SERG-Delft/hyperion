@@ -38,7 +38,7 @@ object GitLineTracker {
 
         // Run our blames
         val originBlameResult = runOriginBlame(project, repo, file, oldCommit, oldLine) ?: return null
-        return runCurrentBlame(project, repo, file, originBlameResult)?.currentLine ?: return null
+        return runCurrentBlame(project, repo, file, originBlameResult)?.currentLine
     }
 
     /**
