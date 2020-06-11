@@ -49,9 +49,7 @@ val dokkaJar by tasks.creating(Jar::class) {
     from(tasks.dokka)
 }
 
-signing {
-    sign(publishing.publications["pipeline-common"])
-}
+
 
 publishing {
     publications {
@@ -93,12 +91,15 @@ publishing {
         }
     }
 
-    // set the repository for publishing the artifacts, properties can be found at:
-    // https://docs.gradle.org/current/dsl/org.gradle.api.artifacts.repositories.MavenArtifactRepository.html
     repositories {
         maven {
-            name = "$pubGroup:pipeline-common"
-            url = uri("file://${buildDir}/repo")
+            // update this url to correct repo
+            url = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2")
+            credentials {
+                // Here is the previous account registered in issues. sonatype. org.
+                username = project.properties["sonatypeUsername"].toString()
+                password = project.properties["sonatypePassword"].toString()
+            }
         }
     }
 }
@@ -123,3 +124,6 @@ publishing {
 //     }
 // }
 
+signing {
+    sign(publishing.publications["pipeline-common"])
+}
