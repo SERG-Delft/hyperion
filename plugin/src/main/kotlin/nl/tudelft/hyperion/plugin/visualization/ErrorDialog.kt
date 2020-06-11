@@ -28,3 +28,5 @@ class ErrorDialog(private val error: String) : DialogWrapper(true) {
         return arrayOf(closeAction)
     }
 }
+
+fun errorDialog(text: () -> String) = ErrorDialog(text()).show()

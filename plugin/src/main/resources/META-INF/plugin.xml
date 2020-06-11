@@ -58,25 +58,39 @@
             <keyboard-shortcut first-keystroke="control alt H" second-keystroke="F" keymap="$default"/>
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </action>
-        <action id="nl.tudelft.hyperion.plugin.visualization.actions.OpenFileGraphAction"
-                class="nl.tudelft.hyperion.plugin.visualization.actions.OpenFileGraphAction"
-                text="Hyperion: Visualize Current File" description="Show log metrics of current open file"
-                icon="/tool_window_icon.png">
-            <add-to-group group-id="ProjectViewPopupMenu" anchor="after" relative-to-action="ConsoleView.PopupMenu"/>
-        </action>
-        <action id="nl.tudelft.hyperion.plugin.visualization.actions.OpenGraphAction"
-                class="nl.tudelft.hyperion.plugin.visualization.actions.OpenGraphAction" text="Hyperion: Visualize"
-                description="Show log metrics of entire project"
-                icon="/tool_window_icon.png"/>
+
+        <group id="nl.tudelft.hyperion.plugin.visualization.actions.GraphActionGroup" text="Visualize Metrics"
+               popup="true"
+               icon="/icons/tool_window_icon.png">
+
+            <action id="nl.tudelft.hyperion.plugin.visualization.actions.OpenLineGraphAction"
+                    class="nl.tudelft.hyperion.plugin.visualization.actions.OpenLineGraphAction"
+                    text="Hyperion: Visualize Line Metrics" description="Show metrics of current log line"/>
+
+            <action id="nl.tudelft.hyperion.plugin.visualization.actions.OpenFileGraphAction"
+                    class="nl.tudelft.hyperion.plugin.visualization.actions.OpenFileGraphAction"
+                    text="Hyperion: Visualize Current File Metrics" description="Show log metrics of current open file"
+                    icon="/icons/tool_window_icon.png">
+                <!-- Add to right click in the project view -->
+                <add-to-group group-id="ProjectViewPopupMenu" anchor="after"
+                              relative-to-action="ConsoleView.PopupMenu"/>
+            </action>
+
+            <action id="nl.tudelft.hyperion.plugin.visualization.actions.OpenGraphAction"
+                    class="nl.tudelft.hyperion.plugin.visualization.actions.OpenGraphAction"
+                    text="Hyperion: Visualize Project Metrics"
+                    description="Show log metrics of entire project"
+                    icon="/icons/tool_window_icon.png"/>
+        </group>
     </actions>
     <extensions defaultExtensionNs="com.intellij">
         <projectService serviceImplementation="nl.tudelft.hyperion.plugin.settings.HyperionSettings"/>
         <projectConfigurable displayName="Hyperion" groupId="tools"
                              instance="nl.tudelft.hyperion.plugin.settings.HyperionSettingsConfigurable"/>
-        <highlightingPassFactory implementation="nl.tudelft.hyperion.plugin.doc.MetricInlayRenderPassFactory" />
+        <highlightingPassFactory implementation="nl.tudelft.hyperion.plugin.doc.MetricInlayRenderPassFactory"/>
         <search.optionContributor implementation="nl.tudelft.hyperion.plugin.settings.HyperionOptionContributor"/>
         <toolWindow id="Visualization" anchor="bottom"
                     factoryClass="nl.tudelft.hyperion.plugin.visualization.VisToolWindowFactory"
-                    icon="/tool_window_icon.png"/>
+                    icon="/icons/tool_window_icon.png"/>
     </extensions>
 </idea-plugin>

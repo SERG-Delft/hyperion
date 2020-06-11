@@ -3,9 +3,10 @@ package nl.tudelft.hyperion.plugin.visualization
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
-import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.ui.content.Content
 import com.intellij.ui.content.ContentFactory
+import nl.tudelft.hyperion.plugin.visualization.components.CodeList
+import nl.tudelft.hyperion.plugin.visualization.components.VisWindow
 
 class VisToolWindowFactory : ToolWindowFactory {
     companion object {

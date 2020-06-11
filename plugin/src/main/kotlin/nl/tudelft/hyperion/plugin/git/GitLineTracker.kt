@@ -49,7 +49,7 @@ object GitLineTracker {
      * commit. Returns the hash and line of the commit that introduced that line, or
      * null if it could not be resolved.
      */
-    private fun runOriginBlame(
+    fun runOriginBlame(
         project: Project,
         repo: GitRepository,
         file: VirtualFile,

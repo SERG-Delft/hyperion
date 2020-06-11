@@ -1,6 +1,6 @@
 @file:JvmName("CodeList")
 
-package nl.tudelft.hyperion.plugin.visualization
+package nl.tudelft.hyperion.plugin.visualization.components
 
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.project.ProjectManager

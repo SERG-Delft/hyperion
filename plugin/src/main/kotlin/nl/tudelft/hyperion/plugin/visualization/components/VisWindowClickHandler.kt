@@ -6,9 +6,7 @@ import com.jetbrains.rd.util.getLogger
 import nl.tudelft.hyperion.plugin.graphs.ClickContext
 import nl.tudelft.hyperion.plugin.metric.BaseAPIMetric
 import nl.tudelft.hyperion.plugin.metric.FileAPIMetric
-import nl.tudelft.hyperion.plugin.visualization.CodeList
 import nl.tudelft.hyperion.plugin.visualization.VisToolWindowFactory
-import nl.tudelft.hyperion.plugin.visualization.VisWindow
 import org.joda.time.DateTime
 import java.nio.file.Paths
 
