@@ -27,6 +27,10 @@ class OriginBlameLineReader : GitLineHandlerListener {
         )
     }
 
+    /**
+     * Verifies that the outputType is stdout and subsequently splits the given line into parts.
+     * The given line corresponds to the Blame result we have obtained.
+     */
     private fun getParts(line: String, outputType: Key<*>): List<String>? {
         // If this isn't stdout, it means the resolve failed.
         if (!ProcessOutputType.isStdout(outputType)) {

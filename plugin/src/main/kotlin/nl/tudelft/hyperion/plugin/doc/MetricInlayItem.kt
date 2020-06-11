@@ -73,6 +73,10 @@ fun createInlayForLine(editor: Editor, line: Int, counts: Map<Int, Int>): Metric
     return MetricInlayItem(inlay, highlighter)
 }
 
+/**
+ * Calculates at what offset the line starts in the given editor and returns this value.
+ * @return the offset of the specified line in the specified editor.
+ */
 private fun calculateInlayOffset(editor: Editor, line: Int): Int {
     // Figure out the first character on the line.
     val startOffset = editor.document.getLineStartOffset(line - 1)
@@ -82,6 +86,17 @@ private fun calculateInlayOffset(editor: Editor, line: Int): Int {
     return inlayOffset
 }
 
+/**
+ * Creates and attaches a new BlockElement (Inlay) to the given editor at the given offset.
+ * The optional text is displayed in the inlay using the given highlighter.
+ *
+ * @param editor The editor to attach the Inlay to.
+ * @param offset The line offset where the inlay should be placed.
+ * @param text Optional String that is displayed in the inlay.
+ * @param highlighter The highlighter (renderer) that is used to render the inlay.
+ *
+ * @return the inlay that was created and attached to the editor.
+ */
 private fun createInlay(
     editor: Editor,
     offset: Int,
@@ -113,6 +128,10 @@ fun updateMetricInlayItem(editor: Editor, item: MetricInlayItem): MetricInlayIte
     return item
 }
 
+/**
+ * Checks if the given MetricInlayItem is still valid or not.
+ * @return Boolean value specifying if the item is valid or not.
+ */
 private fun isFullyValid(item: MetricInlayItem): Boolean {
     if (!item.isValid) {
         throw IllegalStateException("All items should be valid at this stage")

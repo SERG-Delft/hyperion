@@ -88,6 +88,10 @@ object GitLineTracker {
         return null
     }
 
+    /**
+     * Creates a GitLineHandler and sets it up with the given file and parameters.
+     * @return GitLineHandler set up with given file and parameters.
+     */
     private fun setupHandler(
         project: Project,
         root: VirtualFile,
