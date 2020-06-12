@@ -10,9 +10,11 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 import org.zeromq.SocketType
 import org.zeromq.ZContext
 import org.zeromq.ZMQ
+import org.zeromq.ZMQException
 
 class PipelinePullZMQTest {
     private val host = "tcp://localhost:5000"
@@ -29,6 +31,20 @@ class PipelinePullZMQTest {
     @AfterEach
     internal fun tearDown() {
         clearAllMocks()
+    }
+
+    @Test
+    fun `on bad message does not crash`() {
+        val config = PeerConnectionInformation(host, true)
+        val pull = PipelinePullZMQ()
+
+        pull.setupConnection(config)
+
+        every {
+            socket.recvStr()
+        } throws Exception("Exception goes brrr")
+
+        assertDoesNotThrow { pull.pull() }
     }
 
     @Test
