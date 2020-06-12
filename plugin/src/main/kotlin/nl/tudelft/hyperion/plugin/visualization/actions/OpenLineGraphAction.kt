@@ -17,6 +17,10 @@ import nl.tudelft.hyperion.plugin.settings.HyperionSettings
 import nl.tudelft.hyperion.plugin.visualization.VisToolWindowFactory
 import nl.tudelft.hyperion.plugin.visualization.errorDialog
 
+/**
+ * Action for displaying metrics of the metric inlay gutter line or the line
+ * that the user is at with the caret.
+ */
 class OpenLineGraphAction : AnAction() {
     companion object {
         // Updated when a gutter icon action is invoked
@@ -99,6 +103,15 @@ class OpenLineGraphAction : AnAction() {
             }
     }
 
+    /**
+     * Issues a git blame in an IO context to get the where the metric inlay
+     * line was located at in the last origin commit.
+     *
+     * @param lineNumber the logical line number to search the position of.
+     * @param currentProject the project which git is tied to.
+     * @param currentFile the virtual file which the code line belongs to.
+     * @return the [OriginBlameReadResult] with the originating line number.
+     */
     private fun getLineOriginInfo(
         lineNumber: Int,
         currentProject: Project,

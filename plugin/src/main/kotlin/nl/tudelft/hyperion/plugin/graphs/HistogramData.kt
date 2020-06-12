@@ -66,6 +66,20 @@ data class HistogramData(
     // </editor-fold>
 }
 
+/**
+ * Parses the given [APIBinMetricsResponse] into a format suitable for
+ * visualization.
+ *
+ * @param version the version to use.
+ * @param timeFormatter the formatter used for getting string representations
+ *  of the timestamps.
+ * @param colorScheme the color scheme used where the key is the severity and
+ *  the value is a [Color].
+ * @param defaultColor the color to use if the severity is not in
+ *  [colorScheme].
+ * @param response the API response to parse
+ * @return the extracted [HistogramData] object.
+ */
 fun parseAPIBinResponse(
     version: String,
     timeFormatter: DateTimeFormatter,
@@ -104,6 +118,16 @@ fun parseAPIBinResponse(
     )
 }
 
+/**
+ * Groups metrics by severity and sums the counts.
+ *
+ * @param bin the metric bin to modify.
+ * @param colorScheme the color scheme used where the key is the severity and
+ *  the value is a [Color].
+ * @param defaultColor the color to use if the severity is not in
+ *  [colorScheme].
+ * @return the transformed array of grouped bin components.
+ */
 private fun groupAndParseBin(
     bin: List<BaseAPIMetric>,
     colorScheme: Map<String, Color>,

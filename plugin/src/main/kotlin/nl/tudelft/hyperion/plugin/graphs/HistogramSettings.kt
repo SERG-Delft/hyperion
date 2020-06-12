@@ -6,6 +6,16 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.intellij.util.xmlb.Converter
 
+/**
+ * Represents the main settings object for all histogram visualization
+ * settings.
+ *
+ * @property interval the currently used relative time interval.
+ * @property timesteps the amount of bins to use
+ * @property fileOnly if the metrics are file only or project wide.
+ * @property filePath the path to the file if [fileOnly] is true,
+ *  otherwise null.
+ */
 data class HistogramSettings(
     var interval: HistogramInterval,
     var timesteps: Int = 12,
@@ -13,6 +23,13 @@ data class HistogramSettings(
     var filePath: String? = null
 )
 
+/**
+ * Represents the relative time intervals used for displaying the binned log
+ * metrics.
+ *
+ * @property repr the string representation of this time interval.
+ * @property relativeTime the time interval in seconds.
+ */
 enum class HistogramInterval(
     private val repr: String,
     val relativeTime: Int
@@ -28,6 +45,12 @@ enum class HistogramInterval(
     override fun toString(): String = repr
 }
 
+/**
+ * Converter for transforming an [HistogramSettings] object to Intellij
+ * compatible xml.
+ *
+ * Does this by serializing the string as a JSON formatted string.
+ */
 class HistogramSettingsConverter : Converter<HistogramSettings>() {
     companion object {
         val serializer = ObjectMapper(JsonFactory())

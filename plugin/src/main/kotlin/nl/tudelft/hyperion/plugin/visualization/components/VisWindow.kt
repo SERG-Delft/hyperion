@@ -116,6 +116,10 @@ class VisWindow {
         }
     }
 
+    /**
+     * Creates a new title with which file the metrics are originating from.
+     * It retrieves this info from [settings].
+     */
     private fun createTitleLabel() {
         titleLabel = JLabel()
         if (settings.visualization.fileOnly) {

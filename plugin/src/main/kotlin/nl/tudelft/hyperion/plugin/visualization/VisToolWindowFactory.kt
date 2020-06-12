@@ -8,6 +8,10 @@ import com.intellij.ui.content.ContentFactory
 import nl.tudelft.hyperion.plugin.visualization.components.CodeList
 import nl.tudelft.hyperion.plugin.visualization.components.VisWindow
 
+/**
+ * Represents a factory for creating the visualization tool window.
+ * Also used to store references to the created tabs.
+ */
 class VisToolWindowFactory : ToolWindowFactory {
     companion object {
         lateinit var histogramTab: VisWindow

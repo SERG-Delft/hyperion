@@ -10,6 +10,13 @@ import nl.tudelft.hyperion.plugin.visualization.VisToolWindowFactory
 import org.joda.time.DateTime
 import java.nio.file.Paths
 
+/**
+ * Helper function for handling clicks inside the visualization tool window.
+ * Updates information in the related lines tab when a bar or box is clicked.
+ *
+ * @param clickCtx information on where the user clicked inside the
+ *  visualization.
+ */
 fun clickHandler(clickCtx: ClickContext) {
     getLogger<VisWindow>().debug { "Clicked with context $clickCtx" }
 
@@ -33,6 +40,16 @@ fun clickHandler(clickCtx: ClickContext) {
     )
 }
 
+/**
+ * Click handler that returns information on the log lines that correspond to
+ * the clicked histogram box inside of the visualization tool window.
+ * The information is shown in a different tab.
+ *
+ * @param clickCtx information on where the user clicked inside the
+ *  visualization.
+ * @return a pair of the new title to put in the tab and the rows for the table
+ *  where each row is a code line.
+ */
 private fun showBoxLineInfo(
     clickCtx: ClickContext
 ): Pair<String, List<CodeList.Companion.TableEntry>>? {
@@ -42,6 +59,15 @@ private fun showBoxLineInfo(
     return Pair("$newTitle on $label", rows.filter { it.severity == label })
 }
 
+/**
+ * Click handler that returns information on the log lines that correspond to
+ * the clicked histogram bar inside of the visualization tool window.
+ * The information is shown in a different tab.
+ *
+ * @param binIndex the index of which bin in the histogram was clicked.
+ * @return a pair of the new title to put in the tab and the rows for the table
+ *  where each row is a code line.
+ */
 private fun showBinLineInfo(binIndex: Int): Pair<String, List<CodeList.Companion.TableEntry>>? {
     val apiMetric = VisWindow.apiMetrics.results[binIndex].versions[VisWindow.branchVersion]
 
@@ -63,6 +89,12 @@ private fun showBinLineInfo(binIndex: Int): Pair<String, List<CodeList.Companion
     return Pair(newTitle, rows)
 }
 
+/**
+ * Converts either [FileAPIMetric] or [BaseAPIMetric] into table entries.
+ *
+ * @param apiMetric the list of metrics to convert.
+ * @return the created list entries for the related lines tab.
+ */
 private fun createdSortedTableEntries(apiMetric: List<BaseAPIMetric>): List<CodeList.Companion.TableEntry> =
     if (VisWindow.settings.visualization.fileOnly) {
         apiMetric.map { m ->
@@ -87,6 +119,9 @@ private fun createdSortedTableEntries(apiMetric: List<BaseAPIMetric>): List<Code
         }
     }.sortedBy { it.triggerCount }
 
+/**
+ * Create the context title to display at the top of the related lines tab.
+ */
 private fun createContextTitle(startTime: Long): String {
     val startTimeString = DateTime(startTime).toString(VisWindow.DATETIME_FORMATTER_TIME)
     val endTimeString = DateTime(startTime + VisWindow.apiMetrics.interval * 1000L)

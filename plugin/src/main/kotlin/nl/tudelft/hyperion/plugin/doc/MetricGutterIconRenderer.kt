@@ -8,6 +8,12 @@ import nl.tudelft.hyperion.plugin.visualization.GUTTER_ICON
 import nl.tudelft.hyperion.plugin.visualization.actions.OpenLineGraphAction
 import javax.swing.Icon
 
+/**
+ * Represents a gutter icon that displays next to the metric inlays that opens
+ * an action group when clicked.
+ *
+ * @property logicalLine the corresponding logical line to this gutter icon.
+ */
 class MetricGutterIconRenderer(private val logicalLine: Int) : GutterIconRenderer() {
     companion object {
         const val CLICK_GROUP_ID = "nl.tudelft.hyperion.plugin.visualization.actions.GraphActionGroup"

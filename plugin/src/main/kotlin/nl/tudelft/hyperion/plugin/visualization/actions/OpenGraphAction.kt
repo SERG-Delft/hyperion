@@ -8,6 +8,9 @@ import nl.tudelft.hyperion.plugin.settings.HyperionSettings
 import nl.tudelft.hyperion.plugin.visualization.VisToolWindowFactory
 import nl.tudelft.hyperion.plugin.visualization.errorDialog
 
+/**
+ * Action for visualizing metrics of the entire project.
+ */
 class OpenGraphAction : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
         val currentProject = e.getData(CommonDataKeys.PROJECT)

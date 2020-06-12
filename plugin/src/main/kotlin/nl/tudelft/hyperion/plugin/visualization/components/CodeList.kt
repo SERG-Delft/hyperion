@@ -16,6 +16,10 @@ import javax.swing.JPanel
 import javax.swing.JTable
 import javax.swing.table.DefaultTableModel
 
+/**
+ * Represents a tab in tool window that displays information on code lines that
+ * have logs and their metrics.
+ */
 class CodeList {
     lateinit var metricsTable: JTable
     lateinit var root: JPanel
@@ -23,6 +27,10 @@ class CodeList {
 
     lateinit var tableData: List<TableEntry>
 
+    /**
+     * Represents a mouse listener for [metricsTable] that opens the clicked
+     * code line in a new editor.
+     */
     private val metricsTableListener = object : MouseAdapter() {
         override fun mouseClicked(e: MouseEvent?) {
             val row = metricsTable.rowAtPoint(e!!.point)
@@ -59,6 +67,9 @@ class CodeList {
     val content
         get() = root
 
+    /**
+     * Entry point for the Swing UI creation.
+     */
     fun createUIComponents() {
         metricsTable = JBTable(
             DefaultTableModel(
@@ -68,6 +79,12 @@ class CodeList {
         )
     }
 
+    /**
+     * Clears and updates [metricsTable] with the given table entries.
+     *
+     * @param title the new title to put at the top of the table.
+     * @param tableData the new table entries.
+     */
     fun updateTable(title: String, tableData: List<TableEntry>) {
         this.tableData = tableData
 

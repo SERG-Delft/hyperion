@@ -18,6 +18,7 @@ object GitVersionResolver {
      * It does this by getting the repository associated with the current
      * project's `.idea` folder.
      *
+     * @param ideProject the project to run git on.
      * @return most recent commit hash of origin/branch, null if the branch
      *  does not have a remote.
      */
@@ -41,6 +42,14 @@ object GitVersionResolver {
         }
     }
 
+    /**
+     * Runs a git rev-parse command to get the hash of the most recent commit.
+     *
+     * @param ideProject the project to run git on.
+     * @param repo the git repository to run the command on.
+     * @param branch the name of the branch.
+     * @return the result of running the command.
+     */
     private fun runRevParse(
         ideProject: Project,
         repo: GitRepository?,
@@ -53,6 +62,9 @@ object GitVersionResolver {
             }
         }
 
+    /**
+     * Returns the repository and branch of the given [ideProject].
+     */
     private fun getCurrentRepoInfo(ideProject: Project): Pair<GitRepository?, String?> {
         // XXX: uses the workspace file to get repository
         val repo = ideProject.workspaceFile?.let {
