@@ -1,6 +1,6 @@
 # Hyperion - Stresser Plugin
 
-![Gradle check pipeline stresser plugin](https://github.com/SERG-Delft/monitoring-aware-ides/workflows/Gradle%20check%20pipeline%20stresser%20plugin/badge.svg)
+![Gradle check pipeline stresser plugin](https://github.com/SERG-Delft/hyperion/workflows/Gradle%20check%20pipeline%20stresser%20plugin/badge.svg)
 
 This package provides a stress testing plugin that can be used to benchmark the performance of the Hyperion pipeline. It is designed to function as a data source that will simply hammer the next step in the pipeline with as much traffic as possible.
 

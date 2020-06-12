@@ -1,0 +1,7 @@
+field: "log4j_file"
+relative-source-path: "src/main/java"
+postfix: ".java"
+
+pipeline:
+  manager-host: pluginmanager:30001
+  plugin-id: PathExtractor

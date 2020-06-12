@@ -90,37 +90,59 @@ class AuthenticationDeserializer : JsonDeserializer<Authentication>() {
         }
 
         return when (val type = root.get("type").textValue().toLowerCase()) {
-            CommunicationProtocol.SSH.str -> run {
-                if (root["key-path"] == null) {
-                    throw InvalidFormatException(
-                        p,
-                        "Missing keyPath field in ssh authentication",
-                        root,
-                        Authentication::class.java
-                    )
-                }
+            CommunicationProtocol.SSH.str ->
+                parseSSH(p, root)
 
-                Authentication.SSH(root.get("key-path").textValue())
-            }
-
-            CommunicationProtocol.HTTPS.str -> run {
-                if (root["username"] == null || root["password"] == null) {
-                    throw InvalidFormatException(
-                        p,
-                        "Missing username or password field in https authentication",
-                        root,
-                        Authentication::class.java
-                    )
-                }
-
-                Authentication.HTTPS(
-                    root.get("username").textValue(),
-                    root.get("password").textValue()
-                )
-            }
+            CommunicationProtocol.HTTPS.str ->
+                parseHTTPS(p, root)
 
             else ->
                 throw InvalidFormatException(p, "Expected ssh or https but got $type", type, Authentication::class.java)
         }
+    }
+
+    /**
+     * Checks if the node has a username and password field and parses them
+     * into an [Authentication.HTTPS].
+     *
+     * @param p a [JsonParser] for context.
+     * @param root the node to parse from.
+     * @return the parsed [Authentication] object.
+     */
+    private fun parseHTTPS(p: JsonParser, root: JsonNode): Authentication.HTTPS {
+        if (root["username"] == null || root["password"] == null) {
+            throw InvalidFormatException(
+                p,
+                "Missing username or password field in https authentication",
+                root,
+                Authentication::class.java
+            )
+        }
+
+        return Authentication.HTTPS(
+            root.get("username").textValue(),
+            root.get("password").textValue()
+        )
+    }
+
+    /**
+     * Checks if the node has a key path for the SSH key location field and
+     * parses it into an [Authentication.SSH].
+     *
+     * @param p a [JsonParser] for context.
+     * @param root the node to parse from.
+     * @return the parsed [Authentication] object.
+     */
+    private fun parseSSH(p: JsonParser, root: JsonNode): Authentication.SSH {
+        if (root["key-path"] == null) {
+            throw InvalidFormatException(
+                p,
+                "Missing keyPath field in ssh authentication",
+                root,
+                Authentication::class.java
+            )
+        }
+
+        return Authentication.SSH(root.get("key-path").textValue())
     }
 }

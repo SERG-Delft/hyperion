@@ -1,4 +1,5 @@
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm") version "1.3.71"
     id("com.bmuschko.docker-remote-api") version "6.4.0"
@@ -21,13 +22,13 @@ allprojects {
         testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.2")
     }
 
-    tasks {
-        compileKotlin {
-            kotlinOptions.jvmTarget = "11"
-        }
-        compileTestKotlin {
-            kotlinOptions.jvmTarget = "11"
-        }
+    java {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    tasks.withType<KotlinCompile> {
+        kotlinOptions.jvmTarget = "11"
     }
 
     tasks.test {
@@ -84,6 +85,12 @@ tasks.register<DockerPushImage>("docker-release") {
     val version = "0.1.0"
 
     //dependsOn("build-artifacts-release")
+
+    docker {
+        registryCredentials  {
+            url.set("")
+        }
+    }
 
     for (artifact in releaseArtifacts) {
         val artifactParts = artifact.split(":")

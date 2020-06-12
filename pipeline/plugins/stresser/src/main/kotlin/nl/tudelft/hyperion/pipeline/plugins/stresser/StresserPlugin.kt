@@ -70,9 +70,16 @@ class StresserPlugin(private val config: StresserConfiguration) : AbstractPipeli
      * until this job is cancelled or the process is killed.
      */
     fun CoroutineScope.runInfinitePublisher(push: PipelinePushZMQ) {
+        var numSent = 0L
+
+        Runtime.getRuntime().addShutdownHook(Thread {
+            logger.info { "Shutting down. Sent $numSent messages total." }
+        })
+
         logger.info { "Will infinitely publish specified message. ^C to quit." }
 
         while (isActive) {
+            numSent += 1
             push.push(config.message)
         }
     }

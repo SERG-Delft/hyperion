@@ -566,4 +566,48 @@ class ExtractTests {
 
         Assertions.assertEquals(treeExpected, treeActual)
     }
+
+    @Test
+    fun `when target field ends at a leaf that was configured to be a node, nothing should be extracted, double`() {
+        val config = Configuration(
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
+                ExtractableFieldConfiguration(
+                    "message.line",
+                    "(1.5)",
+                    listOf(
+                        Extract("numeric.1", Type.DOUBLE)
+                    )
+                )
+            )
+        )
+
+        val input = """{ "message" : { "line" : "1.5"}, "numeric" : "not an object" }"""
+
+        val treeExpected = mapper.readTree(input)
+        val treeActual = mapper.readTree(extract(input, config))
+
+        Assertions.assertEquals(treeExpected, treeActual)
+    }
+
+    @Test
+    fun `when target field ends at a leaf that was configured to be a node, nothing should be extracted, string`() {
+        val config = Configuration(
+            PipelinePluginConfiguration("extractor", "1.2.3.4:4567"), listOf(
+                ExtractableFieldConfiguration(
+                    "message.line",
+                    "(string)",
+                    listOf(
+                        Extract("numeric.1", Type.STRING)
+                    )
+                )
+            )
+        )
+
+        val input = """{ "message" : { "line" : "string"}, "numeric" : "not an object" }"""
+
+        val treeExpected = mapper.readTree(input)
+        val treeActual = mapper.readTree(extract(input, config))
+
+        Assertions.assertEquals(treeExpected, treeActual)
+    }
 }
