@@ -2,6 +2,7 @@ package nl.tudelft.hyperion.pipeline.loadbalancer
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import nl.tudelft.hyperion.pipeline.AbstractPipelinePlugin
@@ -34,6 +35,20 @@ class LoadBalancer(
             if (canSend) config.ventilatorPort else null
         )
 
+        val (senderThread, receiverThread) = startCommunicationThreads()
+
+        // Sleep while workers are active
+        runForever(pluginManagerWorker, senderThread, receiverThread)
+    }
+
+    /**
+     * Will start a thread with a sender proxy if the plugin is set to be a
+     * sender and a thread with a receiver proxy if this plugin is set to be a
+     * receiver.
+     *
+     * @return a [Pair] of the possible sender and receiver thread.
+     */
+    private fun startCommunicationThreads(): Pair<Thread?, Thread?> {
         // start sender proxy thread, if we can send
         val senderThread = if (canSend) {
             createSenderProxyThread()
@@ -50,7 +65,25 @@ class LoadBalancer(
         }
         receiverThread?.start()
 
-        // Sleep while workers are active
+        return Pair(senderThread, receiverThread)
+    }
+
+    /**
+     * Will suspend until the [pluginManagerWorker] job is finished, which
+     * only occurs in the event of an exception or if the job is forcefully
+     * cancelled.
+     *
+     * Will clean up all other threads.
+     *
+     * @param pluginManagerWorker the main job to run forever.
+     * @param senderThread the thread for the sender proxy.
+     * @param receiverThread the thread for the receiver proxy.
+     */
+    private suspend fun runForever(
+        pluginManagerWorker: Job,
+        senderThread: Thread?,
+        receiverThread: Thread?
+    ) {
         try {
             pluginManagerWorker.join()
         } finally {
