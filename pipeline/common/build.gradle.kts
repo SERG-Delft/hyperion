@@ -7,7 +7,7 @@ plugins {
     signing
 }
 
-group = "com.github.sergdelft.hyperion"
+group = "com.github.serg-delft.hyperion"
 val pubGroup = group.toString()
 version = "0.1.0"
 
@@ -125,5 +125,6 @@ publishing {
 // }
 
 signing {
+    useGpgCmd()
     sign(publishing.publications["pipeline-common"])
 }
