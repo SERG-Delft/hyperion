@@ -104,26 +104,6 @@ publishing {
     }
 }
 
-// bintray {
-//     user = project.findProperty("bintrayUser").toString()
-//     key = project.findProperty("bintrayKey").toString()
-//     publish = true
-//     setPublications("pipeline-common")
-//
-//     pkg.apply {
-//         repo = "hyperion"
-//         name = "$pubGroup:pipeline-common"
-//         setLicenses("Apache-2.0")
-//         userOrg = "serg-tudelft"
-//         vcsUrl = "https://github.com/SERG-Delft/hyperion.git"
-//         version.apply {
-//             name = "0.1.0"
-//             desc = "0.1.0"
-//             released = Date().toString()
-//         }
-//     }
-// }
-
 signing {
     sign(publishing.publications["pipeline-common"])
 }
