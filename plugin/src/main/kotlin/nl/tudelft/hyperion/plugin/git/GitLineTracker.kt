@@ -8,10 +8,9 @@ import git4idea.commands.Git
 import git4idea.commands.GitCommand
 import git4idea.commands.GitLineHandler
 import git4idea.repo.GitRepository
-import nl.tudelft.hyperion.plugin.git.GitLineTracker.resolveCurrentLine
 
 /**
- * Class that tracks lines using git. The primary method to use is [resolveCurrentLine].
+ * Class that tracks lines using git. The primary method to use is resolveCurrentLine.
  */
 object GitLineTracker {
     /**
