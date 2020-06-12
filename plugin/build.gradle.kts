@@ -15,6 +15,11 @@ tasks.patchPluginXml {
     sinceBuild("201.6746")
 }
 
+tasks.publishPlugin {
+    channels("alpha")
+    token(System.getenv("ORG_GRADLE_PROJECT_intellijPublishToken"))
+}
+
 dependencies {
     // To establish a connection and make a get request to the API.
     implementation("io.ktor:ktor-client-core:1.3.2")

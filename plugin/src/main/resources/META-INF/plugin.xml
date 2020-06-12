@@ -8,7 +8,7 @@
     <!-- Unique identifier of the plugin. Should be FQN.
          Cannot be changed between the plugin versions.
          If not specified, <name> will be used (not recommended). -->
-    <id>nl.tudelft.hyperion</id>
+    <id>com.github.sergdelft</id>
 
     <!-- Description of the plugin.
          Should be short and to the point.
@@ -33,7 +33,7 @@
     <!-- Plugin version
          Recommended format is BRANCH.BUILD.FIX (MAJOR.MINOR.FIX)
          Displayed in the "Plugins" settings dialog and the plugin repository Web interface.  -->
-    <version>1.0.0</version>
+    <version>0.1.0</version>
 
     <!-- The vendor of the plugin.
          The optional "url" attribute specifies the URL of the vendor homepage.
