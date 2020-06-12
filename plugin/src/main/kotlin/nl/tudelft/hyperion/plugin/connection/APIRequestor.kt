@@ -11,6 +11,9 @@ import nl.tudelft.hyperion.plugin.settings.HyperionSettings
 import java.net.BindException
 import java.net.ConnectException
 
+/**
+ * Class the handles requests made to the API.
+ */
 object APIRequestor {
     private val client = HttpClient()
     private val mapper = ObjectMapper()
@@ -20,7 +23,19 @@ object APIRequestor {
         mapper.registerModule(module)
     }
 
-    @Throws(ConnectException::class, BindException::class)
+    /**
+     * Method that executes the call to the API.
+     * It requests all data needed from the Plugin's settings [HyperionSettings].
+     *
+     * This method will throw either [BindException] (in sandbox) or [ConnectException] (in production) which
+     * should be handled by the caller.
+     *
+     * @param filePath the full filePath (relative to project root) of the file we request metrics for.
+     * @param ideProject The Project opened in the IDE that has called this method. This is used to obtain the correct
+     * instance of [HyperionSettings].
+     * @param httpClient Optional argument in case you want to supply your own httpClient. This is currently only used
+     * for testing.
+     */
     suspend fun getMetricForFile(
         filePath: String,
         ideProject: Project,

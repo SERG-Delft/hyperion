@@ -1,5 +1,6 @@
 package nl.tudelft.hyperion.plugin.doc
 
+import nl.tudelft.hyperion.plugin.visualization.countsToLabel
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
@@ -33,7 +34,9 @@ class MetricInlayItemTest {
         3600 * 24 * 8 + 3661 to "1 w 1 d 1 h 1 min 1 s"
     ).map {
         DynamicTest.dynamicTest("An interval of ${it.first} should return label ${it.second}") {
-            assertEquals("[0 last ${it.second}]", countsToLabel(mapOf(it.first to 0)))
+            assertEquals("[0 last ${it.second}]",
+                         countsToLabel(mapOf(it.first to 0))
+            )
         }
     }
 }

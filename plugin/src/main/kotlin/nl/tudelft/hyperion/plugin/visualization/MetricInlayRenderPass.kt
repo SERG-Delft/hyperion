@@ -1,4 +1,4 @@
-package nl.tudelft.hyperion.plugin.doc
+package nl.tudelft.hyperion.plugin.visualization
 
 import com.intellij.codeHighlighting.EditorBoundHighlightingPass
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
@@ -11,15 +11,19 @@ import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.psi.PsiFile
 import kotlinx.coroutines.runBlocking
 import nl.tudelft.hyperion.plugin.connection.APIRequestor
-import nl.tudelft.hyperion.plugin.doc.MetricInlayRenderPassFactory.Companion.modificationStamp
 import nl.tudelft.hyperion.plugin.metric.FileMetrics
 import nl.tudelft.hyperion.plugin.metric.ResolvedFileMetrics
 import nl.tudelft.hyperion.plugin.util.KeyedProperty
+import nl.tudelft.hyperion.plugin.visualization.MetricInlayRenderPassFactory.Companion.modificationStamp
 
 class MetricInlayRenderPass(editor: Editor, file: PsiFile) : EditorBoundHighlightingPass(
     editor, file,
     false
 ) {
+    /**
+     * This method is called by the IDE when a file needs to be highlighted.
+     * We thus handle obtaining and (re)drawing the metrics here.
+     */
     override fun doCollectInformation(progress: ProgressIndicator) {
         val metrics = getOrComputeMetrics()
         val resolved = myEditor.resolvedMetrics
@@ -40,7 +44,10 @@ class MetricInlayRenderPass(editor: Editor, file: PsiFile) : EditorBoundHighligh
         applyInformation()
 
         positionKeeper.restorePosition(false)
-        MetricInlayRenderPassFactory.putCurrentModificationStamp(myEditor, myFile)
+        MetricInlayRenderPassFactory.putCurrentModificationStamp(
+            myEditor,
+            myFile
+        )
     }
 
     /**
@@ -58,7 +65,11 @@ class MetricInlayRenderPass(editor: Editor, file: PsiFile) : EditorBoundHighligh
             items.forEach(MetricInlayItem::remove)
 
             items = resolved.lineSums.map {
-                createInlayForLine(myEditor, it.key, it.value)
+                createInlayForLine(
+                    myEditor,
+                    it.key,
+                    it.value
+                )
             }
         }
 
@@ -132,6 +143,9 @@ class MetricInlayRenderPass(editor: Editor, file: PsiFile) : EditorBoundHighligh
         var Editor.needsRedraw by KeyedProperty(NEEDS_REDRAW)
         var Editor.drawDisabled by KeyedProperty(DRAW_DISABLED)
 
+        /**
+         * This method is called by the [RefreshTooltipAction] to refresh all metrics for the current file.
+         */
         fun forceRefresh(editor: Editor, file: PsiFile) {
             editor.resolvedMetrics = null
             editor.fileMetrics = null

@@ -1,4 +1,4 @@
-package nl.tudelft.hyperion.plugin.doc
+package nl.tudelft.hyperion.plugin.visualization
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.Inlay
@@ -11,6 +11,10 @@ import com.intellij.openapi.util.TextRange
 import org.joda.time.Period
 import org.joda.time.format.PeriodFormatterBuilder
 
+/**
+ * Class that represents a metric visualized as an inlay.
+ * It keeps track of the Inlay being shown and the RangeHighlighter that is used to track the beginning of the line.
+ */
 class MetricInlayItem(
     var inlay: Inlay<MetricTooltipRenderer>,
     val highlighter: RangeHighlighter
@@ -21,6 +25,9 @@ class MetricInlayItem(
     val isProperlyPlaced
         get() = inlay.offset == highlighter.startOffset
 
+    /**
+     * Completely removes this Inlay visually.
+     */
     fun remove() {
         if (highlighter.isValid) {
             highlighter.dispose()
@@ -68,7 +75,14 @@ fun createInlayForLine(editor: Editor, line: Int, counts: Map<Int, Int>): Metric
     )
 
     // And attach an inlay to that highlighter
-    val inlay = createInlay(editor, inlayOffset, countsToLabel(counts), highlighter)
+    val inlay = createInlay(
+        editor,
+        inlayOffset,
+        countsToLabel(
+            counts
+        ),
+        highlighter
+    )
 
     return MetricInlayItem(inlay, highlighter)
 }
@@ -123,7 +137,12 @@ fun updateMetricInlayItem(editor: Editor, item: MetricInlayItem): MetricInlayIte
 
     // Recreate the inlay at the current highlighter offset. We cannot
     // move it, as intellij does not support the movement of inlays.
-    item.inlay = createInlay(editor, item.highlighter.startOffset, item.inlay.renderer.text, item.highlighter)
+    item.inlay = createInlay(
+        editor,
+        item.highlighter.startOffset,
+        item.inlay.renderer.text,
+        item.highlighter
+    )
 
     return item
 }

@@ -42,7 +42,7 @@ class HyperionSettings(private val relatedProject: Project) : PersistentStateCom
     /**
      * Sets the intervals for the State.
      *
-     * @see State.intervals
+     * [State.intervals]
      */
     fun setIntervals(intervals: List<Int>) {
         currentState.intervals = intervals
@@ -50,12 +50,16 @@ class HyperionSettings(private val relatedProject: Project) : PersistentStateCom
 
     /**
      * Sets the address of the state.
-     * @see State.address
+     * [State.address]
      */
     fun setAddress(address: String) {
         currentState.address = address
     }
 
+    /**
+     * Sets the project of the state.
+     * [State.project]
+     */
     fun setProject(project: String) {
         currentState.project = project
     }
@@ -77,7 +81,7 @@ class HyperionSettings(private val relatedProject: Project) : PersistentStateCom
      * State object should be used directly, defensive copying is not required.
      *
      * @param state loaded component state
-     * @see com.intellij.util.xmlb.XmlSerializerUtil.copyBean
+     * see [com.intellij.util.xmlb.XmlSerializerUtil.copyBean]
      */
     override fun loadState(state: State) {
         currentState = state
