@@ -1,6 +1,6 @@
 # Hyperion - IntelliJ IDE Integration
 
-![Gradle check Plugin](https://github.com/SERG-Delft/monitoring-aware-ides/workflows/Gradle%20check%20Plugin/badge.svg)
+![Gradle check Plugin](https://github.com/SERG-Delft/hyperion/workflows/Gradle%20check%20Plugin/badge.svg)
 
 This project integrates the Hyperion pipeline with the IntelliJ IDEA IDE family. It is able to show the amount of logs triggered inline in the editor, based on information aggregated in the [aggregator](/aggregator). It is a reference implementation for how IDEs can be integrated with Hyperion.
 

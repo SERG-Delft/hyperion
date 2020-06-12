@@ -1,6 +1,6 @@
 # Hyperion - Aggregator
 
-![Gradle check Aggregator](https://github.com/SERG-Delft/monitoring-aware-ides/workflows/Gradle%20check%20Aggregator/badge.svg)
+![Gradle check Aggregator](https://github.com/SERG-Delft/hyperion/workflows/Gradle%20check%20Aggregator/badge.svg)
 
 The aggregator is the final step in the Hyperion pipeline. It receives incoming events from the pipeline and aggregates them by project, version and location. It exposes an HTTP API that IDE implementations can use to query the aggregated values.
 

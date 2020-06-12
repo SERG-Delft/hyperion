@@ -1,6 +1,6 @@
 # Hyperion - Reader Plugin
 
-![Gradle check pipeline reader plugin](https://github.com/SERG-Delft/monitoring-aware-ides/workflows/Gradle%20check%20pipeline%20reader%20plugin/badge.svg)
+![Gradle check pipeline reader plugin](https://github.com/SERG-Delft/hyperion/workflows/Gradle%20check%20pipeline%20reader%20plugin/badge.svg)
 
 This package provides a reader pipeline plugin that is able to read messages from stdin and publish it to a Hyperion pipeline. This plugin is primarily intended for debugging and should not be used for production purposes.
 

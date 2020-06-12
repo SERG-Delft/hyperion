@@ -1,6 +1,6 @@
 # Hyperion - Load Balancer Plugin
 
-![Gradle check pipeline loadbalancer plugin](https://github.com/SERG-Delft/monitoring-aware-ides/workflows/Gradle%20check%20pipeline%20loadbalancer%20plugin/badge.svg)
+![Gradle check pipeline loadbalancer plugin](https://github.com/SERG-Delft/hyperion/workflows/Gradle%20check%20pipeline%20loadbalancer%20plugin/badge.svg)
 
 This package provides a load balancer plugin implementation that is able to distribute incoming messages evenly between several child plugin workers in a transparent fashion. Unlike other Hyperion plugins, this plugin provides no features on its own and is instead only responsible for delegating messages to child workers.
 

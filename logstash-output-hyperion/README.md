@@ -1,6 +1,6 @@
 # Hyperion - Logstash Output Plugin
 
-![Ruby spec logstash plugin](https://github.com/SERG-Delft/monitoring-aware-ides/workflows/Ruby%20spec%20logstash%20plugin/badge.svg)
+![Ruby spec logstash plugin](https://github.com/SERG-Delft/hyperion/workflows/Ruby%20spec%20logstash%20plugin/badge.svg)
 
 This is an output plugin for [Logstash](https://github.com/elastic/logstash), allowing it to send data to Hyperion. If you have a typical ELK logging stack, this output can be used to push data to the Hyperion pipeline as it arrives in LogStash.
 

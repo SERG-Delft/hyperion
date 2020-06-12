@@ -68,7 +68,7 @@ publishing {
             pom {
                 name.set("$pubGroup:pipeline-common")
                 description.set("Easily write pipeline plugins for the Hyperion logging framework.")
-                url.set("https://github.com/SERG-Delft/monitoring-aware-ides")
+                url.set("https://github.com/SERG-Delft/hyperion")
 
 
                 licenses {
@@ -85,7 +85,7 @@ publishing {
                 }
 
                 scm {
-                    url.set("https://github.com/SERG-Delft/monitoring-aware-ides")
+                    url.set("https://github.com/SERG-Delft/hyperion")
                 }
             }
         }
@@ -111,11 +111,11 @@ publishing {
 //     setPublications("pipeline-common")
 //
 //     pkg.apply {
-//         repo = "monitoring-aware-ides"
+//         repo = "hyperion"
 //         name = "$pubGroup:pipeline-common"
 //         setLicenses("Apache-2.0")
 //         userOrg = "serg-tudelft"
-//         vcsUrl = "https://github.com/SERG-Delft/monitoring-aware-ides.git"
+//         vcsUrl = "https://github.com/SERG-Delft/hyperion.git"
 //         version.apply {
 //             name = "0.1.0"
 //             desc = "0.1.0"
