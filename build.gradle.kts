@@ -1,3 +1,4 @@
+import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 plugins {
     kotlin("jvm") version "1.3.71"
     id("com.bmuschko.docker-remote-api") version "6.4.0"
@@ -76,7 +77,7 @@ val releaseArtifacts = listOf(":pluginmanager:", ":datasource:plugins:elasticsea
                               ":pipeline:plugins:stresser:", ":pipeline:plugins:versiontracker:")
 
 
-tasks.register<DefaultTask>("docker-release") {
+tasks.register<DockerPushImage>("docker-release") {
     group = "docker"
     description = "Release all artifacts as docker image on docker hub"
     val dockerUrl = "hub.docker.com/username/"
