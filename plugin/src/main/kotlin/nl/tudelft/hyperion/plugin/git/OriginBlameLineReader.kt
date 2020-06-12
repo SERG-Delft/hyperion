@@ -19,16 +19,8 @@ class OriginBlameLineReader : GitLineHandlerListener {
 
         hasReadHeader = true
 
-        // If this isn't stdout, it means the resolve failed.
-        if (!ProcessOutputType.isStdout(outputType)) {
-            result = null
-            return
-        }
-
-        // Stdout means we're ok.
-        val parts = line.split(" ")
-        if (parts.size != 4) {
-            // should never happen
+        val parts = getParts(line, outputType)
+        if (parts == null) {
             result = null
             return
         }
@@ -37,6 +29,26 @@ class OriginBlameLineReader : GitLineHandlerListener {
             parts[0],
             parts[1].toInt()
         )
+    }
+
+    /**
+     * Verifies that the outputType is stdout and subsequently splits the given line into parts.
+     * The given line corresponds to the Blame result we have obtained.
+     */
+    private fun getParts(line: String, outputType: Key<*>): List<String>? {
+        // If this isn't stdout, it means the resolve failed.
+        if (!ProcessOutputType.isStdout(outputType)) {
+            return null
+        }
+
+        // Stdout means we're ok.
+        val parts = line.split(" ")
+        if (parts.size != 4) {
+            // should never happen
+            return null
+        }
+
+        return parts
     }
 }
 

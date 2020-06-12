@@ -24,12 +24,9 @@ data class ResolvedFileMetrics(
 
             for ((originalLine, lineData) in metrics.lines) {
                 for ((interval, versions) in lineData.intervals) {
-                    for (version in versions) {
-                        val newLine = GitLineTracker.resolveCurrentLine(
-                            project, file, version.version,
-                            originalLine
-                        )
-                            ?: continue
+                    versions.forEach { version ->
+                        val newLine = GitLineTracker.resolveCurrentLine(project, file, version.version, originalLine)
+                            ?: return@forEach
 
                         val lineMap = lineSums.getOrPut(newLine, ::mutableMapOf)
                         lineMap[interval] = lineMap.getOrDefault(interval, 0) + version.count
