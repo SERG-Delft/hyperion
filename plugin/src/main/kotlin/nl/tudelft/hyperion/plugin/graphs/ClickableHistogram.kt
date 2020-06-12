@@ -40,31 +40,21 @@ typealias clickedComponentCallback = (ClickContext) -> Unit
  * @param xMargin the left and right margin in pixels.
  * @param yMargin the top and bottom margin in pixels.
  * @param barSpacing the spacing between bars in pixels.
- * @param clickCallback an optional callback that is executed when the user
- *  clicks on a [BinComponent].
+ * @param clickCallback a callback that is executed when the user clicks on a
+ *  [BinComponent].
  */
 class ClickableHistogram(
     initialData: HistogramData,
     xMargin: Int,
     yMargin: Int,
     barSpacing: Int,
-    clickCallback: clickedComponentCallback? = null
+    clickCallback: clickedComponentCallback
 ) : InteractiveHistogram(initialData, xMargin, yMargin, barSpacing) {
     init {
-        if (clickCallback != null) {
-            addClickHandler(clickCallback)
-        }
-    }
-
-    private fun addClickHandler(clickCallback: clickedComponentCallback) =
         this.addMouseListener(object : MouseInputAdapter() {
             override fun mouseClicked(e: MouseEvent?) {
                 val i = if (collidingBar != null) {
-                    bars.indexOfFirst { it === collidingBar }.also {
-                        check(it != -1) {
-                            "collidingBar changed at runtime"
-                        }
-                    }
+                    bars.indexOfFirst { it === collidingBar }
                 } else -1
 
                 if (collidingBox != null && i != -1) {
@@ -78,4 +68,5 @@ class ClickableHistogram(
                 }
             }
         })
+    }
 }

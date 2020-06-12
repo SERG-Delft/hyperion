@@ -22,9 +22,9 @@ fun clickHandler(clickCtx: ClickContext) {
 
     val (newTitle, rows) =
         if (clickCtx.isWholeBarClicked) {
-            showBinLineInfo(clickCtx.barIndex)
+            createBinLineInfo(clickCtx.barIndex)
         } else {
-            showBoxLineInfo(clickCtx)
+            createBoxLineInfo(clickCtx)
         }
             ?: return
 
@@ -50,10 +50,10 @@ fun clickHandler(clickCtx: ClickContext) {
  * @return a pair of the new title to put in the tab and the rows for the table
  *  where each row is a code line.
  */
-private fun showBoxLineInfo(
+private fun createBoxLineInfo(
     clickCtx: ClickContext
 ): Pair<String, List<CodeList.Companion.TableEntry>>? {
-    val (newTitle, rows) = showBinLineInfo(clickCtx.barIndex) ?: return null
+    val (newTitle, rows) = createBinLineInfo(clickCtx.barIndex) ?: return null
     val label = clickCtx.binComponent!!.label
 
     return Pair("$newTitle on $label", rows.filter { it.severity == label })
@@ -68,7 +68,7 @@ private fun showBoxLineInfo(
  * @return a pair of the new title to put in the tab and the rows for the table
  *  where each row is a code line.
  */
-private fun showBinLineInfo(binIndex: Int): Pair<String, List<CodeList.Companion.TableEntry>>? {
+fun createBinLineInfo(binIndex: Int): Pair<String, List<CodeList.Companion.TableEntry>>? {
     val apiMetric = VisWindow.apiMetrics.results[binIndex].versions[VisWindow.branchVersion]
 
     if (apiMetric == null) {
@@ -76,7 +76,7 @@ private fun showBinLineInfo(binIndex: Int): Pair<String, List<CodeList.Companion
         return null
     }
 
-    val rows = createdSortedTableEntries(apiMetric)
+    val rows = createSortedTableEntries(apiMetric)
 
     val newTitle =
         if (rows.isEmpty()) {
@@ -95,7 +95,8 @@ private fun showBinLineInfo(binIndex: Int): Pair<String, List<CodeList.Companion
  * @param apiMetric the list of metrics to convert.
  * @return the created list entries for the related lines tab.
  */
-private fun createdSortedTableEntries(apiMetric: List<BaseAPIMetric>): List<CodeList.Companion.TableEntry> =
+fun createSortedTableEntries(apiMetric: List<BaseAPIMetric>): List<CodeList.Companion.TableEntry> =
+    // TODO: make line in row resolve via git blame
     if (VisWindow.settings.visualization.fileOnly) {
         apiMetric.map { m ->
             CodeList.Companion.TableEntry(
@@ -117,7 +118,7 @@ private fun createdSortedTableEntries(apiMetric: List<BaseAPIMetric>): List<Code
                 m.count.toString()
             )
         }
-    }.sortedBy { it.triggerCount }
+    }.sortedByDescending { it.triggerCount }
 
 /**
  * Create the context title to display at the top of the related lines tab.

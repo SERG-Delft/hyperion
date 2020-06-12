@@ -112,6 +112,7 @@ class VisWindow {
     private fun createRefreshButton() {
         refreshButton = JButton()
         refreshButton.addActionListener {
+            updateAllSettings()
             queryAndUpdate()
         }
     }

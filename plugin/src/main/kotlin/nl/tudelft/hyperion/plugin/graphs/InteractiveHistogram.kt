@@ -129,7 +129,7 @@ open class InteractiveHistogram(
      * Note that it is assumed that the dimensions of [HistogramData.logCounts] matches those of
      * [bars] times its [Bar.boxes] property.
      */
-    private fun calculateBoxes() {
+    fun calculateBoxes() {
         val histogramWidth = width - 2 * xMargin
         val barWidth = histogramWidth / data.logCounts.size
 
@@ -184,7 +184,7 @@ open class InteractiveHistogram(
      *
      * @param g the [Graphics] object used to draw on the buffer.
      */
-    private fun drawHistogram(g: Graphics) {
+    fun drawHistogram(g: Graphics) {
         // TODO: only recalculate boxes on component show or component resize
         if (data.bins.isNotEmpty()) {
             calculateBoxes()
@@ -223,7 +223,7 @@ open class InteractiveHistogram(
      * @param text the timestamp or label to draw.
      * @param bar which bar to draw the timestamp after.
      */
-    private fun drawTimeStamp(g: Graphics, text: String, bar: Bar) {
+    fun drawTimeStamp(g: Graphics, text: String, bar: Bar) {
         val xLabelFontMetrics = g.getFontMetrics(font)
         g.color = LABEL_COLOR
 
@@ -277,7 +277,7 @@ open class InteractiveHistogram(
      * @param labelVal the value of this particular bin.
      */
     @SuppressWarnings("MagicNumber")
-    private fun drawBoxOverlay(g: Graphics, bar: Bar, box: Box, label: String, labelVal: String) {
+    fun drawBoxOverlay(g: Graphics, bar: Bar, box: Box, label: String, labelVal: String) {
         // Color the overlay with a transparent gray
         g.color = OVERLAY_COLOR
         g.fillRect(bar.startX, box.startY, bar.width, box.height)
@@ -296,7 +296,7 @@ open class InteractiveHistogram(
      * @param labelVal the value of this particular bin.
      */
     @SuppressWarnings("MagicNumber")
-    private fun drawBarOverlay(g: Graphics, bar: Bar, labelVal: String) {
+    fun drawBarOverlay(g: Graphics, bar: Bar, labelVal: String) {
         g.color = OVERLAY_COLOR
         g.fillRect(bar.startX, topY - 10, bar.width, height - 2 * yMargin + 10)
 
@@ -311,7 +311,7 @@ open class InteractiveHistogram(
      * @param y the x coordinate to check collisions of.
      * @return a pair of the first colliding bar and box, otherwise null.
      */
-    private fun checkCollide(x: Int, y: Int): Pair<Bar?, Box?> {
+    fun checkCollide(x: Int, y: Int): Pair<Bar?, Box?> {
         for (bar in bars) {
             if (x <= bar.startX || x > bar.startX + bar.width) {
                 continue
