@@ -1,6 +1,6 @@
 # Hyperion - Plugin Manager
 
-![Gradle check PluginManager](https://github.com/SERG-Delft/monitoring-aware-ides/workflows/Gradle%20check%20PluginManager/badge.svg)
+![Gradle check PluginManager](https://github.com/SERG-Delft/hyperion/workflows/Gradle%20check%20PluginManager/badge.svg)
 
 This project is the core router for the Hyperion pipeline. The order of plugins is configured here, after which it will ensure that all plugins can run standalone and query this single plugin manager for their location in the pipeline and how to communicate with their previous and next counterparts.
 

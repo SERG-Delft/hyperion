@@ -1,6 +1,6 @@
 # Hyperion - Printer Plugin
 
-![Gradle check pipeline printer plugin](https://github.com/SERG-Delft/monitoring-aware-ides/workflows/Gradle%20check%20pipeline%20printer%20plugin/badge.svg)
+![Gradle check pipeline printer plugin](https://github.com/SERG-Delft/hyperion/workflows/Gradle%20check%20pipeline%20printer%20plugin/badge.svg)
 
 This package provides a printer pipeline plugin that can be used to print all messages passing through a part of the pipeline. This plugin may be useful for debugging purposes.
 

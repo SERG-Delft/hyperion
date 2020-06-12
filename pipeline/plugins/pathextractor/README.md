@@ -1,6 +1,6 @@
 # Hyperion - Path Extractor Plugin
 
-![Gradle check pipeline pathextractor plugin](https://github.com/SERG-Delft/monitoring-aware-ides/workflows/Gradle%20check%20pipeline%20pathextractor%20plugin/badge.svg)
+![Gradle check pipeline pathextractor plugin](https://github.com/SERG-Delft/hyperion/workflows/Gradle%20check%20pipeline%20pathextractor%20plugin/badge.svg)
 
 This package provides a path extractor plugin that is able to rename fields with `java.style.package.Names` into their appropriate `src/main/java/style/package/Names.java` file name. It does this in a dumb manner, simply replacing periods and prefixing a configurable path. If you need a more complex renaming strategy, consider [making your own plugin](/docs/writing-java-kotlin-plugin.md). 
 

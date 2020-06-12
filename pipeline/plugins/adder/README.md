@@ -1,6 +1,6 @@
 # Hyperion - Adder Plugin
 
-![Gradle check pipeline adder plugin](https://github.com/SERG-Delft/monitoring-aware-ides/workflows/Gradle%20check%20pipeline%20adder%20plugin/badge.svg)
+![Gradle check pipeline adder plugin](https://github.com/SERG-Delft/hyperion/workflows/Gradle%20check%20pipeline%20adder%20plugin/badge.svg)
 
 This package provides an adder pipeline plugin that is able to add fixed values to the incoming log messages.
 

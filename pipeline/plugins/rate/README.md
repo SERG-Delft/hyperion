@@ -1,6 +1,6 @@
 # Hyperion - Rate Plugin
 
-![Gradle check pipeline rate plugin](https://github.com/SERG-Delft/monitoring-aware-ides/workflows/Gradle%20check%20pipeline%20rate%20plugin/badge.svg)
+![Gradle check pipeline rate plugin](https://github.com/SERG-Delft/hyperion/workflows/Gradle%20check%20pipeline%20rate%20plugin/badge.svg)
 
 This package provides a rate pipeline plugin that can be used to monitor the rate at which messages are passing through the pipeline. The main goal of this plugin is to serve as a benchmarking tool or for debugging purposes.
 

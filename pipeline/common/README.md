@@ -1,6 +1,6 @@
 # Hyperion - Pipeline Commons
 
-![Gradle check pipeline common](https://github.com/SERG-Delft/monitoring-aware-ides/workflows/Gradle%20check%20pipeline%20common/badge.svg)
+![Gradle check pipeline common](https://github.com/SERG-Delft/hyperion/workflows/Gradle%20check%20pipeline%20common/badge.svg)
 
 This package contains a common abstract implementation in Kotlin for pipeline plugin implementation. It is intended to be used as a library for plugin implementations to link against.
 

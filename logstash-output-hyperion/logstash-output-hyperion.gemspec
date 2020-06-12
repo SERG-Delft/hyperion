@@ -4,7 +4,7 @@ Gem::Specification.new do |s|
   s.licenses      = ['Apache-2.0']
   s.summary       = 'Integrates logstash with the Hyperion pipeline.'
   s.description   = 'Enables logstash to write events to plugins in the Hyperion pipeline. This plugin should be prefered over the ElasticSearch input plugin, when possible.'
-  s.homepage      = 'https://github.com/serg-delft/monitoring-aware-ides'
+  s.homepage      = 'https://github.com/serg-delft/hyperion'
   s.authors       = ['Hyperion Authors']
   s.require_paths = ['lib']
 
