@@ -1,4 +1,5 @@
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm") version "1.3.71"
@@ -77,28 +78,65 @@ val releaseArtifacts = listOf(":pluginmanager:", ":datasource:plugins:elasticsea
                               ":pipeline:plugins:reader:", ":pipeline:plugins:renamer:",
                               ":pipeline:plugins:stresser:", ":pipeline:plugins:versiontracker:")
 
+tasks.register<DockerBuildImage>("docker-image") {
+    group = "docker"
+    description = "Create docker image"
+}
 
-tasks.register<DockerPushImage>("docker-release") {
+tasks.register<DockerPushImage>("docker-push") {
+    group = "docker"
+    description = "Pushed a docker image to docker hub"
+}
+
+tasks.register<DefaultTask>("docker-release") {
     group = "docker"
     description = "Release all artifacts as docker image on docker hub"
-    val dockerUrl = "hub.docker.com/username/"
+    val dockerId = "daveter9"
     val version = "0.1.0"
 
-    //dependsOn("build-artifacts-release")
-
-    docker {
-        registryCredentials  {
-            url.set("")
-        }
-    }
-
     for (artifact in releaseArtifacts) {
-        val artifactParts = artifact.split(":")
-        val artifactName =  artifactParts[artifactParts.size - 2]
+        // format the artifact name in the necessary formats
+        val artifactParts = artifact.split(":").drop(1).dropLast(1)
+        val artifactName = "${artifactParts.joinToString("-", "", "", limit= -1)}:$version"
 
-        val dockerArtifactUrl = "$dockerUrl$artifactName:$version"
-        val dockerArtifactPath = File("/release-artifacts/$artifactName-all.jar")
-        val dockerfileArtifactPath = File(artifactParts.joinToString("/", limit= -1) + "Dockerfile")
+        val imageName = "$dockerId/$artifactName"
+        val artifactPath = File(artifactParts.joinToString("/", limit= -1) + "/")
+        val dockerfileArtifactPath = File(artifactParts.joinToString("/", limit= -1) + "/Dockerfile")
+
+        // setup config for building the image
+        tasks.getByName<DockerBuildImage>("docker-image") {
+            docker {
+                url.set(project.properties["dockerUrl"].toString())
+                dockerFile.set(dockerfileArtifactPath)
+                inputDir.set(artifactPath)
+                imageId.set(artifactName)
+                images.add(imageName)
+                registryCredentials {
+                    username.set(project.properties["dockerUsername"].toString())
+                    password.set(project.properties["dockerPassword"].toString())
+                    email.set(project.properties["dockerEmail"].toString())
+                }
+            }
+        }
+
+        // setup config for pushing the image
+        tasks.getByName<DockerPushImage>("docker-push") {
+            docker {
+                url.set(project.properties["dockerUrl"].toString())
+                registryCredentials {
+                    username.set(project.properties["dockerUsername"].toString())
+                    password.set(project.properties["dockerPassword"].toString())
+                    email.set(project.properties["dockerEmail"].toString())
+                }
+                images.add(imageName)
+            }
+        }
+
+        // build jar, build image and push image
+        dependsOn(artifact + "shadowJar")
+        dependsOn("docker-image")
+        dependsOn("docker-push")
+
     }
 
 }
