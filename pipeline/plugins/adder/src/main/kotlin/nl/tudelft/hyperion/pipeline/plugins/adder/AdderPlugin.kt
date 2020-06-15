@@ -79,7 +79,7 @@ class AdderPlugin(var config: AdderConfiguration) : TransformingPipelinePlugin(c
         // setup directory changed watcher for the configuration file
         val watchService = FileSystems.getDefault().newWatchService()
         val configName = Path.of(path).fileName
-        val configDir = Path.of(path).parent
+        val configDir = Path.of(path).toAbsolutePath().parent
         configDir.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY)
 
         // poll for file changes
