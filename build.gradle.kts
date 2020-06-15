@@ -92,7 +92,7 @@ tasks.register<DefaultTask>("docker-release") {
     group = "docker"
     description = "Release all artifacts as docker image on docker hub"
     val dockerId = "daveter9"
-    val version = "0.1.0"
+    val version = project.properties["version"] ?: "0.1.0"
 
     for (artifact in releaseArtifacts) {
         // format the artifact name in the necessary formats
