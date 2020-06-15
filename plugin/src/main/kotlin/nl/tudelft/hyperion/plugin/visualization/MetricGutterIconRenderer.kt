@@ -1,10 +1,9 @@
-package nl.tudelft.hyperion.plugin.doc
+package nl.tudelft.hyperion.plugin.visualization
 
 import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.editor.markup.GutterIconRenderer
-import nl.tudelft.hyperion.plugin.visualization.GUTTER_ICON
 import nl.tudelft.hyperion.plugin.visualization.actions.OpenLineGraphAction
 import javax.swing.Icon
 

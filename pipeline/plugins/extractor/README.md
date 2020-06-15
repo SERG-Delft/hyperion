@@ -1,6 +1,6 @@
 # Hyperion - Extractor Plugin
 
-![Gradle check pipeline extractor plugin](https://github.com/SERG-Delft/monitoring-aware-ides/workflows/Gradle%20check%20pipeline%20extractor%20plugin/badge.svg)
+![Gradle check pipeline extractor plugin](https://github.com/SERG-Delft/hyperion/workflows/Gradle%20check%20pipeline%20extractor%20plugin/badge.svg)
 
 This package provides an extractor pipeline plugin that is able to execute a regular expression on a field and extract the results to separate fields. It can be used to extract values from a single log line.
 

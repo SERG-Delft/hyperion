@@ -1,6 +1,6 @@
 # Hyperion - ElasticSearch Data Source Plugin
 
-![Gradle check elasticsearch plugin](https://github.com/SERG-Delft/monitoring-aware-ides/workflows/Gradle%20check%20elasticsearch%20plugin/badge.svg)
+![Gradle check elasticsearch plugin](https://github.com/SERG-Delft/hyperion/workflows/Gradle%20check%20elasticsearch%20plugin/badge.svg)
 
 > **Important**: If you want to integrate Hyperion with the ELK stack, consider using [logstash-output-hyperion](/logstash-output-hyperion) instead. It is much more performant than the ElasticSearch plugin and designed specifically for high throughput.
 

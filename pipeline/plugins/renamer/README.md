@@ -1,6 +1,6 @@
 # Hyperion - Rename Plugin
 
-![Gradle check pipeline renamer plugin](https://github.com/SERG-Delft/monitoring-aware-ides/workflows/Gradle%20check%20pipeline%20renamer%20plugin/badge.svg)
+![Gradle check pipeline renamer plugin](https://github.com/SERG-Delft/hyperion/workflows/Gradle%20check%20pipeline%20renamer%20plugin/badge.svg)
 
 This package provides a renamer plugin that is able to rename (nested) JSON fields in incoming messages.
 

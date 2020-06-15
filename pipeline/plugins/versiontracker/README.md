@@ -1,6 +1,6 @@
 # Hyperion - Version Tracker Plugin
 
-![Gradle check VersionTracker plugin](https://github.com/SERG-Delft/monitoring-aware-ides/workflows/Gradle%20check%20VersionTracker%20plugin/badge.svg)
+![Gradle check VersionTracker plugin](https://github.com/SERG-Delft/hyperion/workflows/Gradle%20check%20VersionTracker%20plugin/badge.svg)
 
 This package provides a version tracker plugin that is able to automatically attach Git commit hashes to incoming log messages based on the most recent commit in a configurable git repository. If you have a deploy system that deploys based on the most recent commit in a certain branch, you can use this plugin to automatically attach the appropriate version hash to the log.
 
