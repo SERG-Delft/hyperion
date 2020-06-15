@@ -8,7 +8,7 @@
     <!-- Unique identifier of the plugin. Should be FQN.
          Cannot be changed between the plugin versions.
          If not specified, <name> will be used (not recommended). -->
-    <id>com.github.sergdelft</id>
+    <id>com.github.serg-delft.hyperion</id>
 
     <!-- Description of the plugin.
          Should be short and to the point.
@@ -39,7 +39,7 @@
          The optional "url" attribute specifies the URL of the vendor homepage.
          The optional "email" attribute specifies the e-mail address of the vendor.
          Displayed in the "Plugins" settings dialog and the plugin repository Web interface. -->
-    <vendor url="https://se.ewi.tudelft.nl/" email="info@tudelft.nl">SERG Delft</vendor>
+    <vendor url="https://se.ewi.tudelft.nl/">serg-delft</vendor>
 
     <!-- Mandatory dependencies on plugins or modules.
          The FQN module names in <depends> elements are used to determine IDE compatibility for the plugin.
