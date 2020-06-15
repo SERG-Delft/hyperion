@@ -9,6 +9,9 @@ import git4idea.commands.GitCommand
 import git4idea.commands.GitLineHandler
 import git4idea.repo.GitRepository
 
+/**
+ * Class that tracks lines using git. The primary method to use is resolveCurrentLine.
+ */
 object GitLineTracker {
     /**
      * Takes in a project and file, as well as an old commit hash and a line number. Will
@@ -38,9 +41,7 @@ object GitLineTracker {
 
         // Run our blames
         val originBlameResult = runOriginBlame(project, repo, file, oldCommit, oldLine) ?: return null
-        val currentBlameResult = runCurrentBlame(project, repo, file, originBlameResult) ?: return null
-
-        return currentBlameResult.currentLine
+        return runCurrentBlame(project, repo, file, originBlameResult)?.currentLine
     }
 
     /**
@@ -56,31 +57,16 @@ object GitLineTracker {
         oldCommit: String,
         oldLine: Int
     ): OriginBlameReadResult? {
-        val handler = GitLineHandler(project, repo.root, GitCommand.BLAME)
-        handler.addParameters(
-            oldCommit,
-            "-L",
-            "$oldLine,$oldLine",
-            "-M1",
-            "-C",
-            "-C",
-            "-w",
-            "-n",
-            "--porcelain"
-        )
-        handler.endOptions()
-        handler.addRelativeFiles(listOf(file))
+        val params = listOf(oldCommit, "-L", "$oldLine,$oldLine", "-M1", "-C", "-C", "-w", "-n", "--porcelain")
+        val handler = setupHandler(project, repo.root, params, file)
 
         val lineReader = OriginBlameLineReader()
         handler.addLineListener(lineReader)
 
         val result = Git.getInstance().runCommandWithoutCollectingOutput(handler)
 
-        return if (result.success()) {
-            lineReader.result
-        } else {
-            null
-        }
+        if (result.success()) return lineReader.result
+        return null
     }
 
     /**
@@ -94,25 +80,32 @@ object GitLineTracker {
         file: VirtualFile,
         origin: OriginBlameReadResult
     ): CurrentBlameReadResult? {
-        val handler = GitLineHandler(project, repo.root, GitCommand.BLAME)
-        handler.addParameters(
-            "-p",
-            "-l",
-            "-t",
-            "-w"
-        )
-        handler.endOptions()
-        handler.addRelativeFiles(listOf(file))
+        val params = listOf("-p", "-l", "-t", "-w")
+        val handler = setupHandler(project, repo.root, params, file)
 
         val lineReader = CurrentBlameLineReader(origin)
         handler.addLineListener(lineReader)
 
         val result = Git.getInstance().runCommandWithoutCollectingOutput(handler)
+        if (result.success()) return lineReader.result
+        return null
+    }
 
-        return if (result.success()) {
-            lineReader.result
-        } else {
-            null
-        }
+    /**
+     * Creates a GitLineHandler and sets it up with the given file and parameters.
+     * @return GitLineHandler set up with given file and parameters.
+     */
+    private fun setupHandler(
+        project: Project,
+        root: VirtualFile,
+        params: List<String>,
+        file: VirtualFile
+    ): GitLineHandler {
+        val handler = GitLineHandler(project, root, GitCommand.BLAME)
+        handler.addParameters(params)
+        handler.endOptions()
+        handler.addRelativeFiles(listOf(file))
+
+        return handler
     }
 }

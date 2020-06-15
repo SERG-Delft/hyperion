@@ -8,6 +8,16 @@ setupJacocoPlugin(branchCoverage = 0.3, lineCoverage = 0.4)
 
 intellij {
     setPlugins("git4idea")
+    version = "2020.1.2"
+}
+
+tasks.patchPluginXml {
+    sinceBuild("201.6746")
+}
+
+tasks.publishPlugin {
+    channels("alpha")
+    token(System.getenv("ORG_GRADLE_PROJECT_intellijPublishToken"))
 }
 
 dependencies {
