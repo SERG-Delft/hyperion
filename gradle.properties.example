@@ -11,4 +11,4 @@ signing.secretKeyRingFile=ringfile
 dockerUsername=username
 dockerPassword=pwd
 dockerEmail=email
-dockerUrl=tcp://localhost:2376
+dockerHost=tcp://localhost:2376

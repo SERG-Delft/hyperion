@@ -106,7 +106,7 @@ tasks.register<DefaultTask>("docker-release") {
         // setup config for building the image
         tasks.getByName<DockerBuildImage>("docker-image") {
             docker {
-                url.set(project.properties["dockerUrl"].toString())
+                url.set(project.properties["dockerHost"].toString())
                 dockerFile.set(dockerfileArtifactPath)
                 inputDir.set(artifactPath)
                 imageId.set(artifactName)
@@ -122,7 +122,7 @@ tasks.register<DefaultTask>("docker-release") {
         // setup config for pushing the image
         tasks.getByName<DockerPushImage>("docker-push") {
             docker {
-                url.set(project.properties["dockerUrl"].toString())
+                url.set(project.properties["dockerHost"].toString())
                 registryCredentials {
                     username.set(project.properties["dockerUsername"].toString())
                     password.set(project.properties["dockerPassword"].toString())

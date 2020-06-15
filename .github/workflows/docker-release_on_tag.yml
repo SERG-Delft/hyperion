@@ -32,4 +32,4 @@ jobs:
           D_PWD: $ {{ secrets.DOCKER_PASSWORD }}
           D_EMAIL: $ {{ secrets.DOCKER_EMAIL }}
         with:
-          arguments: docker-release -PdockerUsername="$D_USR" -PdockerPassword="$D_PWD" -PdockerEmail="$D_EMAIL"
+          arguments: docker-release -PdockerUsername="$D_USR" -PdockerPassword="$D_PWD" -PdockerEmail="$D_EMAIL" -PdockerHost="$DOCKER_HOST"
