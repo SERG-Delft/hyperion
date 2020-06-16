@@ -62,7 +62,14 @@ java -jar build/renamer-all.jar [path to config]
 
 If you have a built version of this plugin, you can use the accompanied Dockerfile to set up an image with all pre-requisites installed. Please note that this Dockerfile will not compile the plugin for you.
 
-Please note that the docker container for this plugin will load the configuration file from the `CONFIGFILE` environment variable, and not the command line arguments.
+Please note that the docker container for this plugin will load the configuration file from `/root/config.yml` in its container.
+
+A pre-built image is available at dockerhub under `daveter9/hyperion-pipeline-plugins-renamer:0.1.0`.
+To run this image with `renamer_config.yml` as its configuration execute:
+
+```shell script
+docker run -it -rm -v ${PWD}/renamer_config.yml:/root/config.yml daveter9/hyperion-pipeline-plugins-renamer:0.1.0
+```
 
 ## Configuration
 
