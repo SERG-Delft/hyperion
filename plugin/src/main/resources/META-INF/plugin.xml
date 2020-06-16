@@ -10,23 +10,12 @@
         it becomes easier for developers to act on data without needing
         to actively request the metrics in a system such as Grafana or Kibana.
         <br>
-        This plugin <b>is</b>:
         <br>
-        <ul>
-            <li>A composable pipeline allowing any kind of logging setup to interface with it.</li>
-            <li>A database of partially aggregated metrics detailing log behavior of your system.</li>
-            <li>A system for showing metrics in your IDE.</li>
-        </ul>
-        This plugin <b>is not</b>:
-        <br>
-        <ul>
-            <li>A replacement for ElasticSearch, Loggly, your favorite log storage.</li>
-            <li>A monitoring system for key performance metrics.</li>
-            <li>A complete devops monitoring solution.</li>
-        </ul>
+        <b> NOTE:</b> This plugin requires you to setup and connect to a backend.
+        A tutorial for this can be found on our <a href="https://github.com/SERG-Delft/hyperion">Github Page</a>
         ]]>
     </description>
-    <version>0.1.2</version>
+    <version>1.0.0</version>
     <vendor url="https://se.ewi.tudelft.nl/">serg-delft</vendor>
     <depends>com.intellij.modules.platform</depends>
     <depends>Git4Idea</depends>
