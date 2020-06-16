@@ -1,6 +1,7 @@
-import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     kotlin("jvm") version "1.3.71"
     id("com.bmuschko.docker-remote-api") version "6.4.0"
@@ -42,6 +43,7 @@ allprojects {
 
 subprojects {
     apply(plugin = "kotlin")
+    apply(plugin = "com.bmuschko.docker-remote-api")
 
     sourceSets {
         create("integrationTest") {
@@ -81,64 +83,67 @@ val releaseArtifacts = listOf(":pluginmanager:", ":datasource:plugins:elasticsea
 tasks.register<DockerBuildImage>("docker-image") {
     group = "docker"
     description = "Create docker image"
+    doFirst {
+        println("building image")
+    }
 }
 
 tasks.register<DockerPushImage>("docker-push") {
     group = "docker"
     description = "Pushed a docker image to docker hub"
+    doFirst {
+        println("pushing image")
+    }
+}
+
+configure(subprojects.filter { releaseArtifacts.contains<String>(it.path + ":")}) {
+    version = (if (project.properties["version"] != "unspecified") { project.properties["version"] } else { "0.1.0" })!!
+    val dockerId = "daveter9"
+    // format the artifact name in the necessary formats
+    val artifact = project.path + ":"
+    val artifactParts = artifact.split(":").drop(1).dropLast(1)
+    val artifactName = "hyperion-${artifactParts.joinToString("-", "", "", limit = -1)}:$version"
+
+    val imageName = "$dockerId/$artifactName"
+
+    tasks.register<DockerBuildImage>("docker-image") {
+        dependsOn(artifact + "shadowJar")
+
+        docker {
+            url.set(project.properties["dockerHost"].toString())
+            //dockerFile.set(dockerfileArtifactPath)
+            inputDir.set(File("."))
+            imageId.set(artifactName)
+            images.add(imageName)
+            registryCredentials {
+                username.set(project.properties["dockerUsername"].toString())
+                password.set(project.properties["dockerPassword"].toString())
+                email.set(project.properties["dockerEmail"].toString())
+            }
+        }
+    }
+
+    tasks.register<DockerPushImage>("docker-push") {
+        dependsOn(artifact + "docker-image")
+        //println("docker image $project")
+        docker {
+            url.set(project.properties["dockerHost"].toString())
+            registryCredentials {
+                username.set(project.properties["dockerUsername"].toString())
+                password.set(project.properties["dockerPassword"].toString())
+                email.set(project.properties["dockerEmail"].toString())
+            }
+            images.add(imageName)
+        }
+    }
 }
 
 tasks.register<DefaultTask>("docker-release") {
     group = "docker"
     description = "Release all artifacts as docker image on docker hub"
-    val dockerId = "daveter9"
-    val version = project.properties["version"] ?: "0.1.0"
-
     for (artifact in releaseArtifacts) {
-        // format the artifact name in the necessary formats
-        val artifactParts = artifact.split(":").drop(1).dropLast(1)
-        val artifactName = "${artifactParts.joinToString("-", "", "", limit= -1)}:$version"
-
-        val imageName = "$dockerId/$artifactName"
-        val artifactPath = File(artifactParts.joinToString("/", limit= -1) + "/")
-        val dockerfileArtifactPath = File(artifactParts.joinToString("/", limit= -1) + "/Dockerfile")
-
-        // setup config for building the image
-        tasks.getByName<DockerBuildImage>("docker-image") {
-            docker {
-                url.set(project.properties["dockerHost"].toString())
-                dockerFile.set(dockerfileArtifactPath)
-                inputDir.set(artifactPath)
-                imageId.set(artifactName)
-                images.add(imageName)
-                registryCredentials {
-                    username.set(project.properties["dockerUsername"].toString())
-                    password.set(project.properties["dockerPassword"].toString())
-                    email.set(project.properties["dockerEmail"].toString())
-                }
-            }
-        }
-
-        // setup config for pushing the image
-        tasks.getByName<DockerPushImage>("docker-push") {
-            docker {
-                url.set(project.properties["dockerHost"].toString())
-                registryCredentials {
-                    username.set(project.properties["dockerUsername"].toString())
-                    password.set(project.properties["dockerPassword"].toString())
-                    email.set(project.properties["dockerEmail"].toString())
-                }
-                images.add(imageName)
-            }
-        }
-
-        // build jar, build image and push image
-        dependsOn(artifact + "shadowJar")
-        dependsOn("docker-image")
-        dependsOn("docker-push")
-
+        dependsOn(artifact + "docker-push")
     }
-
 }
 
 tasks.register<DefaultTask>("build-artifacts-release") {
