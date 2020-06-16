@@ -1,4 +1,4 @@
 FROM openjdk:14
-ENV CONFIGPATH ${configpath}
 COPY build/stresser-all.jar .
-CMD java -jar stresser-all.jar ${CONFIGPATH}
+CMD touch "/root/config.yml"
+CMD java -jar stresser-all.jar "/root/config.yml"

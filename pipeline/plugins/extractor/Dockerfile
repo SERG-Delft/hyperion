@@ -1,4 +1,4 @@
 FROM openjdk:14
-ENV CONFIGPATH ${configpath}
 COPY build/extractor-all.jar .
-CMD java -jar extractor-all.jar ${CONFIGPATH}
+CMD touch "/root/config.yml"
+CMD java -jar extractor-all.jar "/root/config.yml"

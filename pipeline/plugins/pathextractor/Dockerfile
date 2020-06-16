@@ -1,4 +1,4 @@
 FROM openjdk:14
-ENV CONFIGPATH ${configpath}
 COPY build/pathextractor-all.jar .
-CMD java -jar pathextractor-all.jar ${CONFIGPATH}
+CMD touch "/root/config.yml"
+CMD java -jar pathextractor-all.jar "/root/config.yml"

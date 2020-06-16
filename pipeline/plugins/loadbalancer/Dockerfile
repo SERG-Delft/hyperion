@@ -1,4 +1,4 @@
 FROM openjdk:14
-ENV CONFIGPATH ${configpath}
 COPY build/loadbalancer-all.jar .
-CMD java -jar loadbalancer-all.jar ${CONFIGPATH}
+CMD touch "/root/config.yml"
+CMD java -jar loadbalancer-all.jar "/root/config.yml"
