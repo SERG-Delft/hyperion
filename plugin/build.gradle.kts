@@ -16,7 +16,6 @@ tasks.patchPluginXml {
 }
 
 tasks.publishPlugin {
-    channels("alpha")
     token(System.getenv("ORG_GRADLE_PROJECT_intellijPublishToken"))
 }
 
