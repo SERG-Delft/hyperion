@@ -1,55 +1,35 @@
-<!-- `url` specifies the URL of the plugin homepage (can be opened from "Plugins" settings dialog) -->
 <idea-plugin url="https://www.jetbrains.com/idea">
-
-    <!-- Plugin name. It should be short and descriptive and in Title Case.
-         Displayed in the "Plugins" settings dialog and the plugin repository Web interface. -->
     <name>Hyperion</name>
-
-    <!-- Unique identifier of the plugin. Should be FQN.
-         Cannot be changed between the plugin versions.
-         If not specified, <name> will be used (not recommended). -->
     <id>com.github.serg-delft.hyperion</id>
-
-    <!-- Description of the plugin.
-         Should be short and to the point.
-         Start the description with a verb in present simple form such as
-         "integrates", "synchronizes", "adds support for" or "lets you view".
-         Don’t use marketing adjectives like “simple”, “lightweight”, or “professional”.
-         Don’t repeat the name of the plugin.
-         For plugins that add language/platform/framework support, the description MUST specify
-         the version of the corresponding language/platform/framework.
-         Don't mention the IDE compatibility. E.g. don't say "Adds support to IntelliJ IDEA for..."
-         Displayed in the "Plugins" settings dialog and the plugin repository Web interface.
-         Simple HTML elements can be included between <![CDATA[  ]]> tags.  -->
     <description>
-        Front end plugin that connects with an aggregrator to display monitoring data within the IDE
+        <![CDATA[
+        Integrates your current logging and devops systems directly with your IDE.
+        During editing, you get live metrics on how often your logs trigger,
+        how they trend over time and get warned of any outliers.
+        By directly integrating these metrics into your editor,
+        it becomes easier for developers to act on data without needing
+        to actively request the metrics in a system such as Grafana or Kibana.
+        <br>
+        This plugin <b>is</b>:
+        <br>
+        <ul>
+            <li>A composable pipeline allowing any kind of logging setup to interface with it.</li>
+            <li>A database of partially aggregated metrics detailing log behavior of your system.</li>
+            <li>A system for showing metrics in your IDE.</li>
+        </ul>
+        This plugin <b>is not</b>:
+        <br>
+        <ul>
+            <li>A replacement for ElasticSearch, Loggly, your favorite log storage.</li>
+            <li>A monitoring system for key performance metrics.</li>
+            <li>A complete devops monitoring solution.</li>
+        </ul>
+        ]]>
     </description>
-
-    <!-- Description of changes in the latest version of the plugin.
-         Displayed in the "Plugins" settings dialog and the plugin repository Web interface.
-         Simple HTML elements can be included between <![CDATA[  ]]> tags.  -->
-    <change-notes>Initial release of the plugin. It is not finished.</change-notes>
-
-    <!-- Plugin version
-         Recommended format is BRANCH.BUILD.FIX (MAJOR.MINOR.FIX)
-         Displayed in the "Plugins" settings dialog and the plugin repository Web interface.  -->
-    <version>0.1.0</version>
-
-    <!-- The vendor of the plugin.
-         The optional "url" attribute specifies the URL of the vendor homepage.
-         The optional "email" attribute specifies the e-mail address of the vendor.
-         Displayed in the "Plugins" settings dialog and the plugin repository Web interface. -->
+    <version>0.1.2</version>
     <vendor url="https://se.ewi.tudelft.nl/">serg-delft</vendor>
-
-    <!-- Mandatory dependencies on plugins or modules.
-         The FQN module names in <depends> elements are used to determine IDE compatibility for the plugin.
-         Include at least the module shown below to indicate compatibility with IntelliJ Platform-based products.
-         Also include dependencies on other plugins as needed.
-         See "Compatibility with Multiple Products" and "Plugin Dependencies" for more information.  -->
     <depends>com.intellij.modules.platform</depends>
     <depends>Git4Idea</depends>
-
-    <!-- Minimum and maximum build of IDE compatible with the plugin -->
     <idea-version since-build="201.6746"/>
     <actions>
         <action class="nl.tudelft.hyperion.plugin.visualization.actions.RefreshTooltipAction"
