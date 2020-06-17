@@ -20,13 +20,18 @@ import java.nio.file.Paths
 fun clickHandler(clickCtx: ClickContext) {
     getLogger<VisWindow>().debug { "Clicked with context $clickCtx" }
 
-    val (newTitle, rows) =
+    val (newTitle, rows) = try {
         if (clickCtx.isWholeBarClicked) {
             createBinLineInfo(clickCtx.barIndex)
         } else {
             createBoxLineInfo(clickCtx)
         }
             ?: return
+    } catch (e: UninitializedPropertyAccessException) {
+        // Clicked on the bar while metrics have not been updated yet
+        // ignore this exception
+        return
+    }
 
     ToolWindowManager
         .getInstance(VisWindow.ideProject)
