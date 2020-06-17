@@ -17,7 +17,7 @@
           for more information on how to get started.
         ]]>
     </description>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <vendor url="https://se.ewi.tudelft.nl/" email="m.f.aniche@tudelft.nl">serg-delft</vendor>
     <depends>com.intellij.modules.platform</depends>
     <depends>Git4Idea</depends>

@@ -8,7 +8,6 @@ setupJacocoPlugin(branchCoverage = 0.3, lineCoverage = 0.4)
 
 intellij {
     setPlugins("git4idea")
-    version = "2020.1.2"
 }
 
 tasks.patchPluginXml {
