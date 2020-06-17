@@ -11,12 +11,14 @@
         to actively request the metrics in a system such as Grafana or Kibana.
         <br>
         <br>
-        <b> NOTE:</b> This plugin requires you to setup and connect to a backend.
-        A tutorial for this can be found on our <a href="https://github.com/SERG-Delft/hyperion">Github Page</a>
+        <b>Note:</b> Before using the Hyperion plugin, you will need to configure a simple pipeline that will ingest
+         your logs and aggregate them over time.
+         Check out the documentation on our <a href="https://github.com/SERG-Delft/Hyperion">GitHub repository</a>
+          for more information on how to get started.
         ]]>
     </description>
-    <version>1.0.0</version>
-    <vendor url="https://se.ewi.tudelft.nl/">serg-delft</vendor>
+    <version>1.0.1</version>
+    <vendor url="https://se.ewi.tudelft.nl/" email="m.f.aniche@tudelft.nl">serg-delft</vendor>
     <depends>com.intellij.modules.platform</depends>
     <depends>Git4Idea</depends>
     <idea-version since-build="201.6746"/>
