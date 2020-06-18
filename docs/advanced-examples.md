@@ -11,7 +11,7 @@ As a reminder, at the end of the pipeline your data needs to adhere to the follo
     "project": "<some unique identifier for the project, such as the repo name or package>",
     "version": "<some way to represent the version the code is running on, usually a git hash>",
     "location": {
-        "file": "<the file in which this log entry occured, relative to the root of the code>",
+        "file": "<the file in which this log entry occurred, relative to the root of the code>",
         "line": "<the line in which the log happened, can be a string or a number>"
     },
     "severity": "<some way to represent the severity, recommended to be a standard severity but free form>",
@@ -27,7 +27,7 @@ If you need a way to do something not listed here, we've made it easy to create 
 
 This document has two sections. First, there is a list of plugins and example scenarios in which they may be used. These each describe the plugins workings on a simple level. The [plugin index](#plugin-index) has a full list of the plugins and the scenarios in which they may be used.
 
-Secondly, the (example pipelines)[#example-pipelines] section contains a set of example input payloads and the recommended set of plugins that can be used to transform them to the required output format. They are meant to be abridged versions of the [main Hyperion pipeline tutorial](/docs/hyperion-setup.md), and as such do not detail full configuration files but rather a list of plugins and references to their appropriate documentation.
+Secondly, the [example pipelines](#example-transformation-pipelines) section contains a set of example input payloads and the recommended set of plugins that can be used to transform them to the required output format. They are meant to be abridged versions of the [main Hyperion pipeline tutorial](/docs/hyperion-setup.md), and as such do not detail full configuration files but rather a list of plugins and references to their appropriate documentation.
 
 ## Plugin Index
 
@@ -38,9 +38,9 @@ I want to...
 - [Rename or move a field](#plugin-renamer)
 - [Add a statically known value to the payload](#plugin-adder)
 - [Extract string values from a field into their own fields](#plugin-extractor)
-- [Transform a Java package name to a file path](#plugin-pathextractor)
-- [Attach a version tag based on the latest commit in a Git repository](#plugin-versiontracker)
-- [Load balance multiple instances of a single plugin to increase pipeline throughput](#plugin-loadbalancer)
+- [Transform a Java package name to a file path](#plugin-path-extractor)
+- [Attach a version tag based on the latest commit in a Git repository](#plugin-version-tracker)
+- [Load balance multiple instances of a single plugin to increase pipeline throughput](#plugin-load-balancer)
 - [Read messages from stdin and send them through the pipeline to debug my plugin setup](#plugin-reader)
 - [Stress-test my pipeline by sending a huge amount of messages](#plugin-stresser)
 
@@ -219,7 +219,7 @@ For full documentation on the load balancing plugin, please see the [load balanc
 
 ### Plugin: Reader
 
-The reader plugin is a debugging plugin intended for testing the behavior of your pipeline and for testing your [custom plugins](/docs/writing-custom-plugin.md). It is not intended for production usage. If you need a plugin that is able to read content from a file or from stdin and publish the contents in the pipeline, consider [writing a custom plugin](/docs/writing-custom-plugin).
+The reader plugin is a debugging plugin intended for testing the behavior of your pipeline and for testing your [custom plugins](/docs/writing-custom-plugin.md). It is not intended for production usage. If you need a plugin that is able to read content from a file or from stdin and publish the contents in the pipeline, consider [writing a custom plugin](/docs/writing-custom-plugin.md).
 
 Given that the reader plugin _produces_ data, it needs to be the first step in the pipeline. It therefore acts as a data source.
 

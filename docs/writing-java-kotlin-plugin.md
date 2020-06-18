@@ -4,7 +4,7 @@ Since Hyperion is written in [Kotlin](https://kotlinlang.org), we offer first-cl
 
 For dependency management, we will be using [Gradle](https://gradle.org/). If you prefer to use Maven, the Hyperion libraries are also published in MavenCentral. For development, we will be using the [Intellij IDEA](https://www.jetbrains.com/idea/) IDE.
 
-This tutorial assumes some familiarity with the Hyperion pipeline model and how the Hyperion protocol works. We recommend you read [Installing and configuring your first Hyperion pipeline](/docs/pipeline-setup.md) and [The Hyperion pipeline protocol in more detail](/docs/protocol.md) first if you haven"t already.
+This tutorial assumes some familiarity with the Hyperion pipeline model and how the Hyperion protocol works. We recommend you read [Installing and configuring your first Hyperion pipeline](/docs/hyperion-setup.md) and [The Hyperion pipeline protocol in more detail](/docs/protocol.md) first if you haven't already.
 
 Want to create a plugin in a different language? Check out [Writing a new pipeline plugin in a different language](/docs/writing-custom-plugin.md).
 
@@ -208,6 +208,10 @@ CMD java -jar addtext-all.jar ${CONFIGPATH}
 ```
 
 Make sure to update the path to your shadow jar as appropriate. For the example setup given, it'd be `build/addtext-1.0-SNAPSHOT-all.jar`. This Dockerfile uses the CONFIGPATH environment variable to specify the path to the config.
+
+# Extra: Testing Your Plugin
+
+If you want to test your plugin as part of a real pipeline, there's a pair of plugins that are specifically designed for this purpose. The [reader](/pipeline/plugins/reader) plugin reads input from stdin and sends it into the pipeline, while the [printer](/pipeline/plugins/printer) plugin prints any messages it receives. As such, if you want to test your plugin in a real pipeline, you can set up a plugin manager that uses a reader as input, routes it to your plugin, then routes it to the printer plugin.
 
 # Other APIs
 

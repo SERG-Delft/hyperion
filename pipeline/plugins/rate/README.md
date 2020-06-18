@@ -4,6 +4,8 @@
 
 This package provides a rate pipeline plugin that can be used to monitor the rate at which messages are passing through the pipeline. The main goal of this plugin is to serve as a benchmarking tool or for debugging purposes.
 
+> **Note**: The rate plugin works as both a passthrough plugin (forwarding all received messages to the next stage) and as a final step in the pipeline.
+
 ## Usage
 
 _For full details on the supported configuration format, please see the [configuration section](#Configuration) of this document_.

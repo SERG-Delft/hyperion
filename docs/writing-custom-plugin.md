@@ -2,7 +2,7 @@
 
 The Hyperion pipeline was specifically designed such that plugins can be written in any language that can interface with [ZeroMQ](https://zeromq.org) sockets. The default plugins included with Hyperion are written in Kotlin and run on the JVM. If possible, it is recommended to write your custom plugins in a language targeting the JVM too, as this will allow you to use the libraries written and tested by the Hyperion team. For more information, see [Writing a new pipeline plugin in Java/Kotlin](/docs/writing-java-kotlin-plugin.md).
 
-However, to show how simple writing a plugin really is, this tutorial will show how to create a pipeline plugin in a different language. Before you start, it is urged that you read [The Hyperion pipeline protocol in more detail](/docs/protocol.md), as it describes the protocol you need to implement in your plugin in order to talk with the Hyperion pipeline. This tutorial also assumes that you know how to set up an Hyperion pipeline. See [Installing and configuring your first Hyperion pipeline](/docs/hyperion-setup) for more info.
+However, to show how simple writing a plugin really is, this tutorial will show how to create a pipeline plugin in a different language. Before you start, it is urged that you read [The Hyperion pipeline protocol in more detail](/docs/protocol.md), as it describes the protocol you need to implement in your plugin in order to talk with the Hyperion pipeline. This tutorial also assumes that you know how to set up an Hyperion pipeline. See [Installing and configuring your first Hyperion pipeline](/docs/hyperion-setup.md) for more info.
 
 For the sakes of this tutorial, we will be writing a simple pipeline plugin in JavaScript running on [Node.js](https://nodejs.org). The plugin will parse the incoming text as JSON, uppercase a configurable field, then send it onwards to the next plugin. We believe that the information in the protocol documentation, alongside this tutorial, should be enough to generalize these instructions to writing a plugin in a different language.
 
@@ -138,3 +138,7 @@ Now that we can pull connection information and we can transform messages, we ju
 That's it! Running `node index.js` will start your plugin, connect to the plugin manager, and finally connect to the other stages in the pipeline. Note that while this is a working plugin, it is recommended that you add error handling and logging to make it more robust. You can use a tool such as [pm2](https://pm2.keymetrics.io/) to then run the plugin in the background.
 
 You can see the final version of `index.js` [here](https://gist.github.com/molenzwiebel/0a46876665b99b2d7fde80b8ed0c262b).
+
+## Extra: Testing Your Plugin
+
+If you want to test your plugin as part of a real pipeline, there's a pair of plugins that are specifically designed for this purpose. The [reader](/pipeline/plugins/reader) plugin reads input from stdin and sends it into the pipeline, while the [printer](/pipeline/plugins/printer) plugin prints any messages it receives. As such, if you want to test your plugin in a real pipeline, you can set up a plugin manager that uses a reader as input, routes it to your plugin, then routes it to the printer plugin.

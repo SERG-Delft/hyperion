@@ -27,7 +27,7 @@ At the end of the pipeline (when the aggregator receives the final information),
     "project": "<some unique identifier for the project, such as the repo name or package>",
     "version": "<some way to represent the version the code is running on, usually a git hash>",
     "location": {
-        "file": "<the file in which this log entry occured, relative to the root of the code>",
+        "file": "<the file in which this log entry occurred, relative to the root of the code>",
         "line": "<the line in which the log happened, can be a string or a number>"
     },
     "severity": "<some way to represent the severity, recommended to be a standard severity but free form>",
@@ -105,7 +105,7 @@ $ java -jar path/to/elasticsearch-all.jar run elasticsearch.yml
 
 If everything goes according to plan, the ElasticSearch data source will start broadcasting log data on port 3001. Now, let's add some plugins.
 
-### Step pre-2: What data are we actually processing?
+### Sidenote: What data are we actually processing?
 
 We're now able to get data into the Hyperion pipeline. As per the introduction, we eventually need to transform it into a format that our aggregator can understand. To do that, it might be a good idea to have a look at what data we currently have, so that we can set up a plan on how to transform it into the format that the aggregator requires.
 
@@ -117,7 +117,7 @@ Below is a screenshot of Kibana, with some of the more interesting fields highli
 
 From this screenshot, we know that the data produced by our data source will look something like this:
 
-```json
+```json5
 {
     "@timestamp": "2020-06-02T10:03:44.000Z",
     "log4j_file": "com.sap.enterprises.server.impl.TransportationService",
@@ -182,7 +182,7 @@ java -jar path/to/renamer-all.jar renamer.yml
 
 After renaming, our messages now look like this. Closer to the expected format, but we still need to transform a few more fields:
 
-```json
+```json5
 {
     "timestamp": "2020-06-02T10:03:44.000Z",
     "location": {
@@ -228,7 +228,7 @@ java -jar path/to/pathextractor-all.jar pathextractor.yml
 
 After the messages pass through the path extractor plugin, they should now look like this:
 
-```json
+```json5
 {
     "timestamp": "2020-06-02T10:03:44.000Z",
     "location": {
@@ -274,7 +274,7 @@ java -jar path/to/adder-all.jar adder.yml
 
 You can probably already guess what our messages look like now:
 
-```json
+```json5
 {
     "project": "mock-logging",
     "timestamp": "2020-06-02T10:03:44.000Z",
@@ -325,7 +325,7 @@ $ java -jar path/to/versiontracker-all.jar versiontracker.yml
 
 Our messages will now look like this:
 
-```json
+```json5
 {
     "project": "mock-logging",
     "version": "ac362e0a33062a0eec28dcb9a51d439976a53b4a",
@@ -394,9 +394,16 @@ It should return a list of metrics encountered in the TransportationService file
 
 ### Step 7: Intellij Setup
 
-Now that we have the data in our aggregator, it is time to actually use it.
+Now that we have the data in our aggregator, it is time to actually use it. Hyperion currently offers an official plugin for IntelliJ IDEA based editors. Since we're logging for a Java project, lets make sure that we download the Hyperion plugin for IntelliJ. To install the plugin, open your IntelliJ settings, go to `Plugins`, select the `Marketplace` tab, and search for `Hyperion`. Hit the Install button, then restart your IDE.
 
-TODO: Plugin setup.
+After installing the plugin, open up the [mock-elastic-logging](https://github.com/nickyu42/mock-elastic-logging/) repository as a project in IntelliJ. Before we can start visualizing metrics, we need to configure the plugin so that it knows where our aggregator is located and which project we are using. Open the settings again and go to `Tools` -> `Hyperion`. For API address, enter `localhost:8081` (remember, this is the host and port we configured in our aggregator configuration), and as project name set `mock-logging` (remember, this was the value of the `"project"` field that we're adding using the adder plugin). Your final configuration should look like this:
+
+![](https://i.imgur.com/cNYYhW5.png)
+
+All that's left now is to actually open a file! Open the `TransportationService.java` file to see inline metrics. If you configured everything correctly, metrics should appear above the relevant logging lines:
+
+![](https://i.imgur.com/0T3c4qL.png)
+
 
 ### Wrapping Up
 
@@ -408,4 +415,4 @@ This may seem like a complex setup, but the protocol that underlies the plugins 
 
 The [example](/example/) folder in this repository contains the files used in this tutorial. If you want to refer to the final working setup, you can reference that folder.
 
-Want more information on how to use the default pipeline plugins bundled with Hyperion to configure your own pipeline? Check out the [example pipeline configurations](/doc/advanced-examples.md) documentation article for a list of plugins and the situations in which they can be used.
+Want more information on how to use the default pipeline plugins bundled with Hyperion to configure your own pipeline? Check out the [example pipeline configurations](/docs/advanced-examples.md) documentation article for a list of plugins and the situations in which they can be used.

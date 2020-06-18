@@ -2,7 +2,7 @@
 
 Creating a pipeline plugin in a JVM language can be done by extending the shipped `AbstractPipelinePlugin` which is available in the plugin library on Maven. The library is written in [Kotlin](https://kotlinlang.org/) and is based around [kotlinx.coroutines](https://github.com/Kotlin/kotlinx.coroutines).
 
-The abstract class allows for easy creation of your own pipeline plugin for any JVM-based language. In this example we will guide you through creating the `reader` plugin in Kotlin — which reads input from stdin and pushes it to the pipeline. The full source code can be found [here](https://github.com/SERG-Delft/monitoring-aware-ides/tree/master/pipeline/plugins/reader). This plugin differs from the others in that it does not process data, but sends data from another source to the pipeline.
+The abstract class allows for easy creation of your own pipeline plugin for any JVM-based language. In this example we will guide you through creating the `reader` plugin in Kotlin — which reads input from stdin and pushes it to the pipeline. The full source code can be found [here](/pipeline/plugins/reader). This plugin differs from the others in that it does not process data, but sends data from another source to the pipeline.
 
  Note that we use [Gradle](https://gradle.org/) as the build tool.
 
@@ -74,23 +74,13 @@ CMD java -jar reader-all.jar ${CONFIGPATH}
 
 ## 2. Plugin configuration
 
-The plugin library uses YAML as the format for configuration files. The library also includes some utilities for parsing YAML files but any desired format could be used. For consistency, we will use YAML in this example. The minimum required configuration for a plugin is the address of the plugin manager and a unique identifier for the plugin (see [protocol.md](https://github.com/SERG-Delft/monitoring-aware-ides/blob/more-documentation/docs/protocol.md)). The plugin library uses the following format for configuration.
+The plugin library uses YAML as the format for configuration files. The library also includes some utilities for parsing YAML files but any desired format could be used. For consistency, we will use YAML in this example. The minimum required configuration for a plugin is the address of the plugin manager and a unique identifier for the plugin (see the [Hyperion protocol description](/docs/protocol.md) for more info). The plugin library uses the following format for configuration.
 
 ```yaml
 # config.yml
 manager-host: "localhost:5555"
 plugin-id: "Reader"
 ```
-
-<!-- We can now add the additional information to our configuration file, after which it looks like this:
-
-```yaml
-file: "/var/log/foo.log"
-
-pipeline:
-  manager-host: "localhost:5555"
-  plugin-id: "Watcher"
-``` -->
 
 In the next section we will see how the configuration is used in the new plugin.
 
@@ -99,7 +89,7 @@ In the next section we will see how the configuration is used in the new plugin.
 The only necessary function to implement is `onMessageReceived()`. But `onMessageReceived()` is used by plugins that transform the input, so it is not necessary to implement it for this plugin as it does not transform any input and will never be called. Start by creating a new Kotlin file `Reader.kt`.
 
 ```kotlin
-// Reader.kt````
+// Reader.kt
 class Reader(
     private val config: PipelinePluginConfiguration
 ) : AbstractPipelinePlugin(config) {
@@ -270,5 +260,5 @@ $ gradle test
 
 ## See also
 
-- [Writing a new pipeline plugin in Java/Kotlin](https://github.com/SERG-Delft/monitoring-aware-ides/blob/master/docs/writing-java-kotlin-plugin.md) on how to write a plugin that transforms data.
-- [Writing a new pipeline plugin in a different language](https://github.com/SERG-Delft/monitoring-aware-ides/blob/master/docs/writing-custom-plugin.md) if you want to write a plugin in a different language.
+- [Writing a new pipeline plugin in Java/Kotlin](/docs/writing-java-kotlin-plugin.md) on how to write a plugin that transforms data.
+- [Writing a new pipeline plugin in a different language](/docs/writing-custom-plugin.md) if you want to write a plugin in a different language.

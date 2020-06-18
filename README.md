@@ -22,7 +22,7 @@ Hyperion **is not**:
 
 ## Screenshots
 
-![](https://cdn.discordapp.com/attachments/701776474285277226/710481421806075985/unknown.png)
+![](https://i.imgur.com/mq1xyKW.gif)
 
 ## Documentation
 

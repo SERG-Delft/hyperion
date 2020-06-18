@@ -4,7 +4,7 @@
 
 This document will outline important information needed to create a new IDE implementation (or frontend) for the Hyperion pipeline. It describes how to communicate with the [aggregator](/aggregator/README.md) and how information should be resolved and shown to the user.
 
-Rougly, a Hyperion frontend will function according to the following steps:
+Roughly, a Hyperion frontend will function according to the following steps:
 - Wait for the user to open a file.
 - Query the aggregator for metrics for the opened file.
 - Use the VCS to determine which metrics are relevant for the current file (ignore metrics that are not ancestors of the current version).
