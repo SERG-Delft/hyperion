@@ -100,7 +100,7 @@ The aggregator expects JSON input messages that adhere to the following format. 
     "project": "<some unique identifier for the project, such as the repo name or package>",
     "version": "<some way to represent the version the code is running on, usually a git hash>",
     "location": {
-        "file": "<the file in which this log entry occured, relative to the root of the code>",
+        "file": "<the file in which this log entry occurred, relative to the root of the code>",
         "line": "<the line in which the log happened, can be a string or a number>"
     },
     "severity": "<some way to represent the severity, recommended to be a standard severity but free form>",

@@ -4,6 +4,8 @@
 
 This package provides a stress testing plugin that can be used to benchmark the performance of the Hyperion pipeline. It is designed to function as a data source that will simply hammer the next step in the pipeline with as much traffic as possible.
 
+> **Note:** when testing the performance of plugins, please note that the stresser may produce more messages than the plugin can handle. The default abstract plugin framework is configured to drop extra messages that arrive when this happens. Effective benchmarking therefore needs an instance of the [rate](/pipeline/plugins/rate) plugin placed after the plugin that is being benchmarked.
+
 ## Usage
 
 _For full details on the supported configuration format, please see the [configuration section](#Configuration) of this document_.

@@ -1,0 +1,8 @@
+database-url: "postgresql://localhost/postgres?user=postgres&password=mysecretpassword"
+port: 8081
+granularity: 10 # 10 seconds
+aggregation-ttl: 604800 # 7 days
+
+pipeline:
+  manager-host: "localhost:3000"
+  plugin-id: "Aggregator"

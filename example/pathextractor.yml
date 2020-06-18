@@ -1,0 +1,7 @@
+field: "location.file"
+relative-source-path: "src/main/java"
+postfix: ".java"
+
+pipeline:
+  manager-host: "localhost:3000"
+  plugin-id: "PathExtractor"
