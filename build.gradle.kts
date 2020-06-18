@@ -73,12 +73,14 @@ subprojects {
     }
 }
 
-val releaseArtifacts = listOf(":pluginmanager:", ":datasource:plugins:elasticsearch:", ":aggregator:",
-                              ":pipeline:plugins:adder:", ":pipeline:plugins:extractor:",
-                              ":pipeline:plugins:loadbalancer:", ":pipeline:plugins:pathextractor:",
-                              ":pipeline:plugins:printer:", ":pipeline:plugins:rate:",
-                              ":pipeline:plugins:reader:", ":pipeline:plugins:renamer:",
-                              ":pipeline:plugins:stresser:", ":pipeline:plugins:versiontracker:")
+// val releaseArtifacts = listOf(":pluginmanager:", ":datasource:plugins:elasticsearch:", ":aggregator:",
+//                               ":pipeline:plugins:adder:", ":pipeline:plugins:extractor:",
+//                               ":pipeline:plugins:loadbalancer:", ":pipeline:plugins:pathextractor:",
+//                               ":pipeline:plugins:printer:", ":pipeline:plugins:rate:",
+//                               ":pipeline:plugins:reader:", ":pipeline:plugins:renamer:",
+//                               ":pipeline:plugins:stresser:", ":pipeline:plugins:versiontracker:")
+
+val releaseArtifacts = listOf(":pipeline:plugins:adder:")
 
 tasks.register<DockerBuildImage>("docker-image") {
     group = "docker"

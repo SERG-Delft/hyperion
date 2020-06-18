@@ -40,6 +40,7 @@ fun Project.setupKotlinPlugins() {
     // Ensure that shadow outputs to build.
     tasks.getByName<AbstractArchiveTask>("shadowJar") {
         destinationDirectory.set(File("./build"))
+        archiveVersion.set("")
     }
 }
 
