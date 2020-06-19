@@ -25,7 +25,7 @@ object HyperionNotifier {
      * @param project Project to send the notification in.
      * @param content The content of the notification.
      */
-    fun error(project: Project, content: String) {
+    fun error(project: Project?, content: String) {
         notify(project, content, NotificationType.ERROR)
     }
     // Other types of notifications can go here but for now we only need error.
@@ -36,7 +36,7 @@ object HyperionNotifier {
      * @param content The content of the notification.
      * @param type The type of notification to send.
      */
-    private fun notify(project: Project, content: String, type: NotificationType) {
+    private fun notify(project: Project?, content: String, type: NotificationType) {
         NOTIFICATION_GROUP.createNotification(content, type).notify(project)
     }
 }
