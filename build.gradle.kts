@@ -1,5 +1,3 @@
-import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
-import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -42,7 +40,6 @@ allprojects {
 
 subprojects {
     apply(plugin = "kotlin")
-    apply(plugin = "com.bmuschko.docker-remote-api")
 
     sourceSets {
         create("integrationTest") {
