@@ -2,7 +2,6 @@
 
 package nl.tudelft.hyperion.plugin.visualization.components
 
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.ui.ComboBox
@@ -19,8 +18,8 @@ import nl.tudelft.hyperion.plugin.graphs.parseAPIBinResponse
 import nl.tudelft.hyperion.plugin.metric.APIBinMetricsResponse
 import nl.tudelft.hyperion.plugin.metric.BaseAPIMetric
 import nl.tudelft.hyperion.plugin.settings.HyperionSettings
+import nl.tudelft.hyperion.plugin.util.HyperionNotifier
 import nl.tudelft.hyperion.plugin.visualization.CustomTextItem
-import nl.tudelft.hyperion.plugin.visualization.errorDialog
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
@@ -193,19 +192,14 @@ class VisWindow {
                     if (settings.visualization.fileOnly) settings.visualization.filePath else null
                 )
             } catch (e: ConnectException) {
-                ApplicationManager.getApplication().invokeLater {
-                    errorDialog {
-                        "Failed to connect to ${settings.address} specified in Hyperion settings. " +
-                            "Is the server running?"
-                    }
-                }
+                HyperionNotifier.error(
+                    ideProject,
+                    "Failed to connect to ${settings.address} specified in Hyperion settings.\n " +
+                    "Is the server running?"
+                )
                 return@launch
             } catch (e: Exception) {
-                ApplicationManager.getApplication().invokeLater {
-                    errorDialog {
-                        e.toString()
-                    }
-                }
+                HyperionNotifier.error(ideProject, e.toString())
                 return@launch
             }
 
