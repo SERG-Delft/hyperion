@@ -195,7 +195,7 @@ class VisWindow {
                 HyperionNotifier.error(
                     ideProject,
                     "Failed to connect to ${settings.address} specified in Hyperion settings.\n " +
-                    "Is the server running?"
+                        "Is the server running?"
                 )
                 return@launch
             } catch (e: Exception) {

@@ -4,7 +4,7 @@ import com.intellij.notification.NotificationDisplayType
 import com.intellij.notification.NotificationGroup
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.IconLoader
+import nl.tudelft.hyperion.plugin.visualization.GUTTER_ICON
 
 /**
  * Class that handles notifications for the Hyperion plugin.
@@ -17,7 +17,7 @@ class HyperionNotifier {
             NotificationDisplayType.BALLOON,
             true,
             "nl.tudelft.hyperion.plugin.visualization.actions.GraphActionGroup",
-            IconLoader.getIcon("icons/tool_window_icon.png"),
+            GUTTER_ICON,
             "Hyperion"
         )
 
