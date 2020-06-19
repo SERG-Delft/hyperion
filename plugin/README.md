@@ -4,7 +4,7 @@
 
 This project integrates the Hyperion pipeline with the IntelliJ IDEA IDE family. It is able to show the amount of logs triggered inline in the editor, based on information aggregated in the [aggregator](/aggregator). It is a reference implementation for how IDEs can be integrated with Hyperion.
 
-![](https://cdn.discordapp.com/attachments/701776474285277226/710481421806075985/unknown.png)
+![](https://i.imgur.com/0T3c4qL.png)
 
 ## Building & Running
 

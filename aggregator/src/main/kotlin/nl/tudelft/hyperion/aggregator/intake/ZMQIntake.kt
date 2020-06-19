@@ -22,6 +22,10 @@ class ZMQIntake(
 ) : AbstractPipelinePlugin(configuration) {
     override val logger = mu.KotlinLogging.logger {}
 
+    // Ensure that commons takes care of buffering issues.
+    override val shouldLimitBuffer: Boolean
+        get() = true
+
     // Ensure that we're a receiver.
     override fun run(context: CoroutineContext): Job {
         if (!canReceive) {

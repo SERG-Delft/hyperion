@@ -1,8 +1,9 @@
-package nl.tudelft.hyperion.plugin.visualization
+package nl.tudelft.hyperion.plugin.visualization.actions
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
+import nl.tudelft.hyperion.plugin.visualization.MetricInlayRenderPass
 
 /**
  * Class that represents the action in the IDE that can be fired by the user.

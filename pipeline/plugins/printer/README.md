@@ -4,6 +4,8 @@
 
 This package provides a printer pipeline plugin that can be used to print all messages passing through a part of the pipeline. This plugin may be useful for debugging purposes.
 
+> **Note**: The printer plugin works as both a passthrough plugin (forwarding all received messages to the next stage) and as a final step in the pipeline.
+
 ## Usage
 
 _For full details on the supported configuration format, please see the [configuration section](#Configuration) of this document_.

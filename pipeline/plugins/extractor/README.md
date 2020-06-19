@@ -102,7 +102,7 @@ fields:
         # The type of the value to write to the field. The extractor plugin
         # supports converting the extracted string value from the regular 
         # expression to a different format. The following types are supported:
-        # "string", "number", "double"
+        # "string", "number", "double". If not given, defaults to "string".
         type: "number"
       
       # Add extract entries as necessary...

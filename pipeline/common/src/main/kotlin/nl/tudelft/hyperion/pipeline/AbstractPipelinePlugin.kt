@@ -52,6 +52,15 @@ abstract class AbstractPipelinePlugin(
     protected val isPassthrough
         get() = canReceive && canSend
 
+    /**
+     * Whether or not the amount of "in-flight" messages should be tracked to ensure
+     * that memory does not grow infinitely. By default, this is true for passthrough
+     * plugins and false for everything else. A subclass can override this to selectively
+     * enable or disable this behavior.
+     */
+    protected open val shouldLimitBuffer
+        get() = isPassthrough
+
     private val senderChannel = Channel<String>(20_000)
     private val packetBufferCount = AtomicInteger()
 
@@ -170,7 +179,7 @@ abstract class AbstractPipelinePlugin(
             logger.trace { "Received message: '$msg'" }
 
             // Check for buffer limits if this is passthrough.
-            if (isPassthrough) {
+            if (shouldLimitBuffer) {
                 // Drop this message if our internal buffer is full
                 val inQueue = packetBufferCount.incrementAndGet()
                 if (inQueue > config.bufferSize) {
@@ -183,7 +192,7 @@ abstract class AbstractPipelinePlugin(
             processThreadPool.launch {
                 onMessageReceived(msg)
 
-                if (isPassthrough) {
+                if (shouldLimitBuffer) {
                     packetBufferCount.decrementAndGet()
                 }
             }

@@ -1,6 +1,5 @@
-package nl.tudelft.hyperion.plugin.doc
+package nl.tudelft.hyperion.plugin.visualization
 
-import nl.tudelft.hyperion.plugin.visualization.countsToLabel
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory

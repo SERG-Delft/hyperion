@@ -1,0 +1,7 @@
+add:
+  - key: "project"
+    value: "mock-logging"
+
+pipeline:
+  manager-host: "localhost:3000"
+  plugin-id: "Adder"

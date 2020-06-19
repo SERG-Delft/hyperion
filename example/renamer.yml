@@ -1,0 +1,13 @@
+rename:
+  - from: "@timestamp"
+    to: "timestamp"
+  - from: "log4j_level"
+    to: "severity"
+  - from: "log4j_file"
+    to: "location.file"
+  - from: "log4j_line"
+    to: "location.line"
+
+pipeline:
+  manager-host: "localhost:3000"
+  plugin-id: "Renamer"
