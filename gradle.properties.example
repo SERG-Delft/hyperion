@@ -7,8 +7,3 @@ sonatypePassword=input password
 signing.keyId=id
 signing.password=pwd
 signing.secretKeyRingFile=ringfile
-
-dockerUsername=username
-dockerPassword=pwd
-dockerEmail=email
-dockerHost=tcp://localhost:2376
