@@ -13,10 +13,8 @@ import kotlinx.coroutines.runBlocking
 import nl.tudelft.hyperion.plugin.connection.APIRequestor
 import nl.tudelft.hyperion.plugin.metric.FileMetrics
 import nl.tudelft.hyperion.plugin.metric.ResolvedFileMetrics
-import nl.tudelft.hyperion.plugin.util.HyperionNotifier
 import nl.tudelft.hyperion.plugin.util.KeyedProperty
 import nl.tudelft.hyperion.plugin.visualization.MetricInlayRenderPassFactory.Companion.modificationStamp
-import nl.tudelft.hyperion.plugin.visualization.components.VisWindow
 
 class MetricInlayRenderPass(editor: Editor, file: PsiFile) : EditorBoundHighlightingPass(
     editor, file,
@@ -116,11 +114,6 @@ class MetricInlayRenderPass(editor: Editor, file: PsiFile) : EditorBoundHighligh
             } catch (e: Exception) {
                 // Catch BindException or ConnectException indicating the http request failed.
                 myEditor.drawDisabled = true
-                HyperionNotifier.error(
-                    myProject,
-                    "Failed to connect to ${VisWindow.settings.address} specified in Hyperion settings.\n " +
-                        "Is the server running?"
-                )
                 FileMetrics(mapOf())
             }
         } else {
