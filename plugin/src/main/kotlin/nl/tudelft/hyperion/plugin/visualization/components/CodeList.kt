@@ -10,7 +10,6 @@ import com.intellij.ui.table.JBTable
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.io.File
-import java.lang.IllegalStateException
 import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JTable
@@ -34,6 +33,12 @@ class CodeList {
     private val metricsTableListener = object : MouseAdapter() {
         override fun mouseClicked(e: MouseEvent?) {
             val row = metricsTable.rowAtPoint(e!!.point)
+
+            // Clicked on the table while metrics have not been updated yet
+            // ignore this exception
+            if (!this@CodeList::tableData.isInitialized) {
+                return
+            }
 
             if (row > tableData.size) {
                 throw IllegalStateException("Clicked on row that has missing data")
