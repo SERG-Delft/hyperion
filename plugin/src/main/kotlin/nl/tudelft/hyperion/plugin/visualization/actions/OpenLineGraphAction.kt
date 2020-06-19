@@ -78,7 +78,7 @@ class OpenLineGraphAction : AnAction() {
             }
 
         if (!currentFile.path.startsWith(currentProject.basePath!!)) {
-            HyperionNotifier.error(currentProject,"file $currentFile is not in project ${currentProject.name}")
+            HyperionNotifier.error(currentProject, "file $currentFile is not in project ${currentProject.name}")
             return
         }
 
@@ -127,7 +127,7 @@ class OpenLineGraphAction : AnAction() {
                 currentFile,
                 GitVersionResolver.getCurrentOriginCommit(currentProject)
                     ?: kotlin.run {
-                        HyperionNotifier.error(currentProject,"Current branch does not have an origin")
+                        HyperionNotifier.error(currentProject, "Current branch does not have an origin")
                         return@withContext null
                     },
                 lineNumber
