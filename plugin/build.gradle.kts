@@ -11,7 +11,7 @@ intellij {
 }
 
 tasks.patchPluginXml {
-    sinceBuild("201.6746")
+    sinceBuild("201.7223.18")
 }
 
 tasks.publishPlugin {
