@@ -1,5 +1,5 @@
 # first build the jar
-# assumses build context is the root of this project
+# assumes build context is the root of this project
 FROM gradle:jdk14 as builder
 COPY . .
 RUN gradle pipeline:plugins:renamer:shadowJar
