@@ -17,8 +17,8 @@
           for more information on how to get started.
         ]]>
     </description>
-    <version>1.0.4</version>
-    <change-notes>Fixed an error that occurred when the plugin could not connect to the aggregator</change-notes>
+    <version>1.0.5</version>
+    <change-notes>Made it more clear that the API address should include http:// to work correctly</change-notes>
     <vendor url="https://se.ewi.tudelft.nl/" email="m.f.aniche@tudelft.nl">serg-delft</vendor>
     <depends>com.intellij.modules.platform</depends>
     <depends>Git4Idea</depends>
