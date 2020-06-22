@@ -6,9 +6,15 @@ This project integrates the Hyperion pipeline with the IntelliJ IDEA IDE family.
 
 ![](https://i.imgur.com/0T3c4qL.png)
 
+## User guide
+
+Please check [step 7 of the hyperion setup](/docs/hyperion-setup.md#step-7-intellij-setup) for an up-to-date guide on how to get started with the IntelliJ plugin.
+
 ## Building & Running
 
-To build the IntelliJ plugin, run `gradle plugin:shadowJar`. The result will be located in `build/plugin-all.jar`.
+To build the IntelliJ plugin, run `gradle plugin:buildPlugin`. The result will be located in `build/distributions/plugin.zip`.
+
+To publish the IntelliJ plugin to the marketplace, run `gradle plugin:publishPlugin`. Note that this requires an authentication token from the serg-delft vendor and the plugin version needs to be unique.
 
 To execute the tests and linting, run `gradle plugin:check`.
 

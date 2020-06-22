@@ -396,9 +396,9 @@ It should return a list of metrics encountered in the TransportationService file
 
 Now that we have the data in our aggregator, it is time to actually use it. Hyperion currently offers an official plugin for IntelliJ IDEA based editors. Since we're logging for a Java project, lets make sure that we download the Hyperion plugin for IntelliJ. To install the plugin, open your IntelliJ settings, go to `Plugins`, select the `Marketplace` tab, and search for `Hyperion`. Hit the Install button, then restart your IDE.
 
-After installing the plugin, open up the [mock-elastic-logging](https://github.com/nickyu42/mock-elastic-logging/) repository as a project in IntelliJ. Before we can start visualizing metrics, we need to configure the plugin so that it knows where our aggregator is located and which project we are using. Open the settings again and go to `Tools` -> `Hyperion`. For API address, enter `localhost:8081` (remember, this is the host and port we configured in our aggregator configuration), and as project name set `mock-logging` (remember, this was the value of the `"project"` field that we're adding using the adder plugin). Your final configuration should look like this:
+After installing the plugin, open up the [mock-elastic-logging](https://github.com/nickyu42/mock-elastic-logging/) repository as a project in IntelliJ. Before we can start visualizing metrics, we need to configure the plugin so that it knows where our aggregator is located and which project we are using. Open the settings again and go to `Tools` -> `Hyperion`. For API address, enter `http://localhost:8081` (remember, this is the host and port we configured in our aggregator configuration, http:// is required here), and as project name set `mock-logging` (remember, this was the value of the `"project"` field that we're adding using the adder plugin). Your final configuration should look like this:
 
-![](https://i.imgur.com/cNYYhW5.png)
+![](https://i.imgur.com/1mOWRK6.png)
 
 All that's left now is to actually open a file! Open the `TransportationService.java` file to see inline metrics. If you configured everything correctly, metrics should appear above the relevant logging lines:
 
