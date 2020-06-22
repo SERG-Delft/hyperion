@@ -60,27 +60,26 @@ java -jar build/extractor-all.jar [path to config]
 ```
 
 ## Docker
-The extractor plugin can be easily build and run using [Docker](https://www.docker.com/). 
+The extractor plugin can be easily built and run using [Docker](https://www.docker.com/). 
 
-### Running the pre-built docker image
-A pre-built image is available at the [docker hub repository](https://hub.docker.com/r/sergdelft/hyperion).
-The tag to use is `sergdelft/hyperion:pipeline-plugins-extractor-0.1.0`, for the latest version please check the repository.
-
+### Running the pre-built Docker image
+A pre-built image is available at the [Docker hub repository](https://hub.docker.com/r/sergdelft/hyperion).
+The plugin image is tagged as `sergdelft/hyperion:pipeline-plugins-extractor-<version>`. Please consult the [root README](/README.md) for the latest published version.
 To run this image with `extractor_config.yml` as its configuration execute:
 ```shell script
 docker run -it -rm -v ${PWD}/extractor_config.yml:/root/config.yml sergdelft/hyperion:pipeline-plugins-extractor-0.1.0
 ```
 
-### Building the docker image yourself
-The included Dockerfile compiles the extractor plugin into a fat jar and copies it to a new image which runs the plugin with the given config.
-To build and run the plugin, execute the following command from the _project root_. 
+### Building the Docker image yourself
+The included Dockerfile compiles and bundles the plugin. 
+To build it, navigate to the repository root and run the following command:
 
 ```shell script
 docker build . -f pipeline/plugins/extractor/Dockerfile -t hyperion-extractor:latest
 ```
 
-after building is complete you can run the extractor.
-Please note that the docker container will load the configuration file from `/root/config.yml` in its container.
+Once building completes, the plugin can be ran using the following command, 
+assuming that the configuration file is located at `extractor_config.yml`:
 
 ```shell script
 docker run -it -rm -v ${PWD}/extractor_config.yml:/root/config.yml hyperion-extractor:latest

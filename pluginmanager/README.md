@@ -19,27 +19,26 @@ java -jar build/pluginmanager-all.jar [path to config]
 ```
 
 ## Docker
-The pluginmanager can be easily build and run using [Docker](https://www.docker.com/). 
+The pluginmanager can be easily built and run using [Docker](https://www.docker.com/). 
 
-### Running the pre-built docker image
-A pre-built image is available at the [docker hub repository](https://hub.docker.com/r/sergdelft/hyperion).
-The tag to use is `sergdelft/hyperion:pluginmanager-0.1.0`, for the latest version please check the repository.
-
-To run this image with `pluginmanager_config.yml` as its configuration execute:
+### Running the pre-built Docker image
+A pre-built image is available at the [Docker hub repository](https://hub.docker.com/r/sergdelft/hyperion).
+The pluginmanager image is tagged as `sergdelft/hyperion:pluginmanager-<version>`. Please consult the [root README](/README.md) for the latest published version.
+To run this image with `pluginmanger_config.yml` as its configuration execute:
 ```shell script
 docker run -it -rm -v ${PWD}/pluginmanager_config.yml:/root/config.yml sergdelft/hyperion:pluginmanager-0.1.0
 ```
 
-### Building the docker image yourself
-The included Dockerfile compiles pluginmanager into a fat jar and copies it to a new image which runs the pluginmanager with the given config.
-To build and run the pluginmanager, execute the following command from the _project root_. 
+### Building the Docker image yourself
+The included Dockerfile compiles and bundles the pluginmanager. 
+To build it, navigate to the repository root and run the following command:
 
 ```shell script
 docker build . -f pluginmanager/Dockerfile -t hyperion-pluginmanager:latest
 ```
 
-after building is complete you can run the pluginmanager.
-Please note that the docker container for this plugin will load the configuration file from `/root/config.yml` in its container.
+Once building completes, the pluginmanager can be ran using the following command, 
+assuming that the configuration file is located at `pluginmanager_config.yml`:
 
 ```shell script
 docker run -it -rm -v ${PWD}/pluginmanager_config.yml:/root/config.yml hyperion-pluginmanager:latest
