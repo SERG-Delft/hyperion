@@ -59,16 +59,30 @@ java -jar build/renamer-all.jar [path to config]
 ```
 
 ## Docker
+The renamer plugin can be easily build and run using [Docker](https://www.docker.com/). 
 
-If you have a built version of this plugin, you can use the accompanied Dockerfile to set up an image with all pre-requisites installed. Please note that this Dockerfile will not compile the plugin for you.
+### Running the pre-built docker image
+A pre-built image is available at the [docker hub repository](https://hub.docker.com/r/sergdelft/hyperion).
+The tag to use is `sergdelft/hyperion:pipeline-plugins-renamer-0.1.0`, for the latest version please check the repository.
 
-Please note that the docker container for this plugin will load the configuration file from `/root/config.yml` in its container.
-
-A pre-built image is available at dockerhub under `daveter9/hyperion-pipeline-plugins-renamer:0.1.0`.
 To run this image with `renamer_config.yml` as its configuration execute:
+```shell script
+docker run -it -rm -v ${PWD}/renamer_config.yml:/root/config.yml sergdelft/hyperion:pipeline-plugins-renamer-0.1.0
+```
+
+### Building the docker image yourself
+The included Dockerfile compiles the renamer into a fat jar and copies it to a new image which runs the plugin with the given config.
+To build and run the plugin, execute the following command from the _project root_. 
 
 ```shell script
-docker run -it -rm -v ${PWD}/renamer_config.yml:/root/config.yml daveter9/hyperion-pipeline-plugins-renamer:0.1.0
+docker build . -f pipeline/plugins/renamer/Dockerfile -t hyperion-renamer:latest
+```
+
+after building is complete you can run the renamer.
+Please note that the docker container will load the configuration file from `/root/config.yml` in its container.
+
+```shell script
+docker run -it -rm -v ${PWD}/renamer_config.yml:/root/config.yml hyperion-renamer:latest
 ```
 
 ## Configuration
