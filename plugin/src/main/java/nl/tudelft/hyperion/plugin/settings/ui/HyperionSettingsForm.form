@@ -36,7 +36,7 @@
               </grid>
             </constraints>
             <properties>
-              <toolTipText value="Fill in the address of your aggregator API"/>
+              <toolTipText value="Fill in the address of your aggregator API&#10;(Note that this might need http:// prepended)"/>
             </properties>
           </component>
           <component id="c2d6b" class="javax.swing.JLabel" binding="addressTitle">

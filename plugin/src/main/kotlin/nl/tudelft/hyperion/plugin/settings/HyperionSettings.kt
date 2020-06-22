@@ -20,7 +20,7 @@ class HyperionSettings(private val relatedProject: Project) : PersistentStateCom
     private var currentState = State().apply {
         // Set default values.
         intervals = listOf(3600, 86400, 2592000)
-        address = "hyperion.internal.yourcompany.com"
+        address = "http://hyperion.internal.yourcompany.com"
         project = relatedProject.name
         visualization = HistogramSettings(
             HistogramInterval.HalfHour,
