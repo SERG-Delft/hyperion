@@ -1,5 +1,5 @@
-![release version badge](https://img.shields.io/github/v/release/SERG-DELFT/hyperion)
 ![](https://i.imgur.com/OcUEJ6s.png)
+![release version badge](https://img.shields.io/github/v/release/SERG-DELFT/hyperion)
 
 This repository contains the source code for the various official parts of the Hyperion log aggregation and visualization pipeline. 
 
