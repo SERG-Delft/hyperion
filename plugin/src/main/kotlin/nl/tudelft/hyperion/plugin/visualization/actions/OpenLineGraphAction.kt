@@ -15,8 +15,8 @@ import nl.tudelft.hyperion.plugin.git.GitVersionResolver
 import nl.tudelft.hyperion.plugin.git.OriginBlameReadResult
 import nl.tudelft.hyperion.plugin.graphs.LineScope
 import nl.tudelft.hyperion.plugin.settings.HyperionSettings
+import nl.tudelft.hyperion.plugin.util.HyperionNotifier
 import nl.tudelft.hyperion.plugin.visualization.VisToolWindowFactory
-import nl.tudelft.hyperion.plugin.visualization.errorDialog
 
 /**
  * Action for displaying metrics of the metric inlay gutter line or the line
@@ -35,12 +35,12 @@ class OpenLineGraphAction : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
         val currentProject = e.getData(CommonDataKeys.PROJECT)
             ?: kotlin.run {
-                errorDialog { "Current open project does not exist" }
+                HyperionNotifier.error(null, "Current open project does not exist")
                 return@actionPerformed
             }
         val currentFile = e.getData(CommonDataKeys.VIRTUAL_FILE)
             ?: kotlin.run {
-                errorDialog { "Current open file is not linked to a project" }
+                HyperionNotifier.error(currentProject, "Current open file is not linked to a project")
                 return@actionPerformed
             }
 
@@ -51,7 +51,7 @@ class OpenLineGraphAction : AnAction() {
         } else {
             val currentCaret = e.getData(CommonDataKeys.CARET)
                 ?: run {
-                    errorDialog { "Action was triggered outside of PSI context" }
+                    HyperionNotifier.error(currentProject, "Action was triggered outside of PSI context")
                     return
                 }
             currentCaret.logicalPosition.line
@@ -64,7 +64,10 @@ class OpenLineGraphAction : AnAction() {
                     currentProject,
                     currentFile
                 ) ?: run {
-                    errorDialog { "Could not find origin of selected line in $currentFile" }
+                    HyperionNotifier.error(
+                        currentProject,
+                        "Could not find origin of selected line in $currentFile"
+                    )
                     return@actionPerformed
                 }
             } catch (e: Exception) {
@@ -72,11 +75,11 @@ class OpenLineGraphAction : AnAction() {
                 //  This should trigger in the event that no git repository is available for current file
                 //  But since GitUtil#GitRepositoryNotFoundException is private for _some_ reason,
                 //  this is left as a catch all
-                errorDialog { e.localizedMessage }
+                HyperionNotifier.error(currentProject, e.localizedMessage)
             }
 
         if (!currentFile.path.startsWith(currentProject.basePath!!)) {
-            errorDialog { "file $currentFile is not in project ${currentProject.name}" }
+            HyperionNotifier.error(currentProject, "file $currentFile is not in project ${currentProject.name}")
             return
         }
 
@@ -122,7 +125,7 @@ class OpenLineGraphAction : AnAction() {
                 currentFile,
                 GitVersionResolver.getCurrentOriginCommit(currentProject)
                     ?: kotlin.run {
-                        errorDialog { "Current branch does not have an origin" }
+                        HyperionNotifier.error(currentProject, "Current branch does not have an origin")
                         return@withContext null
                     },
                 lineNumber

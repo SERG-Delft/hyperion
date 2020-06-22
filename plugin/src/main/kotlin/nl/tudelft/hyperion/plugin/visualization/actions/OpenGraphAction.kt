@@ -6,8 +6,8 @@ import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.wm.ToolWindowManager
 import nl.tudelft.hyperion.plugin.graphs.ProjectScope
 import nl.tudelft.hyperion.plugin.settings.HyperionSettings
+import nl.tudelft.hyperion.plugin.util.HyperionNotifier
 import nl.tudelft.hyperion.plugin.visualization.VisToolWindowFactory
-import nl.tudelft.hyperion.plugin.visualization.errorDialog
 
 /**
  * Action for visualizing metrics of the entire project.
@@ -17,7 +17,7 @@ class OpenGraphAction : AnAction() {
         val currentProject = e.getData(CommonDataKeys.PROJECT)
 
         if (currentProject == null) {
-            errorDialog { "Current project does not exist" }
+            HyperionNotifier.error(currentProject, "Current project does not exist")
             return
         }
 

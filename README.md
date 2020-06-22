@@ -39,7 +39,7 @@ If you encounter a problem not documented, feel free to open an issue.
 
 ## Projects
 
-This repository is a monorepo that contains various sub-projects implementing Hyperion functionality. These projects are created by the Hyperion team and are guaranteed to be thoroughly tested and stable. However, Hyperions architecture allows for anyone to substitute parts of Hyperions pipeline as they want. For more information, see our [docs].
+This repository is a monorepo that contains various sub-projects implementing Hyperion functionality. These projects are created by the Hyperion team and are guaranteed to be thoroughly tested and stable. However, Hyperions architecture allows for anyone to substitute parts of Hyperions pipeline as they want. For more information, see our [docs](docs).
 
 The following projects are in this repository:
 
