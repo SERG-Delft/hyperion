@@ -8,7 +8,7 @@ This project integrates the Hyperion pipeline with the IntelliJ IDEA IDE family.
 
 ## User guide
 
-Please check [step 7 of the hyperion setup](/docs/hyperion-setup.md#step-7-intellij-setup) for an up-to-date guide on how to get started with the IntelliJ plugin.
+Please check [step 7 of the Hyperion setup guide](/docs/hyperion-setup.md#step-7-intellij-setup) for an up-to-date guide on how to get started with the IntelliJ plugin.
 
 ## Building & Running
 
