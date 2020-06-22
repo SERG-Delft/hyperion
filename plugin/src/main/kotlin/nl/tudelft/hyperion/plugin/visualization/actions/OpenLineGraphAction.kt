@@ -13,6 +13,7 @@ import kotlinx.coroutines.withContext
 import nl.tudelft.hyperion.plugin.git.GitLineTracker
 import nl.tudelft.hyperion.plugin.git.GitVersionResolver
 import nl.tudelft.hyperion.plugin.git.OriginBlameReadResult
+import nl.tudelft.hyperion.plugin.graphs.LineScope
 import nl.tudelft.hyperion.plugin.settings.HyperionSettings
 import nl.tudelft.hyperion.plugin.visualization.VisToolWindowFactory
 import nl.tudelft.hyperion.plugin.visualization.errorDialog
@@ -85,9 +86,9 @@ class OpenLineGraphAction : AnAction() {
 
         val hyperionSettings = HyperionSettings.getInstance(currentProject)
 
-        // Set file path to current file
-        hyperionSettings.state.visualization.filePath = relativePath
-        hyperionSettings.state.visualization.fileOnly = true
+        // Increment because the API stores it as visible line instead of logical line
+        val line = (originInfo as OriginBlameReadResult).lastSeenLine + 1
+        hyperionSettings.state.visualization.scope = LineScope(relativePath, line)
 
         // Open tool window if it exists
         ToolWindowManager
@@ -95,10 +96,7 @@ class OpenLineGraphAction : AnAction() {
             .getToolWindow("Visualization")
             ?.show {
                 VisToolWindowFactory.histogramTab.updateAllSettings()
-                VisToolWindowFactory.histogramTab.queryAndUpdate(
-                    // Increment because the API stores it as visible lines instead of logical line
-                    lineNumber = (originInfo as OriginBlameReadResult).lastSeenLine + 1
-                )
+                VisToolWindowFactory.histogramTab.queryAndUpdate()
                 VisToolWindowFactory.histogramTab.root.repaint()
             }
     }

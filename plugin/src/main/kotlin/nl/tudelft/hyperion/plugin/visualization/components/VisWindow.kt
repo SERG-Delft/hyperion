@@ -15,6 +15,7 @@ import nl.tudelft.hyperion.plugin.graphs.ClickableHistogram
 import nl.tudelft.hyperion.plugin.graphs.HistogramData
 import nl.tudelft.hyperion.plugin.graphs.HistogramInterval
 import nl.tudelft.hyperion.plugin.graphs.InteractiveHistogram
+import nl.tudelft.hyperion.plugin.graphs.LineScope
 import nl.tudelft.hyperion.plugin.graphs.parseAPIBinResponse
 import nl.tudelft.hyperion.plugin.metric.APIBinMetricsResponse
 import nl.tudelft.hyperion.plugin.metric.BaseAPIMetric
@@ -126,14 +127,7 @@ class VisWindow {
      */
     private fun createTitleLabel() {
         titleLabel = JLabel()
-        if (settings.visualization.fileOnly) {
-            // Assume that filename is a local path
-            // TODO: fix assumption that filePath is local
-            val filename = Paths.get(settings.visualization.filePath!!).fileName.toString()
-            titleLabel.text = "Showing metrics for $filename"
-        } else {
-            titleLabel.text = "Showing metrics for all files"
-        }
+        updateTitleBox()
     }
 
     /**
@@ -173,7 +167,7 @@ class VisWindow {
      * component.
      */
     @SuppressWarnings("TooGenericExceptionCaught")
-    fun queryAndUpdate(lineNumber: Int? = null) = runBlocking {
+    fun queryAndUpdate() = runBlocking {
         launch(Dispatchers.IO) {
             val version = GitVersionResolver.getCurrentOriginCommit(ideProject)
 
@@ -190,7 +184,7 @@ class VisWindow {
                     settings.project,
                     settings.visualization.interval.relativeTime,
                     settings.visualization.timesteps,
-                    if (settings.visualization.fileOnly) settings.visualization.filePath else null
+                    if (settings.visualization.fileOnly) settings.visualization.filePath!! else null
                 )
             } catch (e: ConnectException) {
                 ApplicationManager.getApplication().invokeLater {
@@ -209,8 +203,8 @@ class VisWindow {
                 return@launch
             }
 
-            if (lineNumber != null) {
-                apiMetrics.filterVersion(version, lineNumber)
+            if (settings.visualization.scope is LineScope) {
+                apiMetrics.filterVersion(version, (settings.visualization.scope as LineScope).line)
             }
 
             val params = parseAPIBinResponse(
@@ -221,8 +215,7 @@ class VisWindow {
                 apiMetrics
             )
 
-            val hist = (main as InteractiveHistogram)
-            hist.update(params)
+            (main as InteractiveHistogram).update(params)
             countLabel.text = "${params.logCounts.map { it.sum() }.sum()} Total Lines"
         }
     }
@@ -235,11 +228,22 @@ class VisWindow {
     fun updateAllSettings() {
         granularityComboBox.selectedItem = settings.visualization.interval
         barCountComboBox.selectedItem = settings.visualization.timesteps
+        updateTitleBox()
+    }
+
+    /**
+     * Updates the title of the text box based on the metrics scope.
+     */
+    private fun updateTitleBox() {
         if (settings.visualization.fileOnly) {
             // Assume that filename is a local path
             // TODO: fix assumption that filePath is local
             val filename = Paths.get(settings.visualization.filePath!!).fileName.toString()
             titleLabel.text = "Showing metrics for $filename"
+
+            if (settings.visualization.scope is LineScope) {
+                titleLabel.text += ":${(settings.visualization.scope as LineScope).line}"
+            }
         } else {
             titleLabel.text = "Showing metrics for all files"
         }

@@ -10,8 +10,10 @@ import io.mockk.unmockkAll
 import io.mockk.verify
 import nl.tudelft.hyperion.plugin.graphs.BinComponent
 import nl.tudelft.hyperion.plugin.graphs.ClickContext
+import nl.tudelft.hyperion.plugin.graphs.FileScope
 import nl.tudelft.hyperion.plugin.graphs.HistogramInterval
 import nl.tudelft.hyperion.plugin.graphs.HistogramSettings
+import nl.tudelft.hyperion.plugin.graphs.ProjectScope
 import nl.tudelft.hyperion.plugin.metric.APIBinMetricsResponse
 import nl.tudelft.hyperion.plugin.metric.APIBinMetricsResult
 import nl.tudelft.hyperion.plugin.metric.APIMetric
@@ -72,8 +74,7 @@ class VisWindowClickHandlerTest {
         val state = HyperionSettings.State()
         state.visualization = HistogramSettings(
             HistogramInterval.Hour,
-            fileOnly = true,
-            filePath = "src/main/java/Foo.java"
+            scope = FileScope("src/main/java/Foo.java")
         )
 
         mockProject(state)
@@ -98,7 +99,7 @@ class VisWindowClickHandlerTest {
         val state = HyperionSettings.State()
         state.visualization = HistogramSettings(
             HistogramInterval.Hour,
-            fileOnly = false
+            scope = ProjectScope
         )
 
         mockProject(state)
@@ -118,7 +119,7 @@ class VisWindowClickHandlerTest {
         val state = HyperionSettings.State()
         state.visualization = HistogramSettings(
             HistogramInterval.Hour,
-            fileOnly = false
+            scope = ProjectScope
         )
 
         mockProject(state)
@@ -143,8 +144,7 @@ class VisWindowClickHandlerTest {
         val state = HyperionSettings.State()
         state.visualization = HistogramSettings(
             HistogramInterval.Hour,
-            fileOnly = true,
-            filePath = "src/main/kotlin/Foo.kt"
+            scope = FileScope("src/main/kotlin/Foo.kt")
         )
 
         mockProject(state)
@@ -168,8 +168,7 @@ class VisWindowClickHandlerTest {
         val state = HyperionSettings.State()
         state.visualization = HistogramSettings(
             HistogramInterval.Hour,
-            fileOnly = true,
-            filePath = "src/main/kotlin/Foo.kt"
+            scope = FileScope("src/main/kotlin/Foo.kt")
         )
 
         mockProject(state)
@@ -192,7 +191,7 @@ class VisWindowClickHandlerTest {
         val state = HyperionSettings.State()
         state.visualization = HistogramSettings(
             HistogramInterval.Hour,
-            fileOnly = false
+            scope = ProjectScope
         )
 
         mockProject(state)
@@ -225,7 +224,7 @@ class VisWindowClickHandlerTest {
         val state = HyperionSettings.State()
         state.visualization = HistogramSettings(
             HistogramInterval.Hour,
-            fileOnly = false
+            scope = ProjectScope
         )
 
         mockProject(state)
