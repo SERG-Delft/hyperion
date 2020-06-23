@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.wm.ToolWindowManager
+import nl.tudelft.hyperion.plugin.graphs.FileScope
 import nl.tudelft.hyperion.plugin.settings.HyperionSettings
 import nl.tudelft.hyperion.plugin.util.HyperionNotifier
 import nl.tudelft.hyperion.plugin.visualization.VisToolWindowFactory
@@ -39,8 +40,7 @@ class OpenFileGraphAction : AnAction() {
         val hyperionSettings = HyperionSettings.getInstance(currentProject)
 
         // Set file path to current file
-        hyperionSettings.state.visualization.filePath = relativePath
-        hyperionSettings.state.visualization.fileOnly = true
+        hyperionSettings.state.visualization.scope = FileScope(relativePath)
 
         // Open tool window if it exists
         ToolWindowManager

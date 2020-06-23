@@ -8,6 +8,7 @@ import com.intellij.util.xmlb.annotations.Attribute
 import nl.tudelft.hyperion.plugin.graphs.HistogramInterval
 import nl.tudelft.hyperion.plugin.graphs.HistogramSettings
 import nl.tudelft.hyperion.plugin.graphs.HistogramSettingsConverter
+import nl.tudelft.hyperion.plugin.graphs.ProjectScope
 
 /**
  * Class that holds persistent states for Hyperion's project scope settings.
@@ -25,7 +26,7 @@ class HyperionSettings(private val relatedProject: Project) : PersistentStateCom
         visualization = HistogramSettings(
             HistogramInterval.HalfHour,
             12,
-            false
+            ProjectScope
         )
     }
 

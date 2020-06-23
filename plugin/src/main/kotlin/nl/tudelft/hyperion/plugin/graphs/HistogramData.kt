@@ -119,7 +119,7 @@ fun parseAPIBinResponse(
 }
 
 /**
- * Groups metrics by severity and sums the counts.
+ * Groups metrics by ordered severity and sums the counts.
  *
  * @param bin the metric bin to modify.
  * @param colorScheme the color scheme used where the key is the severity and
@@ -132,9 +132,14 @@ private fun groupAndParseBin(
     bin: List<BaseAPIMetric>,
     colorScheme: Map<String, Color>,
     defaultColor: Color
-): Array<BinComponent> =
+): Array<BinComponent> = run {
+    val order = colorScheme.keys.toList()
+
     bin
         .groupBy { it.severity }
+        .toSortedMap(compareBy {
+            order.indexOf(it.toLowerCase())
+        })
         .map {
             BinComponent(
                 it.value.map(BaseAPIMetric::count).sum(),
@@ -142,3 +147,4 @@ private fun groupAndParseBin(
                 it.key
             )
         }.toTypedArray()
+}

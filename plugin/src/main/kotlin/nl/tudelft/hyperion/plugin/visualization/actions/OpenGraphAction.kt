@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.wm.ToolWindowManager
+import nl.tudelft.hyperion.plugin.graphs.ProjectScope
 import nl.tudelft.hyperion.plugin.settings.HyperionSettings
 import nl.tudelft.hyperion.plugin.util.HyperionNotifier
 import nl.tudelft.hyperion.plugin.visualization.VisToolWindowFactory
@@ -22,7 +23,7 @@ class OpenGraphAction : AnAction() {
 
         val hyperionSettings = HyperionSettings.getInstance(currentProject)
 
-        hyperionSettings.state.visualization.fileOnly = false
+        hyperionSettings.state.visualization.scope = ProjectScope
 
         // Open tool window if it exists
         ToolWindowManager
