@@ -35,8 +35,30 @@ $ java -jar elasticsearch-all.jar run datasource-es.yml
 ```
 
 ## Docker
+The elasticsearch plugin can be easily built and run using [Docker](https://www.docker.com/). 
 
-If you have a built version of this plugin, you can use the accompanied Dockerfile to set up an image with all pre-requisites installed. Please note that this Dockerfile will not compile the plugin for you.
+### Running the pre-built Docker image
+A pre-built image is available at the [Docker hub repository](https://hub.docker.com/r/sergdelft/hyperion).
+The aggregator image is tagged as `sergdelft/hyperion:datasource-plugins-elasticsearch-<version>`. Please consult the [root README](/README.md) for the latest published version.
+To run this image with `datasource_config.yml` as its configuration execute:
+```shell script
+docker run -it -rm -v ${PWD}/datasource_config.yml:/root/config.yml sergdelft/hyperion:datasource-plugins-datasource-0.1.0
+```
+
+### Building the Docker image yourself
+The included Dockerfile compiles and bundles the plugin. 
+To build it, navigate to the repository root and run the following command:
+
+```shell script
+docker build . -f datasource/plugins/elasticsearch/Dockerfile -t hyperion-elasticsearch:latest
+```
+
+Once building completes, the plugin can be ran using the following command, 
+assuming that the configuration file is located at `elasticsearch_config.yml`:
+
+```shell script
+docker run -it -rm -v ${PWD}/elasticsearch_plugin.yml:/root/config.yml hyperion-elasticsearch:latest
+```
 
 ## Configuration
 

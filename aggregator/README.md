@@ -26,6 +26,31 @@ To run a compiled version of the aggregator, simply launch it using Java:
 java -jar build/aggregator-all.jar
 ```
 
+## Docker
+The aggregator can be easily built and run using [Docker](https://www.docker.com/). 
+
+### Running the pre-built Docker image
+A pre-built image is available at the [Docker hub repository](https://hub.docker.com/r/sergdelft/hyperion).
+The aggregator image is tagged as `sergdelft/hyperion:aggregator-<version>`. Please consult the [root README](/README.md) for the latest published version.
+To run this image with `aggregator_config.yml` as its configuration execute:
+```shell script
+docker run -it -rm -v ${PWD}/aggregator_config.yml:/root/config.yml sergdelft/hyperion:aggregator-0.1.0
+```
+
+### Building the Docker image yourself
+The included Dockerfile compiles and bundles the aggregator. 
+To build it, navigate to the repository root and run the following command:
+
+```shell script
+docker build . -f aggregator/Dockerfile -t hyperion-aggregator:latest
+```
+
+Once building completes, the aggregator can be ran using the following command, 
+assuming that the configuration file is located at `aggregator_config.yml`:
+
+```shell script
+docker run -it -rm -v ${PWD}/aggregator_config.yml:/root/config.yml hyperion-aggregator:latest
+```
 ## Configuration
 
 The aggregator expects a configuration YAML file located at `./configuration.yaml` or in the path defined in the `HYPERION_AGGREGATOR_CONFIG` environment variable.

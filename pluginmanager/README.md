@@ -19,16 +19,29 @@ java -jar build/pluginmanager-all.jar [path to config]
 ```
 
 ## Docker
+The pluginmanager can be easily built and run using [Docker](https://www.docker.com/). 
 
-If you have a built version of this plugin, you can use the accompanied Dockerfile to set up an image with all pre-requisites installed. Please note that this Dockerfile will not compile the plugin for you.
+### Running the pre-built Docker image
+A pre-built image is available at the [Docker hub repository](https://hub.docker.com/r/sergdelft/hyperion).
+The pluginmanager image is tagged as `sergdelft/hyperion:pluginmanager-<version>`. Please consult the [root README](/README.md) for the latest published version.
+To run this image with `pluginmanger_config.yml` as its configuration execute:
+```shell script
+docker run -it -rm -v ${PWD}/pluginmanager_config.yml:/root/config.yml sergdelft/hyperion:pluginmanager-0.1.0
+```
 
-Please note that the docker container for this plugin will load the configuration file from `/root/config.yml` in its container.
-
-A pre-built image is available at dockerhub under `daveter9/hyperion-pluginmanager:0.1.0`.
-To run this image with `pluginmanager_config.yml` as its configuration execute:
+### Building the Docker image yourself
+The included Dockerfile compiles and bundles the pluginmanager. 
+To build it, navigate to the repository root and run the following command:
 
 ```shell script
-docker run -it -rm -v ${PWD}/pluginmanager_config.yml:/root/config.yml daveter9/hyperion-pluginmanager:0.1.0
+docker build . -f pluginmanager/Dockerfile -t hyperion-pluginmanager:latest
+```
+
+Once building completes, the pluginmanager can be ran using the following command, 
+assuming that the configuration file is located at `pluginmanager_config.yml`:
+
+```shell script
+docker run -it -rm -v ${PWD}/pluginmanager_config.yml:/root/config.yml hyperion-pluginmanager:latest
 ```
 
 ## Configuration

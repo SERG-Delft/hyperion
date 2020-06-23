@@ -25,16 +25,29 @@ java -jar build/stresser-all.jar [path to config]
 ```
 
 ## Docker
+The stresser plugin can be easily built and run using [Docker](https://www.docker.com/). 
 
-If you have a built version of this plugin, you can use the accompanied Dockerfile to set up an image with all pre-requisites installed. Please note that this Dockerfile will not compile the plugin for you.
-
-Please note that the docker container for this plugin will load the configuration file from `/root/config.yml` in its container.
-
-A pre-built image is available at dockerhub under `daveter9/hyperion-pipeline-plugins-stresser:0.1.0`.
+### Running the pre-built Docker image
+A pre-built image is available at the [Docker hub repository](https://hub.docker.com/r/sergdelft/hyperion).
+The plugin image is tagged as `sergdelft/hyperion:pipeline-plugins-stresser-<version>`. Please consult the [root README](/README.md) for the latest published version.
 To run this image with `stresser_config.yml` as its configuration execute:
+```shell script
+docker run -it -rm -v ${PWD}/stresser_config.yml:/root/config.yml sergdelft/hyperion:pipeline-plugins-stresser-0.1.0
+```
+
+### Building the Docker image yourself
+The included Dockerfile compiles and bundles the plugin. 
+To build it, navigate to the repository root and run the following command:
 
 ```shell script
-docker run -it -rm -v ${PWD}/stresser_config.yml:/root/config.yml daveter9/hyperion-pipeline-plugins-stresser:0.1.0
+docker build . -f pipeline/plugins/stresser/Dockerfile -t hyperion-stresser:latest
+```
+
+Once building completes, the plugin can be ran using the following command, 
+assuming that the configuration file is located at `stresser_config.yml`:
+
+```shell script
+docker run -it -rm -v ${PWD}/stresser_config.yml:/root/config.yml hyperion-stresser:latest
 ```
 
 ## Configuration
