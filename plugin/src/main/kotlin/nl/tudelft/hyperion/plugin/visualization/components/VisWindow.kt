@@ -60,16 +60,18 @@ class VisWindow {
         //  or make the severities in the aggregator unique
         private val HISTOGRAM_DEFAULT_COLOR: Color = Color.GRAY
         private val HISTOGRAM_COLOR_SCHEME = mapOf(
-            "emerg" to Color.RED,
-            "alert" to Color.RED,
-            "crit" to Color.RED,
-            "err" to Color.RED,
-            "error" to Color.RED,
-            "warn" to Color.ORANGE,
-            "warning" to Color.ORANGE,
-            "notice" to Color.GREEN,
-            "info" to Color.GREEN,
-            "debug" to Color.BLUE
+            "fatal" to Color(255, 0, 0),
+            "emerg" to Color(255, 0, 0),
+            "alert" to Color(200, 0, 0),
+            "crit" to Color(200, 0, 0),
+            "err" to Color(200, 0, 0),
+            "error" to Color(200, 0, 0),
+            "warn" to Color(210, 110, 0),
+            "warning" to Color(210, 110, 0),
+            "notice" to Color(0, 150, 0),
+            "info" to Color(0, 150, 0),
+            "debug" to Color(0, 0, 150),
+            "trace" to Color(0, 0, 150)
         )
 
         private val DATETIME_FORMATTER = DateTimeFormat.forPattern("kk:mm:ss\nMMM dd")
