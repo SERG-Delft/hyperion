@@ -77,10 +77,15 @@ class CodeList {
      */
     fun createUIComponents() {
         metricsTable = JBTable(
-            DefaultTableModel(
+            // Create anonymous inner class to override isCellEditable method.
+            object : DefaultTableModel(
                 arrayOf("Path", "File", "Line Number", "Severity", "Trigger Count"),
                 0
-            )
+            ) {
+                override fun isCellEditable(row: Int, column: Int): Boolean {
+                    return false
+                }
+            }
         )
     }
 
