@@ -17,8 +17,16 @@
           for more information on how to get started.
         ]]>
     </description>
-    <version>1.0.5</version>
-    <change-notes>Made it more clear that the API address should include http:// to work correctly</change-notes>
+    <version>1.1.1</version>
+    <change-notes>
+        <![CDATA[
+        <ul>
+            <li>Change the color pallette for the Visualization Histograms.</li>
+            <li>Changed Related Lines table to a non-editable table.</li>
+        </ul>
+        ]]>
+    </change-notes>
+
     <vendor url="https://se.ewi.tudelft.nl/" email="m.f.aniche@tudelft.nl">serg-delft</vendor>
     <depends>com.intellij.modules.platform</depends>
     <depends>Git4Idea</depends>
