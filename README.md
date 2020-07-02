@@ -25,6 +25,10 @@ Hyperion **is not**:
 
 ![](https://i.imgur.com/mq1xyKW.gif)
 
+## Demo
+
+
+A short demo is available to watch on youtube [here](https://www.youtube.com/watch?v=4KudP8rvp80).
 ## Documentation
 
 There is documentation available for setting up Hyperion and for writing custom plugins, data sources and IDE integrations. Please see the following links:
